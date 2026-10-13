@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan Illustrator — Admin</title>
+<style>
+  :root{
+    --maroon:#7c2434; --maroon-dark:#4c1520; --gold:#b8863a; --gold-light:#e4c988;
+    --bg:#f6f3ee; --card:#ffffff; --ink:#2a2422; --muted:#6b655f; --line:#e7e0d6;
+    --ok:#2f7a4f; --err:#b3261e;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);}
+  header{background:linear-gradient(135deg,var(--maroon),var(--maroon-dark));color:#fff;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;}
+  header h1{font-size:18px;margin:0;font-weight:600;letter-spacing:.2px;}
+  header .role{font-size:12px;opacity:.85;}
+  #logoutBtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;}
+  #logoutBtn:hover{background:rgba(255,255,255,.25);}
+  main{max-width:980px;margin:0 auto;padding:20px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:18px;}
+  .card h2{font-size:15px;margin:0 0 14px;color:var(--maroon-dark);}
+  .card h3{font-size:13px;margin:18px 0 10px;color:var(--muted);text-transform:none;}
+  label{display:block;font-size:12.5px;color:var(--muted);margin:10px 0 4px;}
+  input[type=text],input[type=email],input[type=password],input[type=number],textarea,select{
+    width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;background:#fdfcfa;
+  }
+  textarea{min-height:110px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12.5px;}
+  input[type=color]{width:52px;height:34px;padding:2px;border:1px solid var(--line);border-radius:6px;vertical-align:middle;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;}
+  .row > div{flex:1;min-width:160px;}
+  button.primary{background:var(--maroon);color:#fff;border:none;padding:9px 16px;border-radius:8px;font-size:13.5px;font-weight:600;cursor:pointer;margin-top:12px;}
+  button.primary:hover{background:var(--maroon-dark);}
+  button.ghost{background:transparent;color:var(--maroon);border:1px solid var(--maroon);padding:7px 13px;border-radius:8px;font-size:13px;cursor:pointer;}
+  button.ghost:hover{background:#faf0f0;}
+  button.small{padding:5px 10px;font-size:12px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-weight:600;font-size:12px;}
+  tr.clickable{cursor:pointer;}
+  tr.clickable:hover{background:#faf7f2;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;}
+  .badge.yes{background:#e3f2e8;color:var(--ok);}
+  .badge.no{background:#f7e9e8;color:var(--err);}
+  .badge.active{background:#fbf1dd;color:#8a6412;}
+  .msg{font-size:13px;padding:9px 12px;border-radius:8px;margin-top:10px;}
+  .msg.ok{background:#e3f2e8;color:var(--ok);}
+  .msg.err{background:#f7e9e8;color:var(--err);}
+  .muted{color:var(--muted);font-size:12.5px;}
+  .pill-select{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+  .pill{padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;cursor:pointer;background:#fff;font-family:inherit;}
+  .pill.active{background:var(--maroon);color:#fff;border-color:var(--maroon);}
+  #loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--maroon),var(--maroon-dark));}
+  #loginScreen .box{background:#fff;padding:32px;border-radius:14px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+  #loginScreen h1{font-size:18px;color:var(--maroon-dark);margin:0 0 4px;}
+  #loginScreen p{font-size:12.5px;color:var(--muted);margin:0 0 20px;}
+  .hidden{display:none !important;}
+  .kv{display:grid;grid-template-columns:140px 1fr;gap:4px 12px;font-size:13px;}
+  .kv div.k{color:var(--muted);}
+  .divider{height:1px;background:var(--line);margin:16px 0;}
+  .scenario-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px;}
+  .top-tabs{display:flex;gap:4px;margin-bottom:18px;}
+  .top-tabs button{background:transparent;border:none;padding:9px 16px;font-size:13.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;}
+  .top-tabs button.active{color:var(--maroon-dark);border-bottom-color:var(--maroon);font-weight:600;}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="box" id="loginBox">
+    <h1>Plan Illustrator</h1>
+    <p>Admin console — sign in to manage companies, products, and rate data.</p>
+    <label for="loginEmail">Email</label>
+    <input type="email" id="loginEmail" placeholder="admin@example.com" autocomplete="username">
+    <label for="loginPassword">Password</label>
+    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+    <button class="primary" id="loginBtn" style="width:100%;">Sign in</button>
+    <div id="loginMsg"></div>
+    <p style="margin:14px 0 0;text-align:center;"><a href="#" id="showForgotLink" style="font-size:12.5px;color:var(--maroon);">Forgot password?</a></p>
+  </div>
+  <div class="box hidden" id="forgotBox">
+    <h1>Reset your password</h1>
+    <p>Enter your admin email and we'll send a reset link.</p>
+    <label for="forgotEmail">Email</label>
+    <input type="email" id="forgotEmail" placeholder="admin@example.com" autocomplete="username">
+    <button class="primary" id="forgotBtn" style="width:100%;">Send reset link</button>
+    <div id="forgotMsg"></div>
+    <p style="margin:14px 0 0;text-align:center;"><a href="#" id="backToLoginLink" style="font-size:12.5px;color:var(--maroon);">Back to sign in</a></p>
+  </div>
+  <div class="box hidden" id="resetBox">
+    <h1>Set a new password</h1>
+    <p id="resetForEmail" style="margin:0 0 20px;"></p>
+    <label for="resetNewPassword">New password (at least 8 characters)</label>
+    <input type="password" id="resetNewPassword" autocomplete="new-password">
+    <button class="primary" id="resetBtn" style="width:100%;">Set new password</button>
+    <div id="resetMsg"></div>
+    <p style="margin:14px 0 0;text-align:center;"><a href="#" id="backToLoginLink2" style="font-size:12.5px;color:var(--maroon);">Back to sign in</a></p>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header>
+    <div>
+      <h1>Plan Illustrator — Admin</h1>
+      <div class="role" id="roleLine"></div>
+    </div>
+    <button id="logoutBtn">Sign out</button>
+  </header>
+  <main>
+    <div class="top-tabs" id="topTabs">
+      <button data-tab="companies" class="active">Companies</button>
+      <button data-tab="branding">Branding</button>
+      <button data-tab="products">Product lines</button>
+      <button data-tab="agents">Agents</button>
+      <button data-tab="admins">Admin users</button>
+      <button data-tab="account">My account</button>
+    </div>
+
+    <!-- COMPANIES TAB (superadmin only) -->
+    <div id="tab-companies" class="tabpane">
+      <div class="card" id="superadminOnlyCreate">
+        <h2>Create a company</h2>
+        <div class="row">
+          <div><label for="newCoName">Company name</label><input type="text" id="newCoName" placeholder="e.g. Acme Insurance"></div>
+          <div><label for="newCoSlug">Slug (used in URLs, lowercase-hyphenated)</label><input type="text" id="newCoSlug" placeholder="acme-insurance"></div>
+        </div>
+        <button class="primary" id="createCoBtn">Create company</button>
+        <div id="createCoMsg"></div>
+      </div>
+      <div class="card">
+        <h2>Companies</h2>
+        <table id="companiesTable"><thead><tr><th>Name</th><th>Slug</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="companiesEmptyMsg"></p>
+      </div>
+    </div>
+
+    <!-- BRANDING TAB -->
+    <div id="tab-branding" class="tabpane hidden">
+      <div class="card">
+        <h2>Active company</h2>
+        <label for="brandingCoSelect">Working on</label>
+        <select id="brandingCoSelect"></select>
+      </div>
+      <div class="card" id="brandingForm">
+        <h2>White-label branding</h2>
+        <div class="row">
+          <div><label for="brName">Display name</label><input type="text" id="brName"></div>
+          <div><label for="brLogo">Logo URL</label><input type="text" id="brLogo" placeholder="https://..."></div>
+        </div>
+        <div class="row">
+          <div><label for="brPrimary">Primary color</label><input type="color" id="brPrimary"></div>
+          <div><label for="brSecondary">Secondary color</label><input type="color" id="brSecondary"></div>
+          <div><label for="brAccent">Accent color</label><input type="color" id="brAccent"></div>
+        </div>
+        <div class="row">
+          <div><label for="brCurrency">Currency code</label><input type="text" id="brCurrency" placeholder="KES" maxlength="3" style="text-transform:uppercase"></div>
+          <div><label for="brLocale">Locale</label><input type="text" id="brLocale" placeholder="en-KE"></div>
+        </div>
+        <p style="font-size:0.85em;color:#666;margin-top:-6px">
+          Currency and locale control number/currency display formatting only. They do not change the
+          underlying rate tables or tax rules (e.g. the Kenya Revenue Authority relief calculation),
+          which are specific to this product's Kenyan data and would need separate work to support
+          another market.
+        </p>
+        <label for="brFooter">Footer / contact line (printed on illustrations)</label>
+        <input type="text" id="brFooter" placeholder="e.g. Acme Insurance Ltd · Nairobi · support@acme.co.ke">
+        <label for="brDisclaimer">Disclaimer text (printed on illustrations)</label>
+        <textarea id="brDisclaimer" placeholder="This illustration is indicative and not a contractual document..."></textarea>
+        <button class="primary" id="saveBrandingBtn">Save branding</button>
+        <div id="brandingMsg"></div>
+      </div>
+    </div>
+
+    <!-- PRODUCT LINES TAB -->
+    <div id="tab-products" class="tabpane hidden">
+      <div class="card">
+        <h2>Active company</h2>
+        <label for="productsCoSelect">Working on</label>
+        <select id="productsCoSelect"></select>
+      </div>
+      <div class="card">
+        <h2>Add a product line</h2>
+        <div class="row">
+          <div>
+            <span id="engineTypeLabel" class="flabel" style="display:block;font-size:12.5px;color:var(--muted);margin:10px 0 4px;">Engine type</span>
+            <div class="pill-select" id="engineTypePicker" role="radiogroup" aria-labelledby="engineTypeLabel">
+              <button type="button" class="pill active" role="radio" aria-checked="true" data-val="fanaka">Fanaka</button>
+              <button type="button" class="pill" role="radio" aria-checked="false" data-val="faida">Faida (unit-linked)</button>
+              <button type="button" class="pill" role="radio" aria-checked="false" data-val="smartsave">Smart Save/Scholar</button>
+            </div>
+          </div>
+          <div><label for="newLineName">Display name</label><input type="text" id="newLineName" placeholder="e.g. Fanaka Education Plan"></div>
+        </div>
+        <button class="primary" id="createLineBtn">Add product line</button>
+        <div id="createLineMsg"></div>
+      </div>
+      <div class="card">
+        <h2>Product lines</h2>
+        <table id="linesTable"><thead><tr><th>Name</th><th>Engine</th><th>Status</th><th></th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="linesEmptyMsg"></p>
+      </div>
+      <div class="card hidden" id="versionsCard">
+        <h2 id="versionsTitle">Rate data versions</h2>
+        <h3>Scan a workbook (optional — auto-fills the rate data below)</h3>
+        <p class="muted">Upload the original .xlsx/.xlsm. The scanner looks for a flat rate table (age/term/rate-style columns) and extracts it automatically; anything it can't confidently map is listed as a warning for you to fill in by hand. This drafts the JSON below — it never uploads anything by itself.</p>
+        <input type="file" id="workbookFile" accept=".xlsx,.xlsm,.xls">
+        <button class="ghost small" id="scanWorkbookBtn" style="margin-top:10px;">Scan workbook</button>
+        <div id="scanMsg"></div>
+        <div id="scanPreview" class="hidden" style="margin-top:12px;">
+          <h3>Sheets found</h3>
+          <div id="scanSheetsSummary" class="muted" style="font-size:12.5px;"></div>
+        </div>
+
+        <div class="divider"></div>
+        <h3>Upload a new version</h3>
+        <label for="newVersionFilename">Source filename (for your records — e.g. the original workbook name)</label>
+        <input type="text" id="newVersionFilename" placeholder="FANAKA_2026.xlsm">
+        <label for="newVersionData">Rate data (JSON) — paste the structured data extracted from the workbook, or scan one above</label>
+        <textarea id="newVersionData" placeholder='{"plans": [...], "prates": [...]}'></textarea>
+        <label for="newVersionNotes">Mapping notes (optional — what you changed / how it was derived)</label>
+        <input type="text" id="newVersionNotes">
+        <button class="primary" id="uploadVersionBtn">Upload version</button>
+        <div id="uploadVersionMsg"></div>
+
+        <div class="divider"></div>
+        <h3>Existing versions</h3>
+        <table id="versionsTable"><thead><tr><th>#</th><th>Source</th><th>Validated</th><th>Status</th><th>Uploaded</th><th></th></tr></thead><tbody></tbody></table>
+
+        <div class="divider"></div>
+        <div id="validatePanel" class="hidden">
+          <h3>Validate version <span id="validatingVersionLabel"></span></h3>
+          <p class="muted">A version cannot be activated until it reproduces at least one real reference scenario exactly. Enter the scenario's input and the figures from the real printed illustration PDF it came from.</p>
+          <div id="scenarioRows"></div>
+          <button class="ghost small" id="addScenarioBtn">+ Add scenario</button>
+          <br>
+          <button class="primary" id="runValidateBtn">Run validation</button>
+          <div id="validateMsg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENTS TAB -->
+    <div id="tab-agents" class="tabpane hidden">
+      <div class="card">
+        <h2>Active company</h2>
+        <label for="agentsCoSelect">Working on</label>
+        <select id="agentsCoSelect"></select>
+      </div>
+      <div class="card">
+        <h2>Registered agents</h2>
+        <table id="agentsTable"><thead><tr><th>Name</th><th>Phone</th><th>Verified</th><th>Terms accepted</th><th>Registered</th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="agentsEmptyMsg"></p>
+      </div>
+      <div class="card">
+        <h2>SMS outbox <span class="muted" style="font-weight:400;">— monitoring for OTP delivery</span></h2>
+        <p class="muted">In development (no real SMS gateway configured), this is the actual delivery mechanism — codes appear here instead of on a phone. Once a real provider (e.g. Africa's Talking) is configured in production, this becomes a send log; message bodies still appear here for audit, since whoever can see this screen is already an authenticated admin.</p>
+        <table id="outboxTable"><thead><tr><th>Phone</th><th>Message</th><th>Provider</th><th>Status</th><th>Sent</th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="outboxEmptyMsg"></p>
+        <button class="ghost small" id="refreshOutboxBtn">Refresh</button>
+      </div>
+    </div>
+
+    <!-- ADMIN USERS TAB -->
+    <div id="tab-admins" class="tabpane hidden">
+      <div class="card">
+        <h2>Active company</h2>
+        <label for="adminsCoSelect">Working on</label>
+        <select id="adminsCoSelect"></select>
+      </div>
+      <div class="card">
+        <h2>Add an admin for this company</h2>
+        <div class="row">
+          <div><label for="newAdminEmail">Email</label><input type="email" id="newAdminEmail" placeholder="colleague@company.com"></div>
+          <div><label for="newAdminPassword">Temporary password</label><input type="text" id="newAdminPassword" placeholder="At least 8 characters"></div>
+        </div>
+        <p class="muted">They'll sign in with this email and password, then should change it under "My account."</p>
+        <button class="primary" id="createAdminBtn">Create admin</button>
+        <div id="createAdminMsg"></div>
+      </div>
+      <div class="card">
+        <h2>Admins for this company</h2>
+        <table id="adminsTable"><thead><tr><th>Email</th><th>Status</th><th>Last login</th><th></th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="adminsEmptyMsg"></p>
+      </div>
+      <div class="card">
+        <h2>Outstanding password-reset requests</h2>
+        <p class="muted">A reset link that's been sent (self-service or triggered by a colleague) but not yet used to actually set a new password. Read-only — this doesn't cancel or complete anything, it's just visibility into who's mid-reset.</p>
+        <table id="resetRequestsTable"><thead><tr><th>Admin</th><th>How it started</th><th>Requested</th></tr></thead><tbody></tbody></table>
+        <p class="muted" id="resetRequestsEmptyMsg"></p>
+      </div>
+    </div>
+
+    <!-- MY ACCOUNT TAB -->
+    <div id="tab-account" class="tabpane hidden">
+      <div class="card">
+        <h2>Signed in as</h2>
+        <div class="kv"><div class="k">Email</div><div id="meEmail">—</div><div class="k">Role</div><div id="meRole">—</div></div>
+      </div>
+      <div class="card">
+        <h2>Change password</h2>
+        <label for="currentPassword">Current password</label>
+        <input type="password" id="currentPassword" autocomplete="current-password">
+        <label for="newPassword">New password (at least 8 characters)</label>
+        <input type="password" id="newPassword" autocomplete="new-password">
+        <button class="primary" id="changePasswordBtn">Change password</button>
+        <div id="changePasswordMsg"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+// Point this at your deployed backend when hosting (see docs/deployment.md).
+// Left relative so the panel works out of the box when served by the same
+// Express app it manages (see backend/server.js static hosting note).
+const API_BASE = window.ADMIN_API_BASE || '';
+
+let state = { token: null, role: null, companyId: null, companies: [], selectedCompanyId: null, selectedLineId: null, scenarios: [] };
+
+function authHeaders(){ return state.token ? { 'Authorization': 'Bearer ' + state.token } : {}; }
+async function api(path, opts){
+  opts = opts || {};
+  const headers = Object.assign({ 'Content-Type': 'application/json' }, authHeaders(), opts.headers || {});
+  const res = await fetch(API_BASE + path, Object.assign({}, opts, { headers }));
+  let body = null;
+  try { body = await res.json(); } catch(e){ /* no body */ }
+  if(!res.ok) throw new Error((body && body.error) || ('Request failed: ' + res.status));
+  return body;
+}
+function showMsg(el, text, ok){
+  el.innerHTML = '<div class="msg ' + (ok ? 'ok' : 'err') + '" role="status" aria-live="polite">' + text + '</div>';
+  setTimeout(() => { el.innerHTML = ''; }, 6000);
+}
+
+// ---------- AUTH ----------
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginPassword').addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
+async function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const msgEl = document.getElementById('loginMsg');
+  try{
+    const result = await api('/api/auth/admin/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+    state.token = result.token; state.role = result.role; state.companyId = result.companyId;
+    sessionStorage.setItem('adminSession', JSON.stringify(state));
+    enterApp();
+  } catch(e){ showMsg(msgEl, e.message, false); }
+}
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.removeItem('adminSession');
+  location.reload();
+});
+
+// ---------- FORGOT / RESET PASSWORD ----------
+function showLoginBox(which){
+  document.getElementById('loginBox').classList.toggle('hidden', which !== 'login');
+  document.getElementById('forgotBox').classList.toggle('hidden', which !== 'forgot');
+  document.getElementById('resetBox').classList.toggle('hidden', which !== 'reset');
+}
+document.getElementById('showForgotLink').addEventListener('click', (e) => { e.preventDefault(); showLoginBox('forgot'); });
+document.getElementById('backToLoginLink').addEventListener('click', (e) => { e.preventDefault(); showLoginBox('login'); });
+document.getElementById('backToLoginLink2').addEventListener('click', (e) => { e.preventDefault(); showLoginBox('login'); });
+
+document.getElementById('forgotBtn').addEventListener('click', async () => {
+  const email = document.getElementById('forgotEmail').value.trim();
+  const msgEl = document.getElementById('forgotMsg');
+  if(!email) return showMsg(msgEl, 'Enter your email first.', false);
+  try{
+    const result = await api('/api/auth/admin/forgot-password', { method: 'POST', body: JSON.stringify({ email }) });
+    if(result.devResetToken){
+      // Dev/console mode only — in production this never arrives here, the admin opens the
+      // emailed link instead, which lands back on this page with ?resetEmail=&resetToken=.
+      document.getElementById('resetForEmail').textContent = `Resetting password for ${email} (dev mode — no real email was sent).`;
+      pendingReset = { email, token: result.devResetToken };
+      showLoginBox('reset');
+    } else {
+      showMsg(msgEl, 'If that email has an account, a reset link has been sent.', true);
+    }
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+let pendingReset = null;
+document.getElementById('resetBtn').addEventListener('click', async () => {
+  const newPassword = document.getElementById('resetNewPassword').value;
+  const msgEl = document.getElementById('resetMsg');
+  if(!pendingReset) return showMsg(msgEl, 'Missing reset link details. Request a new one.', false);
+  if(!newPassword || newPassword.length < 8) return showMsg(msgEl, 'New password must be at least 8 characters.', false);
+  try{
+    await api('/api/auth/admin/reset-password', { method: 'POST', body: JSON.stringify({ email: pendingReset.email, token: pendingReset.token, newPassword }) });
+    pendingReset = null;
+    document.getElementById('resetNewPassword').value = '';
+    showLoginBox('login');
+    showMsg(document.getElementById('loginMsg'), 'Password reset. Sign in with your new password.', true);
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+(function checkResetLinkInUrl(){
+  const params = new URLSearchParams(location.search);
+  const resetEmail = params.get('resetEmail');
+  const resetToken = params.get('resetToken');
+  if(resetEmail && resetToken){
+    pendingReset = { email: resetEmail, token: resetToken };
+    document.getElementById('resetForEmail').textContent = `Setting a new password for ${resetEmail}.`;
+    showLoginBox('reset');
+    // Clean the token out of the visible URL/history once read.
+    history.replaceState(null, '', location.pathname);
+  }
+})();
+
+(function tryResume(){
+  const saved = sessionStorage.getItem('adminSession');
+  if(saved){ try{ state = JSON.parse(saved); enterApp(); } catch(e){} }
+})();
+
+function enterApp(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('roleLine').textContent = state.role === 'superadmin' ? 'Superadmin — all companies' : ('Company admin — company #' + state.companyId);
+  if(state.role !== 'superadmin'){
+    document.getElementById('superadminOnlyCreate').classList.add('hidden');
+    document.querySelector('[data-tab="companies"]').classList.add('hidden');
+    switchTab('branding');
+  }
+  loadCompanies();
+  loadMyAccount();
+}
+
+// ---------- TABS ----------
+document.getElementById('topTabs').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-tab]');
+  if(!btn) return;
+  switchTab(btn.dataset.tab);
+});
+function switchTab(name){
+  document.querySelectorAll('#topTabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.tabpane').forEach(p => p.classList.toggle('hidden', p.id !== 'tab-' + name));
+}
+
+// ---------- COMPANIES ----------
+async function loadCompanies(){
+  try{
+    if(state.role === 'superadmin'){
+      state.companies = await api('/api/companies');
+    } else {
+      state.companies = [await api('/api/companies/' + state.companyId)];
+    }
+  } catch(e){ state.companies = []; }
+  renderCompaniesTable();
+  populateCompanySelects();
+}
+function renderCompaniesTable(){
+  const tbody = document.querySelector('#companiesTable tbody');
+  tbody.innerHTML = '';
+  document.getElementById('companiesEmptyMsg').textContent = state.companies.length ? '' : 'No companies yet. Create the first one above.';
+  state.companies.forEach(co => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + escapeHtml(co.name) + '</td><td>' + escapeHtml(co.slug) + '</td>' +
+      '<td><span class="badge ' + (co.is_active ? 'yes' : 'no') + '">' + (co.is_active ? 'Active' : 'Inactive') + '</span></td>' +
+      '<td><button class="ghost small" data-manage="' + co.id + '">Manage branding</button></td>';
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-manage]').forEach(btn => btn.addEventListener('click', () => {
+    document.getElementById('brandingCoSelect').value = btn.dataset.manage;
+    switchTab('branding');
+    onBrandingCompanyChange();
+  }));
+}
+document.getElementById('createCoBtn').addEventListener('click', async () => {
+  const name = document.getElementById('newCoName').value.trim();
+  const slug = document.getElementById('newCoSlug').value.trim().toLowerCase();
+  const msgEl = document.getElementById('createCoMsg');
+  if(!name || !slug) return showMsg(msgEl, 'Name and slug are required.', false);
+  try{
+    await api('/api/companies', { method: 'POST', body: JSON.stringify({ name, slug }) });
+    document.getElementById('newCoName').value = ''; document.getElementById('newCoSlug').value = '';
+    showMsg(msgEl, 'Company created.', true);
+    loadCompanies();
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+function populateCompanySelects(){
+  ['brandingCoSelect','productsCoSelect','agentsCoSelect','adminsCoSelect'].forEach(id => {
+    const sel = document.getElementById(id);
+    const current = sel.value;
+    sel.innerHTML = state.companies.map(co => '<option value="' + co.id + '">' + escapeHtml(co.name) + '</option>').join('');
+    if(current) sel.value = current;
+  });
+  if(state.companies.length){
+    onBrandingCompanyChange();
+    onProductsCompanyChange();
+    onAgentsCompanyChange();
+    onAdminsCompanyChange();
+  }
+}
+document.getElementById('brandingCoSelect').addEventListener('change', onBrandingCompanyChange);
+document.getElementById('productsCoSelect').addEventListener('change', onProductsCompanyChange);
+document.getElementById('agentsCoSelect').addEventListener('change', onAgentsCompanyChange);
+document.getElementById('adminsCoSelect').addEventListener('change', onAdminsCompanyChange);
+
+// ---------- ADMIN USERS ----------
+function onAdminsCompanyChange(){
+  loadAdmins(document.getElementById('adminsCoSelect').value);
+  loadResetRequests(document.getElementById('adminsCoSelect').value);
+}
+async function loadResetRequests(companyId){
+  if(!companyId) return;
+  let requests = [];
+  try{ requests = await api('/api/companies/' + companyId + '/password-reset-requests'); } catch(e){}
+  const tbody = document.querySelector('#resetRequestsTable tbody');
+  tbody.innerHTML = '';
+  document.getElementById('resetRequestsEmptyMsg').textContent = requests.length ? '' : 'No outstanding reset requests.';
+  const howMap = { 'admin.password_reset_requested': 'Self-service', 'admin.password_reset_sent_by_colleague': 'Sent by a colleague' };
+  requests.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + escapeHtml(r.email || ('admin #' + r.admin_id)) + '</td>' +
+      '<td>' + (howMap[r.action] || escapeHtml(r.action)) + '</td>' +
+      '<td>' + escapeHtml(r.created_at) + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+async function loadAdmins(companyId){
+  if(!companyId) return;
+  let admins = [];
+  try{ admins = await api('/api/companies/' + companyId + '/admins'); } catch(e){}
+  const tbody = document.querySelector('#adminsTable tbody');
+  tbody.innerHTML = '';
+  document.getElementById('adminsEmptyMsg').textContent = admins.length ? '' : 'No admins yet for this company.';
+  admins.forEach(a => {
+    const tr = document.createElement('tr');
+    const isSelf = state.role !== 'superadmin' && String(a.id) === String(state.adminId);
+    tr.innerHTML = '<td>' + escapeHtml(a.email) + (isSelf ? ' <span class="muted">(you)</span>' : '') + '</td>' +
+      '<td><span class="badge ' + (a.is_active ? 'yes' : 'no') + '">' + (a.is_active ? 'Active' : 'Deactivated') + '</span></td>' +
+      '<td>' + (a.last_login_at || 'Never') + '</td>' +
+      '<td>' +
+        (a.is_active ? '<button class="ghost small" data-reset="' + a.id + '" data-email="' + escapeHtml(a.email) + '">Send reset</button> ' : '') +
+        (a.is_active ? '<button class="ghost small" data-deactivate="' + a.id + '">Deactivate</button>' : '') +
+      '</td>';
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-deactivate]').forEach(btn => btn.addEventListener('click', async () => {
+    if(!confirm('Deactivate this admin? They will no longer be able to sign in.')) return;
+    try{
+      await api('/api/companies/' + companyId + '/admins/' + btn.dataset.deactivate, { method: 'PATCH', body: JSON.stringify({ isActive: false }) });
+      loadAdmins(companyId);
+    } catch(e){ alert(e.message); }
+  }));
+  tbody.querySelectorAll('[data-reset]').forEach(btn => btn.addEventListener('click', async () => {
+    try{
+      const result = await api('/api/companies/' + companyId + '/admins/' + btn.dataset.reset + '/send-reset', { method: 'POST' });
+      alert(result.devResetToken
+        ? `Dev mode — no real email sent. Reset link for ${btn.dataset.email}:\n${location.origin}${location.pathname}?resetEmail=${encodeURIComponent(btn.dataset.email)}&resetToken=${result.devResetToken}`
+        : `A reset link was emailed to ${btn.dataset.email}.`);
+      loadResetRequests(companyId);
+    } catch(e){ alert(e.message); }
+  }));
+}
+document.getElementById('createAdminBtn').addEventListener('click', async () => {
+  const companyId = document.getElementById('adminsCoSelect').value;
+  const email = document.getElementById('newAdminEmail').value.trim();
+  const password = document.getElementById('newAdminPassword').value;
+  const msgEl = document.getElementById('createAdminMsg');
+  if(!companyId) return showMsg(msgEl, 'Select a company first.', false);
+  if(!email || !password) return showMsg(msgEl, 'Email and password are required.', false);
+  try{
+    await api('/api/companies/' + companyId + '/admins', { method: 'POST', body: JSON.stringify({ email, password }) });
+    document.getElementById('newAdminEmail').value = ''; document.getElementById('newAdminPassword').value = '';
+    showMsg(msgEl, 'Admin created.', true);
+    loadAdmins(companyId);
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+// ---------- MY ACCOUNT ----------
+async function loadMyAccount(){
+  try{
+    const me = await api('/api/admin/me');
+    state.adminId = me.id;
+    document.getElementById('meEmail').textContent = me.email;
+    document.getElementById('meRole').textContent = me.role === 'superadmin' ? 'Superadmin' : 'Company admin';
+  } catch(e){ /* non-fatal */ }
+}
+document.getElementById('changePasswordBtn').addEventListener('click', async () => {
+  const currentPassword = document.getElementById('currentPassword').value;
+  const newPassword = document.getElementById('newPassword').value;
+  const msgEl = document.getElementById('changePasswordMsg');
+  if(!currentPassword || !newPassword) return showMsg(msgEl, 'Both fields are required.', false);
+  try{
+    await api('/api/admin/me/change-password', { method: 'POST', body: JSON.stringify({ currentPassword, newPassword }) });
+    document.getElementById('currentPassword').value = ''; document.getElementById('newPassword').value = '';
+    showMsg(msgEl, 'Password changed.', true);
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+// ---------- BRANDING ----------
+function onBrandingCompanyChange(){
+  const id = document.getElementById('brandingCoSelect').value;
+  const co = state.companies.find(c => String(c.id) === String(id));
+  if(!co) return;
+  document.getElementById('brName').value = co.name || '';
+  document.getElementById('brLogo').value = co.logo_url || '';
+  document.getElementById('brPrimary').value = co.color_primary || '#7c2434';
+  document.getElementById('brSecondary').value = co.color_secondary || '#4c1520';
+  document.getElementById('brAccent').value = co.color_accent || '#b8863a';
+  document.getElementById('brFooter').value = co.contact_footer || '';
+  document.getElementById('brDisclaimer').value = co.disclaimer_text || '';
+  document.getElementById('brCurrency').value = co.currency_code || 'KES';
+  document.getElementById('brLocale').value = co.locale || 'en-KE';
+}
+document.getElementById('saveBrandingBtn').addEventListener('click', async () => {
+  const id = document.getElementById('brandingCoSelect').value;
+  const msgEl = document.getElementById('brandingMsg');
+  if(!id) return showMsg(msgEl, 'Select a company first.', false);
+  try{
+    const updated = await api('/api/companies/' + id, { method: 'PATCH', body: JSON.stringify({
+      name: document.getElementById('brName').value.trim(),
+      logoUrl: document.getElementById('brLogo').value.trim(),
+      colorPrimary: document.getElementById('brPrimary').value,
+      colorSecondary: document.getElementById('brSecondary').value,
+      colorAccent: document.getElementById('brAccent').value,
+      contactFooter: document.getElementById('brFooter').value.trim(),
+      disclaimerText: document.getElementById('brDisclaimer').value.trim(),
+      currencyCode: document.getElementById('brCurrency').value.trim().toUpperCase(),
+      locale: document.getElementById('brLocale').value.trim()
+    })});
+    const idx = state.companies.findIndex(c => String(c.id) === String(id));
+    if(idx >= 0) state.companies[idx] = updated;
+    showMsg(msgEl, 'Branding saved.', true);
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+// ---------- PRODUCT LINES ----------
+let selectedEngineType = 'fanaka';
+document.getElementById('engineTypePicker').addEventListener('click', e => {
+  const pill = e.target.closest('.pill'); if(!pill) return;
+  document.querySelectorAll('#engineTypePicker .pill').forEach(p => { p.classList.remove('active'); p.setAttribute('aria-checked', 'false'); });
+  pill.classList.add('active');
+  pill.setAttribute('aria-checked', 'true');
+  selectedEngineType = pill.dataset.val;
+});
+function onProductsCompanyChange(){
+  state.selectedCompanyId = document.getElementById('productsCoSelect').value;
+  document.getElementById('versionsCard').classList.add('hidden');
+  loadLines();
+}
+async function loadLines(){
+  if(!state.selectedCompanyId) return;
+  let lines = [];
+  try{ lines = await api('/api/companies/' + state.selectedCompanyId + '/product-lines'); } catch(e){}
+  state.lines = lines;
+  const tbody = document.querySelector('#linesTable tbody');
+  tbody.innerHTML = '';
+  document.getElementById('linesEmptyMsg').textContent = lines.length ? '' : 'No product lines yet for this company.';
+  lines.forEach(line => {
+    const tr = document.createElement('tr');
+    tr.className = 'clickable';
+    tr.innerHTML = '<td>' + escapeHtml(line.display_name) + '</td><td>' + line.engine_type + '</td>' +
+      '<td><span class="badge ' + (line.is_active ? 'active' : 'no') + '">' + (line.is_active ? 'Live' : 'No active version') + '</span></td>' +
+      '<td><button class="ghost small" data-open="' + line.id + '">Manage versions</button></td>';
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-open]').forEach(btn => btn.addEventListener('click', () => openVersions(btn.dataset.open)));
+}
+document.getElementById('createLineBtn').addEventListener('click', async () => {
+  const displayName = document.getElementById('newLineName').value.trim();
+  const msgEl = document.getElementById('createLineMsg');
+  if(!state.selectedCompanyId) return showMsg(msgEl, 'Select a company first.', false);
+  if(!displayName) return showMsg(msgEl, 'Display name is required.', false);
+  try{
+    await api('/api/companies/' + state.selectedCompanyId + '/product-lines', { method: 'POST', body: JSON.stringify({ engineType: selectedEngineType, displayName }) });
+    document.getElementById('newLineName').value = '';
+    showMsg(msgEl, 'Product line added.', true);
+    loadLines();
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+async function openVersions(lineId){
+  state.selectedLineId = lineId;
+  const line = state.lines.find(l => String(l.id) === String(lineId));
+  document.getElementById('versionsCard').classList.remove('hidden');
+  document.getElementById('versionsTitle').textContent = 'Rate data versions — ' + (line ? line.display_name : '');
+  document.getElementById('validatePanel').classList.add('hidden');
+  await loadVersions();
+}
+async function loadVersions(){
+  let versions = [];
+  try{ versions = await api('/api/product-lines/' + state.selectedLineId + '/versions'); } catch(e){}
+  const tbody = document.querySelector('#versionsTable tbody');
+  tbody.innerHTML = '';
+  versions.forEach(v => {
+    const status = v.activated_at && !v.superseded_at ? 'Active' : (v.superseded_at ? 'Superseded' : 'Not activated');
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>v' + v.version_number + '</td><td>' + escapeHtml(v.source_filename || '—') + '</td>' +
+      '<td><span class="badge ' + (v.validated ? 'yes' : 'no') + '">' + (v.validated ? 'Validated' : 'Not validated') + '</span></td>' +
+      '<td>' + status + '</td><td>' + (v.created_at || '') + '</td>' +
+      '<td>' + (v.validated ? '' : '<button class="ghost small" data-val="' + v.id + '">Validate</button>') +
+      (v.validated && status !== 'Active' ? ' <button class="primary" style="margin:0;padding:5px 10px;font-size:12px;" data-act="' + v.id + '">Activate</button>' : '') + '</td>';
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('[data-val]').forEach(btn => btn.addEventListener('click', () => openValidate(btn.dataset.val)));
+  tbody.querySelectorAll('[data-act]').forEach(btn => btn.addEventListener('click', () => activateVersion(btn.dataset.act)));
+}
+document.getElementById('scanWorkbookBtn').addEventListener('click', async () => {
+  const fileInput = document.getElementById('workbookFile');
+  const msgEl = document.getElementById('scanMsg');
+  if(!fileInput.files.length) return showMsg(msgEl, 'Choose a workbook file first.', false);
+  const form = new FormData();
+  form.append('workbook', fileInput.files[0]);
+  try{
+    const res = await fetch(API_BASE + '/api/product-lines/' + state.selectedLineId + '/scan-workbook', {
+      method: 'POST', headers: authHeaders(), body: form
+    });
+    const result = await res.json();
+    if(!res.ok) throw new Error(result.error || 'Scan failed.');
+
+    document.getElementById('scanPreview').classList.remove('hidden');
+    document.getElementById('scanSheetsSummary').innerHTML = result.sheets.map(s =>
+      '<div style="margin-bottom:6px;"><strong>' + escapeHtml(s.name) + '</strong> — ' + s.rowCount + ' rows. Headers: ' + escapeHtml((s.headers || []).join(', ')) + '</div>'
+    ).join('');
+
+    if(!document.getElementById('newVersionFilename').value) document.getElementById('newVersionFilename').value = result.sourceFilename || '';
+
+    if(result.extracted){
+      const draft = { prates: result.extracted.rows, _note: 'Draft from workbook scan — review these rows, then add plan metadata (names, min/max age, min/max term, etc.) that the scanner could not infer, and remove this _note field before saving.' };
+      document.getElementById('newVersionData').value = JSON.stringify(draft, null, 2);
+    }
+    const notesEl = document.getElementById('newVersionNotes');
+    notesEl.value = result.warnings.join(' | ');
+    showMsg(msgEl, result.extracted ? ('Extracted ' + result.extracted.rows.length + ' rate rows as a draft below — review before uploading.') : 'No auto-extractable rate table found — see sheet preview below and build the JSON manually.', !!result.extracted);
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+document.getElementById('uploadVersionBtn').addEventListener('click', async () => {
+  const msgEl = document.getElementById('uploadVersionMsg');
+  const sourceFilename = document.getElementById('newVersionFilename').value.trim();
+  const mappingNotes = document.getElementById('newVersionNotes').value.trim();
+  const raw = document.getElementById('newVersionData').value.trim();
+  if(!raw) return showMsg(msgEl, 'Paste the rate data JSON first.', false);
+  let dataJson;
+  try{ dataJson = JSON.parse(raw); } catch(e){ return showMsg(msgEl, 'That is not valid JSON: ' + e.message, false); }
+  try{
+    await api('/api/product-lines/' + state.selectedLineId + '/versions', { method: 'POST', body: JSON.stringify({ dataJson, sourceFilename, mappingNotes }) });
+    document.getElementById('newVersionData').value = '';
+    showMsg(msgEl, 'Version uploaded. It must be validated before it can go live.', true);
+    loadVersions(); loadLines();
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+
+let validatingVersionId = null;
+function openValidate(versionId){
+  validatingVersionId = versionId;
+  document.getElementById('validatePanel').classList.remove('hidden');
+  document.getElementById('validatingVersionLabel').textContent = '#' + versionId;
+  state.scenarios = [];
+  document.getElementById('scenarioRows').innerHTML = '';
+  addScenarioRow();
+  document.getElementById('validatePanel').scrollIntoView({ behavior: 'smooth' });
+}
+document.getElementById('addScenarioBtn').addEventListener('click', addScenarioRow);
+function addScenarioRow(){
+  const idx = state.scenarios.length;
+  state.scenarios.push({ input: '', expected: '', tolerance: 0 });
+  const row = document.createElement('div');
+  row.className = 'scenario-row';
+  row.innerHTML =
+    '<div><label>Input (JSON)<input type="text" class="sc-input" placeholder=\'{"age":35,"term":5,"premium":20000}\'></label></div>' +
+    '<div><label>Expected (JSON, dot-path keys)<input type="text" class="sc-expected" placeholder=\'{"sumAssured":991746}\'></label></div>' +
+    '<div><label>Tolerance (shillings)<input type="number" class="sc-tolerance" value="0"></label></div>' +
+    '<div><button class="ghost small" data-remove="' + idx + '">Remove</button></div>';
+  row.dataset.idx = idx;
+  document.getElementById('scenarioRows').appendChild(row);
+  row.querySelector('[data-remove]').addEventListener('click', () => row.remove());
+}
+document.getElementById('runValidateBtn').addEventListener('click', async () => {
+  const msgEl = document.getElementById('validateMsg');
+  const rows = document.querySelectorAll('#scenarioRows .scenario-row');
+  const scenarios = [];
+  try{
+    for(const row of rows){
+      const input = JSON.parse(row.querySelector('.sc-input').value || '{}');
+      const expected = JSON.parse(row.querySelector('.sc-expected').value || '{}');
+      const tolerance = Number(row.querySelector('.sc-tolerance').value) || 0;
+      scenarios.push({ input, expected, tolerance });
+    }
+  } catch(e){ return showMsg(msgEl, 'A scenario field is not valid JSON: ' + e.message, false); }
+  if(!scenarios.length) return showMsg(msgEl, 'Add at least one scenario from a real printed illustration PDF.', false);
+  try{
+    const result = await api('/api/product-lines/' + state.selectedLineId + '/versions/' + validatingVersionId + '/validate', { method: 'POST', body: JSON.stringify({ scenarios }) });
+    if(result.validated){
+      showMsg(msgEl, 'All scenarios matched. This version can now be activated.', true);
+    } else {
+      const mismatches = result.results.flatMap(r => (r.mismatches||[]).map(m => m.key + ': expected ' + m.expected + ', got ' + m.actual)).concat(result.results.filter(r=>r.error).map(r=>'Error: '+r.error));
+      showMsg(msgEl, 'Did not pass: ' + (mismatches.join('; ') || 'see details'), false);
+    }
+    loadVersions();
+  } catch(e){ showMsg(msgEl, e.message, false); }
+});
+async function activateVersion(versionId){
+  if(!confirm('Activate this version? It will go live immediately and replace the current one.')) return;
+  try{
+    await api('/api/product-lines/' + state.selectedLineId + '/versions/' + versionId + '/activate', { method: 'POST' });
+    loadVersions(); loadLines();
+  } catch(e){ alert(e.message); }
+}
+
+// ---------- AGENTS ----------
+function onAgentsCompanyChange(){
+  const id = document.getElementById('agentsCoSelect').value;
+  loadAgents(id);
+  loadOutbox(id);
+}
+async function loadAgents(companyId){
+  if(!companyId) return;
+  let agents = [];
+  try{ agents = await api('/api/companies/' + companyId + '/agents'); } catch(e){}
+  const tbody = document.querySelector('#agentsTable tbody');
+  tbody.innerHTML = '';
+  document.getElementById('agentsEmptyMsg').textContent = agents.length ? '' : 'No agents registered yet for this company.';
+  agents.forEach(a => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + escapeHtml(a.name) + '</td><td>' + escapeHtml(a.phone) + '</td>' +
+      '<td><span class="badge ' + (a.verified ? 'yes' : 'no') + '">' + (a.verified ? 'Verified' : 'Not verified') + '</span></td>' +
+      '<td>' + (a.accepted_terms_at ? a.accepted_terms_at : '—') + '</td><td>' + (a.created_at || '') + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+document.getElementById('refreshOutboxBtn').addEventListener('click', () => loadOutbox(document.getElementById('agentsCoSelect').value));
+async function loadOutbox(companyId){
+  if(!companyId) return;
+  let msgs = [];
+  try{ msgs = await api('/api/companies/' + companyId + '/sms-outbox'); } catch(e){}
+  const tbody = document.querySelector('#outboxTable tbody');
+  tbody.innerHTML = '';
+  document.getElementById('outboxEmptyMsg').textContent = msgs.length ? '' : 'No messages sent yet.';
+  msgs.forEach(m => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + escapeHtml(m.phone) + '</td><td>' + escapeHtml(m.message) + '</td><td>' + escapeHtml(m.provider) + '</td>' +
+      '<td><span class="badge ' + (m.status === 'sent' ? 'yes' : 'no') + '">' + escapeHtml(m.status) + '</span></td><td>' + (m.created_at || '') + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+</body>
+</html>

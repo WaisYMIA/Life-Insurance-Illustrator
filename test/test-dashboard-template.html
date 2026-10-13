@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan Illustrator — System Test Dashboard</title>
+<style>
+  :root{
+    --ink:#1b1b1b; --paper:#f6f5f2; --card:#fff; --line:#e2ddd4;
+    --brand:#7c2434; --brand-dark:#4c1520; --green:#1a7a4c; --red:#b3272d;
+    --muted:#77706a; --mono:'SF Mono',Consolas,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--paper);color:var(--ink);}
+  header{background:var(--brand-dark);color:#fff;padding:24px 28px;}
+  header .tag{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#d9a9b2;font-weight:700;margin-bottom:4px;}
+  header h1{margin:0;font-size:22px;}
+  header .meta{font-size:12.5px;color:#d8cfd1;margin-top:6px;}
+  main{max-width:900px;margin:0 auto;padding:24px 20px 60px;}
+  .summary-bar{display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap;}
+  .summary-card{flex:1;min-width:140px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;}
+  .summary-card .num{font-size:32px;font-weight:800;line-height:1;}
+  .summary-card .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:6px;}
+  .summary-card.pass .num{color:var(--green);}
+  .summary-card.fail .num{color:var(--red);}
+  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+  button{font-family:inherit;font-size:14px;font-weight:700;border:none;border-radius:9px;padding:11px 18px;cursor:pointer;background:var(--brand);color:#fff;}
+  button:active{background:var(--brand-dark);}
+  button.secondary{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+  .run-timestamp{font-size:12.5px;color:var(--muted);}
+  section.group{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden;}
+  section.group h2{margin:0;padding:14px 18px;font-size:14.5px;background:var(--paper);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}
+  section.group h2 .count{font-size:12px;color:var(--muted);font-weight:600;}
+  .check-row{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--line);font-size:13.5px;font-family:var(--mono);}
+  .check-row:last-child{border-bottom:none;}
+  .check-row .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+  .check-row.pass .dot{background:var(--green);}
+  .check-row.fail .dot{background:var(--red);}
+  .check-row .label{flex:1;font-family:-apple-system,sans-serif;color:var(--ink);}
+  .check-row .value{color:var(--muted);}
+  .check-row.fail .value{color:var(--red);font-weight:700;}
+  #dataStatus{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;padding:16px 18px;}
+  #dataStatus .stat{background:var(--paper);border-radius:9px;padding:12px 14px;}
+  #dataStatus .stat .n{font-size:20px;font-weight:800;color:var(--brand-dark);}
+  #dataStatus .stat .l{font-size:11.5px;color:var(--muted);text-transform:uppercase;}
+  footer{max-width:900px;margin:0 auto;padding:0 20px 40px;font-size:12px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Plan Illustrator &middot; Internal Tooling</div>
+  <h1>System Test Dashboard</h1>
+  <div class="meta">Runs the same regression checks as the automated test suite, entirely in this browser tab. No server, no network calls — everything here runs against the bundled engine modules and data.</div>
+</header>
+
+<main>
+  <div class="summary-bar" id="summaryBar"></div>
+  <div class="toolbar">
+    <button id="runBtn">Run all checks</button>
+    <span class="run-timestamp" id="runTimestamp"></span>
+  </div>
+  <section class="group">
+    <h2>Data status <span class="count" id="dataStatusCount"></span></h2>
+    <div id="dataStatus"></div>
+  </section>
+  <div id="resultsContainer"></div>
+</main>
+
+<footer>
+  Bundled from <code>/engines</code> and <code>/data</code> — the canonical source of truth for Node testing and the backend. This dashboard is a packaged copy for quick, offline, double-click monitoring.
+</footer>
+
+<script id="fanaka-data-json" type="application/json">__FANAKA_DATA__</script>
+<script id="faida-data-json" type="application/json">__FAIDA_DATA__</script>
+<script id="smartsave-data-json" type="application/json">__SMARTSAVE_DATA__</script>
+
+<script>
+__ENGINE_UTILS__
+</script>
+<script>
+__ENGINE_FANAKA__
+</script>
+<script>
+__ENGINE_FAIDA__
+</script>
+<script>
+__ENGINE_SMARTSAVE__
+</script>
+
+<script>
+__TEST_RUNNER__
+</script>
+
+</body>
+</html>
