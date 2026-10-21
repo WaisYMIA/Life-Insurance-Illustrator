@@ -17,7 +17,7 @@ const bcrypt = require('bcryptjs');
 const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 
 const { db, initSchema } = require('./db');
-const { signToken, requireAdmin, requireSuperadmin, scopeToCompany } = require('./auth');
+const { signToken, requireAdmin, requireAgent, requireSuperadmin, scopeToCompany } = require('./auth');
 const multer = require('multer');
 const { compute } = require('./engineRegistry');
 const crypto = require('crypto');
@@ -465,6 +465,11 @@ app.post('/api/companies/:companyId/agents', agentRegisterLimiter, async (req, r
   res.status(201).json(await db.prepare('SELECT * FROM agents WHERE id = ?').get(info.lastInsertRowid));
 });
 
+// Agent-supplied profile fields. Both are optional on the server (older apps don't send them) and are
+// validated/limited here, never trusted from the client.
+function cleanEmail(v){ v = cap(v, 160); v = typeof v === 'string' ? v.trim() : v; if(!v) return null; v = v.toLowerCase(); return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? v : false; }
+function cleanAgencyCode(v){ v = cap(v, 30); v = typeof v === 'string' ? v.trim().replace(/\s+/g, ' ') : v; if(!v) return null; v = v.toUpperCase(); return /^[A-Z0-9][A-Z0-9 \-_\/]{1,29}$/.test(v) ? v : false; }
+
 function generateOtpCode(){
   return String(Math.floor(100000 + Math.random() * 900000)); // 6 digits, never leading-zero-ambiguous
 }
@@ -475,6 +480,9 @@ app.post('/api/companies/:companyId/agents/request-otp', otpRequestLimiter, asyn
     name = cap(name, 120);
     const normalizedPhone = UtilsEngine.normalizeKenyanPhone(phone);
     if(!name || !normalizedPhone) return res.status(400).json({ error: 'A valid name and Kenyan phone number are required.' });
+    const email = cleanEmail((req.body || {}).email), agencyCode = cleanAgencyCode((req.body || {}).agencyCode);
+    if(email === false) return res.status(400).json({ error: 'Enter a valid email address.' });
+    if(agencyCode === false) return res.status(400).json({ error: 'Agency code may only contain letters, numbers, spaces, - _ /.' });
     const company = await db.prepare('SELECT * FROM companies WHERE id = ? AND is_active = 1').get(req.params.companyId);
     if(!company) return res.status(404).json({ error: 'Company not found' });
 
@@ -483,11 +491,11 @@ app.post('/api/companies/:companyId/agents/request-otp', otpRequestLimiter, asyn
     const codeHash = bcrypt.hashSync(code, 10);
 
     if(agent){
-      await db.prepare("UPDATE agents SET name = ?, otp_code_hash = ?, otp_expires_at = datetime('now', '+10 minutes'), otp_attempts = 0, otp_last_sent_at = datetime('now') WHERE id = ?")
-        .run(name, codeHash, agent.id);
+      await db.prepare("UPDATE agents SET name = ?, email = COALESCE(?, email), agency_code = COALESCE(?, agency_code), otp_code_hash = ?, otp_expires_at = datetime('now', '+10 minutes'), otp_attempts = 0, otp_last_sent_at = datetime('now') WHERE id = ?")
+        .run(name, email, agencyCode, codeHash, agent.id);
     } else {
-      const info = await db.prepare("INSERT INTO agents (company_id, name, phone, otp_code_hash, otp_expires_at, otp_last_sent_at) VALUES (?,?,?,?,datetime('now','+10 minutes'),datetime('now'))")
-        .run(company.id, name, normalizedPhone, codeHash);
+      const info = await db.prepare("INSERT INTO agents (company_id, name, phone, email, agency_code, otp_code_hash, otp_expires_at, otp_last_sent_at) VALUES (?,?,?,?,?,?,datetime('now','+10 minutes'),datetime('now'))")
+        .run(company.id, name, normalizedPhone, email, agencyCode, codeHash);
       agent = await db.prepare('SELECT * FROM agents WHERE id = ?').get(info.lastInsertRowid);
     }
 
@@ -534,7 +542,25 @@ app.post('/api/companies/:companyId/agents/verify-otp', otpVerifyLimiter, async 
   await audit(company.id, 'agent', agent.id, 'agent.verified', { phone: normalizedPhone });
   const updated = await db.prepare('SELECT * FROM agents WHERE id = ?').get(agent.id);
   const token = signToken({ type: 'agent', agentId: agent.id, companyId: company.id, phone: normalizedPhone });
-  res.json({ verified: true, token, agent: updated });
+  res.json({ verified: true, token, agent: { id: updated.id, name: updated.name, phone: updated.phone, verified: updated.verified, email: updated.email, agencyCode: updated.agency_code } });
+});
+
+// An agent edits their own profile (name, agency code, email) from the app. The phone number is the verified
+// identity, so it can only change by signing in again with a different number (new OTP).
+app.put('/api/companies/:companyId/agents/me', requireAgent, async (req, res) => {
+  try {
+    if(String(req.agent.companyId) !== String(req.params.companyId)) return res.status(403).json({ error: 'Wrong company.' });
+    const b = req.body || {};
+    const name = cap(b.name, 120), email = cleanEmail(b.email), agencyCode = cleanAgencyCode(b.agencyCode);
+    if(!name) return res.status(400).json({ error: 'Name is required.' });
+    if(email === false) return res.status(400).json({ error: 'Enter a valid email address.' });
+    if(agencyCode === false) return res.status(400).json({ error: 'Agency code may only contain letters, numbers, spaces, - _ /.' });
+    const agent = await db.prepare('SELECT * FROM agents WHERE id = ? AND company_id = ? AND is_active = 1').get(req.agent.agentId, req.params.companyId);
+    if(!agent) return res.status(404).json({ error: 'Agent not found.' });
+    await db.prepare('UPDATE agents SET name = ?, email = ?, agency_code = ? WHERE id = ?').run(name, email, agencyCode, agent.id);
+    await audit(agent.company_id, 'agent', agent.id, 'agent.profile_updated', {});
+    res.json({ id: agent.id, name, phone: agent.phone, email, agencyCode });
+  } catch(e){ errorHandler(res, e); }
 });
 
 app.get('/api/companies/:companyId/sms-outbox', requireAdmin, scopeToCompany, async (req, res) => {
@@ -543,7 +569,7 @@ app.get('/api/companies/:companyId/sms-outbox', requireAdmin, scopeToCompany, as
 });
 
 app.get('/api/companies/:companyId/agents', requireAdmin, scopeToCompany, async (req, res) => {
-  res.json(await db.prepare('SELECT id, name, phone, verified, accepted_terms_at, created_at FROM agents WHERE company_id = ? ORDER BY id DESC').all(req.params.companyId));
+  res.json(await db.prepare('SELECT id, name, phone, email, agency_code, verified, accepted_terms_at, created_at FROM agents WHERE company_id = ? ORDER BY id DESC').all(req.params.companyId));
 });
 
 app.get('/api/companies/:companyId/illustrations', requireAdmin, scopeToCompany, async (req, res) => {
@@ -575,7 +601,19 @@ app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISO
 // deployment covers both. Static files are served last so no /api/* route is ever shadowed.
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, '..', 'admin-panel.html')));
 app.get('/app', (req, res) => res.sendFile(path.join(__dirname, '..', 'plan-illustrator.html')));
-app.use(express.static(path.join(__dirname, '..'), { index: false, dotfiles: 'ignore' }));
+// Only the public front-end files are served. (This used to expose the whole project folder, which
+// would have let anyone download backend source and the SQLite database — now that the database also
+// holds agent phone numbers and usage logs, that must never be reachable over HTTP.)
+const ROOT = path.join(__dirname, '..');
+for(const f of ['plan-illustrator.html', 'index.html', 'manifest.json', 'sw.js', 'version.json', 'app-config.js']){
+  app.get('/' + f, (req, res) => {
+    if(f === 'sw.js' || f === 'version.json' || f === 'app-config.js') res.setHeader('Cache-Control', 'no-cache');
+    res.sendFile(path.join(ROOT, f), err => { if(err && !res.headersSent) res.status(404).end(); });
+  });
+}
+app.use('/icons', express.static(path.join(ROOT, 'icons'), { index: false, dotfiles: 'ignore' }));
+
+const analytics = require('./analytics')(app, { db, requireAdmin, requireAgent, scopeToCompany, rateLimit, ipKeyGenerator, audit, sendEmail, errorHandler });
 
 const PORT = process.env.PORT || 3001;
 async function start(){
@@ -583,6 +621,7 @@ async function start(){
   // CREATE TABLE/INDEX IF NOT EXISTS, and the migrate step only adds a column if it's missing.
   await initSchema();
   app.listen(PORT, () => console.log(`Plan Illustrator API listening on :${PORT}`));
+  analytics.startDigestScheduler();
 }
 if(require.main === module){
   start().catch(e => { console.error('Failed to start:', e); process.exit(1); });

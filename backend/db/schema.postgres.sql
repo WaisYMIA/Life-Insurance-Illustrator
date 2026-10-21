@@ -130,6 +130,8 @@ CREATE TABLE IF NOT EXISTS agents (
   otp_expires_at TEXT,
   otp_attempts  INTEGER NOT NULL DEFAULT 0,
   otp_last_sent_at TEXT,
+  email         TEXT,                         -- agent's own email, editable from the app profile
+  agency_code   TEXT,                         -- agent's agency/agent code, editable from the app profile
   accepted_terms_at TEXT,
   is_active     INTEGER NOT NULL DEFAULT 1,
   created_at    TEXT NOT NULL DEFAULT (datetime('now')),
@@ -200,3 +202,61 @@ CREATE INDEX IF NOT EXISTS idx_agents_company ON agents(company_id);
 CREATE INDEX IF NOT EXISTS idx_illustrations_company ON illustrations(company_id);
 CREATE INDEX IF NOT EXISTS idx_illustrations_agent ON illustrations(agent_id);
 CREATE INDEX IF NOT EXISTS idx_audit_company ON audit_log(company_id);
+
+-- ============================================================
+-- USAGE EVENTS — one row per thing an agent did in the app (opened
+-- it, ran a calculation, viewed/printed an illustration, finished a
+-- needs diagnosis, hit an error ...). Deliberately holds NO client
+-- personal data: no client names, dates of birth or amounts — only
+-- which product/feature, rough shape (term, frequency) and the app
+-- version/display mode, so usage can be reported without exposing
+-- the agent's clients. Disclosed to agents in the Terms gate.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS usage_events (
+  id          SERIAL PRIMARY KEY,
+  company_id  INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  agent_id    INTEGER NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+  session_id  TEXT,
+  event       TEXT NOT NULL,
+  props_json  TEXT,
+  app_version TEXT,
+  display_mode TEXT,
+  occurred_at TEXT NOT NULL,                 -- client clock, as reported (may be offline-queued)
+  created_at  TEXT NOT NULL DEFAULT (datetime('now'))   -- server receipt time; all reporting uses this
+);
+CREATE INDEX IF NOT EXISTS idx_usage_company_created ON usage_events(company_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_usage_agent_created ON usage_events(agent_id, created_at);
+
+-- ============================================================
+-- FEEDBACK — messages agents send from the in-app Feedback button.
+-- Each one is also emailed (see backend/analytics.js); emailed_status
+-- records whether that hand-off succeeded so nothing is silently lost.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS feedback (
+  id            SERIAL PRIMARY KEY,
+  company_id    INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  agent_id      INTEGER REFERENCES agents(id) ON DELETE SET NULL,
+  category      TEXT NOT NULL,
+  rating        INTEGER,
+  message       TEXT NOT NULL,
+  app_version   TEXT,
+  emailed_status TEXT NOT NULL DEFAULT 'pending',
+  created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_feedback_company ON feedback(company_id, created_at);
+
+-- ============================================================
+-- APP CONTROL — per-company update policy the installed PWAs obey:
+-- how often to check, the newest release, the oldest release still
+-- allowed to run (forces an update), and how long a device may go
+-- without a successful check before it must reconnect.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS app_control (
+  company_id           INTEGER PRIMARY KEY REFERENCES companies(id) ON DELETE CASCADE,
+  latest_version       TEXT,
+  min_version          TEXT,
+  check_interval_days  INTEGER NOT NULL DEFAULT 7,
+  max_offline_days     INTEGER NOT NULL DEFAULT 30,
+  notice               TEXT,
+  updated_at           TEXT NOT NULL DEFAULT (datetime('now'))
+);

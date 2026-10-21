@@ -27,7 +27,7 @@ async function main(){
   if(USING_POSTGRES){
     // No DB file to delete for a clean slate — truncate instead. CASCADE handles the FK
     // dependency order so this doesn't need to match schema.postgres.sql's table order.
-    const tables = ['audit_log','illustrations','email_outbox','sms_outbox','agents','product_data_versions','product_lines','admin_users','companies'];
+    const tables = ['usage_events','feedback','app_control','audit_log','illustrations','email_outbox','sms_outbox','agents','product_data_versions','product_lines','admin_users','companies'];
     for(const t of tables){ await db.exec(`TRUNCATE TABLE ${t} RESTART IDENTITY CASCADE`); }
   }
 
@@ -237,6 +237,118 @@ async function main(){
   await api('POST', `/api/companies/${companyId}/admins/${fourthAdmin.body.id}/send-reset`, {}, superadminToken2);
   const outstandingNow = await api('GET', `/api/companies/${companyId}/password-reset-requests`, null, superadminToken2);
   check('An uncompleted reset request shows up as outstanding', outstandingNow.status === 200 && outstandingNow.body.some(r => r.email === 'fourth-admin@example.com'), outstandingNow.body);
+
+
+  // ---- App control, telemetry, feedback, reports ----
+  console.log('\nApp control / usage reporting / feedback');
+  const ctl0 = await api('GET', `/api/public/companies/${companyId}/app-control`);
+  check('App control has safe defaults (7-day check)', ctl0.status === 200 && ctl0.body.checkIntervalDays === 7 && ctl0.body.minVersion === null, ctl0.body);
+  const badCtl = await api('PUT', `/api/companies/${companyId}/app-control`, { latestVersion: 'abc' }, token);
+  check('App control rejects a malformed version', badCtl.status === 400, badCtl.body);
+  const noAuthCtl = await api('PUT', `/api/companies/${companyId}/app-control`, { latestVersion: '2026.10.18' });
+  check('App control cannot be changed without admin login', noAuthCtl.status === 401);
+  const setCtl = await api('PUT', `/api/companies/${companyId}/app-control`, { latestVersion: '2026.10.18', minVersion: '2026.10.01', checkIntervalDays: 3, maxOfflineDays: 14, notice: 'Please update' }, token);
+  check('Admin can set the update policy', setCtl.status === 200 && setCtl.body.minVersion === '2026.10.01' && setCtl.body.checkIntervalDays === 3, setCtl.body);
+  const ctl1 = await api('GET', `/api/public/companies/${companyId}/app-control`);
+  check('Installed apps read the policy publicly', ctl1.body.latestVersion === '2026.10.18' && ctl1.body.maxOfflineDays === 14 && ctl1.body.notice === 'Please update', ctl1.body);
+
+  const agentToken = rightVerify.body.token;
+  const unauthTel = await api('POST', `/api/companies/${companyId}/telemetry`, { events: [{ event: 'app_open' }] });
+  check('Telemetry is rejected without an agent token', unauthTel.status === 401);
+  const adminTel = await api('POST', `/api/companies/${companyId}/telemetry`, { events: [{ event: 'app_open' }] }, token);
+  check('An admin token cannot post telemetry as an agent', adminTel.status === 401);
+  const tel = await api('POST', `/api/companies/${companyId}/telemetry`, { events: [
+    { event: 'app_open', appVersion: '2026.09.01', displayMode: 'standalone', sessionId: 's1', at: new Date().toISOString() },
+    { event: 'calc_completed', appVersion: '2026.09.01', displayMode: 'standalone', sessionId: 's1', props: { product: 'fanaka', term: 10, freq: 'Monthly', clientName: 'Jane Doe', dob: '1990-01-01' } },
+    { event: 'calc_completed', appVersion: '2026.09.01', sessionId: 's1', props: { product: 'smartsave' } },
+    { event: 'diagnosis_completed', appVersion: '2026.09.01', sessionId: 's1', props: { topProduct: 'Smart Scholar', goal: 'education' } },
+    { event: 'js_error', props: { msg: 'boom', where: 'x' } },
+    { event: 'drop_all_tables', props: {} },
+    { event: 'illustration_printed', props: { product: 'fanaka' } }
+  ] }, agentToken);
+  check('Telemetry accepts allow-listed events and drops unknown ones', tel.status === 200 && tel.body.accepted === 6, tel.body);
+  const stored = await db.prepare("SELECT props_json FROM usage_events WHERE company_id = ? AND event = 'calc_completed' AND props_json LIKE '%fanaka%'").get(companyId);
+  check('Client personal details are stripped server-side (privacy)', stored && !/Jane|dob|clientName|1990/.test(stored.props_json) && /fanaka/.test(stored.props_json), stored);
+
+  const otherCo = await api('POST', '/api/companies', { name: 'Other Insurer', slug: 'other-insurer', colorPrimary: '#654321' }, token);
+  const crossTel = await api('POST', `/api/companies/${otherCo.body.id}/telemetry`, { events: [{ event: 'app_open' }] }, agentToken);
+  check("An agent's token is not valid for another company", crossTel.status === 403, crossTel.body);
+
+  const legacyOdd = await api('POST', `/api/companies/${companyId}/agents`, { name: '=HYPERLINK("http://x")', phone: '0733000111', acceptedTerms: true });
+  const sum = await api('GET', `/api/companies/${companyId}/usage/summary?days=30`, null, token);
+  check('Usage summary counts calculations, prints and diagnoses', sum.status === 200 && sum.body.totals.calculations === 2 && sum.body.totals.illustrationsPrinted === 1 && sum.body.totals.diagnosesCompleted === 1, sum.body.totals);
+  check('Usage summary breaks calculations down by product', sum.body.products.fanaka === 1 && sum.body.products.smartsave === 1, sum.body.products);
+  check('Usage summary tracks installed-as-app and versions', sum.body.agentsInstalledAsApp === 1 && sum.body.versions['2026.09.01'] === 1, { v: sum.body.versions, i: sum.body.agentsInstalledAsApp });
+  check('Usage summary flags agents behind the latest release', sum.body.agentsOnOutdatedVersion === 1, sum.body.agentsOnOutdatedVersion);
+  check('Usage summary reports active vs inactive agents', sum.body.agents.active === 1 && sum.body.agents.inactive >= 1, sum.body.agents);
+  check('Usage summary surfaces top errors', sum.body.topErrors.length === 1 && sum.body.topErrors[0].message === 'boom', sum.body.topErrors);
+  const noAuthSum = await api('GET', `/api/companies/${companyId}/usage/summary`);
+  check('Usage summary requires admin login', noAuthSum.status === 401);
+
+  const agentList = await api('GET', `/api/companies/${companyId}/usage/agents?days=30`, null, token);
+  const row = Array.isArray(agentList.body) && agentList.body.find(a => a.phone === otpPhone);
+  check('Agent usage list includes names, phones and counts', !!row && row.name === 'OTP Agent' && row.calculations === 2 && row.printed === 1 && row.installedAsApp === true, row);
+  const csvRes = await fetch(`${base}/api/companies/${companyId}/usage/agents?days=30&format=csv`, { headers: { Authorization: `Bearer ${token}` } });
+  const csvText = await csvRes.text();
+  check('Agent report downloads as CSV with name and phone columns', csvRes.status === 200 && /text\/csv/.test(csvRes.headers.get('content-type')) && /Name,Phone/.test(csvText) && csvText.includes(otpPhone), csvText.slice(0, 120));
+  check('CSV neutralises spreadsheet formula injection in names', csvText.includes("'=HYPERLINK") && !/^=HYPERLINK/m.test(csvText.replace(/^﻿/, '')), csvText);
+
+  const agentReport = await api('GET', `/api/companies/${companyId}/agents/${rightVerify.body.agent.id}/usage?days=30`, null, token);
+  check('Individual agent report has profile, totals, products and recent activity', agentReport.status === 200 && agentReport.body.agent.phone === otpPhone && agentReport.body.totals.calculations === 2 && agentReport.body.products.fanaka === 1 && agentReport.body.recent.length >= 6, agentReport.body.totals);
+  const otherAgentReport = await api('GET', `/api/companies/${otherCo.body.id}/agents/${rightVerify.body.agent.id}/usage`, null, token);
+  check("An agent's report cannot be read through a different company", otherAgentReport.status === 404, otherAgentReport.body);
+
+  const shortFb = await api('POST', `/api/companies/${companyId}/feedback`, { category: 'bug', message: 'x' }, agentToken);
+  check('Feedback needs a real message', shortFb.status === 400);
+  const noAuthFb = await api('POST', `/api/companies/${companyId}/feedback`, { category: 'bug', message: 'No token here' });
+  check('Feedback needs a logged-in agent', noAuthFb.status === 401);
+  const fb = await api('POST', `/api/companies/${companyId}/feedback`, { category: 'idea', rating: 4, message: 'Please add a Kiswahili print option.', appVersion: '2026.09.01' }, agentToken);
+  check('Feedback is stored and emailed', fb.status === 201 && fb.body.emailed === true, fb.body);
+  const mail = await db.prepare("SELECT * FROM email_outbox WHERE subject LIKE '%feedback from OTP Agent%' ORDER BY id DESC").get();
+  check('Feedback email goes to walterjungah9@outlook.com and logs agent + message', !!mail && mail.to_email === 'walterjungah9@outlook.com' && mail.body.includes(otpPhone) && mail.body.includes('Kiswahili') && mail.body.includes('4 / 5'), mail);
+  const fbList = await api('GET', `/api/companies/${companyId}/feedback`, null, token);
+  check('Admin can list feedback with who sent it', fbList.status === 200 && fbList.body.some(f => f.agent_phone === otpPhone && f.emailed_status === 'sent'), fbList.body);
+
+  const digest = await api('POST', `/api/companies/${companyId}/usage/email-report?days=7`, {}, token);
+  check('Admin can email the usage summary on demand', digest.status === 200 && digest.body.to === 'walterjungah9@outlook.com', digest.body);
+  const digestMail = await db.prepare("SELECT * FROM email_outbox WHERE subject LIKE '%usage summary%' ORDER BY id DESC").get();
+  check('Usage digest lists each agent with phone and counts', !!digestMail && digestMail.body.includes('OTP Agent') && digestMail.body.includes(otpPhone) && /Calculations by product: .*fanaka/.test(digestMail.body), digestMail && digestMail.body.slice(0, 400));
+
+  // ---- Agent profile: agency code + email at sign-in, editable afterwards ----
+  const pPhone = '0755111222';
+  const badEmail = await api('POST', `/api/companies/${companyId}/agents/request-otp`, { name: 'Prof Agent', phone: pPhone, email: 'not-an-email', agencyCode: 'AG 100' });
+  check('Sign-in rejects a malformed email', badEmail.status === 400, badEmail.body);
+  const badCode = await api('POST', `/api/companies/${companyId}/agents/request-otp`, { name: 'Prof Agent', phone: pPhone, email: 'prof@example.com', agencyCode: '<script>' });
+  check('Sign-in rejects an agency code with unsafe characters', badCode.status === 400, badCode.body);
+  const pReq = await api('POST', `/api/companies/${companyId}/agents/request-otp`, { name: 'Prof Agent', phone: pPhone, email: ' Prof@Example.com ', agencyCode: 'ag 100' });
+  check('Sign-in with agency code and email is accepted', pReq.status === 200, pReq.body);
+  const pVer = await api('POST', `/api/companies/${companyId}/agents/verify-otp`, { phone: pPhone, code: pReq.body.devCode, acceptedTerms: true });
+  check('Verified session returns the profile and no secrets', pVer.status === 200 && pVer.body.agent.agencyCode === 'AG 100' && pVer.body.agent.email === 'prof@example.com' && !('otp_code_hash' in pVer.body.agent) && !('password_hash' in pVer.body.agent), pVer.body.agent);
+  const pTok = pVer.body.token;
+  const putNoAuth = await api('PUT', `/api/companies/${companyId}/agents/me`, { name: 'X', agencyCode: 'AG1', email: 'x@example.com' });
+  check('Profile update needs an agent token', putNoAuth.status === 401, putNoAuth.body);
+  const putOk = await api('PUT', `/api/companies/${companyId}/agents/me`, { name: 'Prof Agent Renamed', agencyCode: 'ke-777', email: 'new@example.com' }, pTok);
+  check('Agent can correct their own name, agency code and email', putOk.status === 200 && putOk.body.name === 'Prof Agent Renamed' && putOk.body.agencyCode === 'KE-777' && putOk.body.phone === pPhone, putOk.body);
+  const putBad = await api('PUT', `/api/companies/${companyId}/agents/me`, { name: 'Prof', agencyCode: 'KE-777', email: 'nope' }, pTok);
+  check('Profile update validates the email', putBad.status === 400, putBad.body);
+  const putPhone = await api('PUT', `/api/companies/${companyId}/agents/me`, { name: 'Prof', agencyCode: 'KE-777', email: 'new@example.com', phone: '0700000000' }, pTok);
+  const stillPhone = await db.prepare('SELECT phone FROM agents WHERE company_id = ? AND name = ?').get(companyId, 'Prof');
+  check('The verified phone number cannot be changed through the profile', putPhone.status === 200 && putPhone.body.phone === pPhone && stillPhone && stillPhone.phone === pPhone, putPhone.body);
+  const adminAgents = await api('GET', `/api/companies/${companyId}/agents`, null, token);
+  check('Admin agents list shows agency code and email', adminAgents.body.some(a => a.phone === pPhone && a.agency_code === 'KE-777' && a.email === 'new@example.com'), adminAgents.body);
+  const csv2 = await fetch(`${base}/api/companies/${companyId}/usage/agents?days=30&format=csv`, { headers: { Authorization: `Bearer ${token}` } });
+  const csvText2 = await csv2.text();
+  check('Usage CSV includes agency code and email columns', /Agency code/.test(csvText2) && /KE-777/.test(csvText2) && /new@example\.com/.test(csvText2), csvText2.slice(0, 200));
+  const logoutEv = await api('POST', `/api/companies/${companyId}/telemetry`, { events: [{ event: 'logout' }, { event: 'profile_updated' }] }, pTok);
+  check('Sign-out and profile-update events are accepted by telemetry', logoutEv.status === 200 && logoutEv.body.accepted === 2, logoutEv.body);
+
+  // The database file and backend source must never be downloadable over HTTP.
+  for(const leak of ['/backend/server.js', '/backend/db/schema.sql', '/package.json', '/data/faida-data.json', '/.env']){
+    const r = await fetch(base + leak);
+    check(`Server does not expose ${leak}`, r.status === 404, r.status);
+  }
+  const pub = await fetch(base + '/manifest.json');
+  check('Server still serves the public app files', pub.status === 200);
 
   console.log(`\n${'='.repeat(50)}`);
   console.log(`TOTAL: ${pass} passed, ${fail} failed`);

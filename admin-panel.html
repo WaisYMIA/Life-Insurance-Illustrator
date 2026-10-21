@@ -56,6 +56,14 @@
   #loginScreen h1{font-size:18px;color:var(--maroon-dark);margin:0 0 4px;}
   #loginScreen p{font-size:12.5px;color:var(--muted);margin:0 0 20px;}
   .hidden{display:none !important;}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .tile{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fdfcfa;}
+  .tile .n{font-size:22px;font-weight:700;color:var(--maroon-dark);}
+  .tile .l{font-size:12px;color:var(--muted);}
+  .barrow{display:flex;align-items:center;gap:8px;font-size:12.5px;margin:4px 0;}
+  .barrow .bl{width:150px;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .barrow .bar{height:12px;background:var(--maroon);border-radius:6px;min-width:2px;}
+  .barrow .bn{color:var(--muted);}
   .kv{display:grid;grid-template-columns:140px 1fr;gap:4px 12px;font-size:13px;}
   .kv div.k{color:var(--muted);}
   .divider{height:1px;background:var(--line);margin:16px 0;}
@@ -113,6 +121,9 @@
       <button data-tab="branding">Branding</button>
       <button data-tab="products">Product lines</button>
       <button data-tab="agents">Agents</button>
+      <button data-tab="usage">Usage</button>
+      <button data-tab="feedback">Feedback</button>
+      <button data-tab="updates">Updates</button>
       <button data-tab="admins">Admin users</button>
       <button data-tab="account">My account</button>
     </div>
@@ -249,7 +260,7 @@
       </div>
       <div class="card">
         <h2>Registered agents</h2>
-        <table id="agentsTable"><thead><tr><th>Name</th><th>Phone</th><th>Verified</th><th>Terms accepted</th><th>Registered</th></tr></thead><tbody></tbody></table>
+        <table id="agentsTable"><thead><tr><th>Agency code</th><th>Name</th><th>Phone</th><th>Email</th><th>Verified</th><th>Terms accepted</th><th>Registered</th></tr></thead><tbody></tbody></table>
         <p class="muted" id="agentsEmptyMsg"></p>
       </div>
       <div class="card">
@@ -258,6 +269,73 @@
         <table id="outboxTable"><thead><tr><th>Phone</th><th>Message</th><th>Provider</th><th>Status</th><th>Sent</th></tr></thead><tbody></tbody></table>
         <p class="muted" id="outboxEmptyMsg"></p>
         <button class="ghost small" id="refreshOutboxBtn">Refresh</button>
+      </div>
+    </div>
+
+    <!-- USAGE TAB -->
+    <div id="tab-usage" class="tabpane hidden">
+      <div class="card">
+        <h2>Usage across agents</h2>
+        <div class="row">
+          <div><label for="usageCoSelect">Company</label><select id="usageCoSelect"></select></div>
+          <div><label for="usageDays">Period</label>
+            <select id="usageDays"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last 12 months</option></select></div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="ghost" id="usageRefreshBtn">Refresh</button>
+          <button class="ghost" id="usageCsvBtn">Download agents report (CSV)</button>
+          <button class="ghost" id="usageEmailBtn">Email me this summary</button>
+        </div>
+        <div id="usageMsg"></div>
+        <p class="muted" style="margin-top:10px;">Collected only from agents who accepted the data &amp; usage clause in the Terms. Client names, dates of birth and amounts are never recorded.</p>
+      </div>
+      <div class="card"><h2>Summary</h2><div id="usageTiles" class="tiles"></div></div>
+      <div class="row" style="gap:18px;">
+        <div class="card" style="flex:1;min-width:260px;"><h2>Calculations by product</h2><div id="usageProducts"></div></div>
+        <div class="card" style="flex:1;min-width:260px;"><h2>App versions in use</h2><div id="usageVersions"></div><div id="usageErrors"></div></div>
+      </div>
+      <div class="card"><h2>Daily activity</h2><div id="usageDaily"></div></div>
+      <div class="card">
+        <h2>Agents</h2>
+        <p class="muted">Click an agent for their individual usage report.</p>
+        <div style="overflow-x:auto;"><table id="usageAgentsTable"><thead><tr><th>Agency code</th><th>Name</th><th>Phone</th><th>Email</th><th>Last seen</th><th>Active days</th><th>Calcs</th><th>Prints</th><th>Diagnoses</th><th>Version</th><th>Installed</th></tr></thead><tbody></tbody></table></div>
+        <p class="muted" id="usageAgentsEmpty"></p>
+      </div>
+      <div class="card hidden" id="agentReportCard">
+        <div style="display:flex;justify-content:space-between;align-items:center;"><h2 id="agentReportTitle" style="margin:0;"></h2><button class="ghost small" id="agentReportClose">Close</button></div>
+        <div id="agentReportBody"></div>
+      </div>
+    </div>
+
+    <!-- FEEDBACK TAB -->
+    <div id="tab-feedback" class="tabpane hidden">
+      <div class="card">
+        <h2>Agent feedback</h2>
+        <label for="feedbackCoSelect">Company</label><select id="feedbackCoSelect"></select>
+        <p class="muted" style="margin-top:10px;">Each message is also emailed to the system owner. "Emailed" shows whether that hand-off worked; if the server's email provider is not configured it stays in the email log only.</p>
+        <div style="overflow-x:auto;"><table id="feedbackTable"><thead><tr><th>When</th><th>Agent</th><th>Agency code</th><th>Phone / email</th><th>Type</th><th>Rating</th><th>Message</th><th>Emailed</th></tr></thead><tbody></tbody></table></div>
+        <p class="muted" id="feedbackEmpty"></p>
+      </div>
+    </div>
+
+    <!-- UPDATES TAB -->
+    <div id="tab-updates" class="tabpane hidden">
+      <div class="card">
+        <h2>App updates &amp; control</h2>
+        <label for="updatesCoSelect">Company</label><select id="updatesCoSelect"></select>
+        <p class="muted" style="margin-top:10px;">Installed apps check this on launch and then once every "check interval". Publishing new files is done by deploying them (run <code>node scripts/bump-version.js &lt;version&gt;</code> first); the settings below decide how phones react.</p>
+        <div class="row">
+          <div><label for="updLatest">Latest released version</label><input type="text" id="updLatest" placeholder="e.g. 2026.11.02"></div>
+          <div><label for="updMin">Minimum allowed version</label><input type="text" id="updMin" placeholder="blank = no minimum"></div>
+        </div>
+        <div class="row">
+          <div><label for="updInterval">Check for updates every (days)</label><input type="number" id="updInterval" min="1" max="90" value="7"></div>
+          <div><label for="updOffline">Must reconnect at least every (days, 0 = never)</label><input type="number" id="updOffline" min="0" max="365" value="30"></div>
+        </div>
+        <label for="updNotice">Message shown to agents (optional)</label><input type="text" id="updNotice" maxlength="300" placeholder="e.g. Rates were updated — please update.">
+        <button class="primary" id="updSaveBtn">Save update policy</button>
+        <div id="updMsgBox"></div>
+        <p class="muted" style="margin-top:14px;">Agents below the minimum version are blocked until they update. This is enforced inside the app, so it stops ordinary use but cannot stop a technically determined person tampering with their own device.</p>
       </div>
     </div>
 
@@ -481,7 +559,7 @@ document.getElementById('createCoBtn').addEventListener('click', async () => {
 });
 
 function populateCompanySelects(){
-  ['brandingCoSelect','productsCoSelect','agentsCoSelect','adminsCoSelect'].forEach(id => {
+  ['brandingCoSelect','productsCoSelect','agentsCoSelect','adminsCoSelect','usageCoSelect','feedbackCoSelect','updatesCoSelect'].forEach(id => {
     const sel = document.getElementById(id);
     const current = sel.value;
     sel.innerHTML = state.companies.map(co => '<option value="' + co.id + '">' + escapeHtml(co.name) + '</option>').join('');
@@ -492,6 +570,7 @@ function populateCompanySelects(){
     onProductsCompanyChange();
     onAgentsCompanyChange();
     onAdminsCompanyChange();
+    onUsageCompanyChange(); onFeedbackCompanyChange(); onUpdatesCompanyChange();
   }
 }
 document.getElementById('brandingCoSelect').addEventListener('change', onBrandingCompanyChange);
@@ -818,7 +897,7 @@ async function loadAgents(companyId){
   document.getElementById('agentsEmptyMsg').textContent = agents.length ? '' : 'No agents registered yet for this company.';
   agents.forEach(a => {
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + escapeHtml(a.name) + '</td><td>' + escapeHtml(a.phone) + '</td>' +
+    tr.innerHTML = '<td>' + escapeHtml(a.agency_code || '—') + '</td><td>' + escapeHtml(a.name) + '</td><td>' + escapeHtml(a.phone) + '</td><td>' + escapeHtml(a.email || '—') + '</td>' +
       '<td><span class="badge ' + (a.verified ? 'yes' : 'no') + '">' + (a.verified ? 'Verified' : 'Not verified') + '</span></td>' +
       '<td>' + (a.accepted_terms_at ? a.accepted_terms_at : '—') + '</td><td>' + (a.created_at || '') + '</td>';
     tbody.appendChild(tr);
@@ -839,6 +918,120 @@ async function loadOutbox(companyId){
     tbody.appendChild(tr);
   });
 }
+
+// ---------- USAGE / FEEDBACK / UPDATES ----------
+function usageCo(){ return document.getElementById('usageCoSelect').value; }
+function usageDays(){ return document.getElementById('usageDays').value; }
+function onUsageCompanyChange(){ loadUsage(); }
+document.getElementById('usageCoSelect').addEventListener('change', onUsageCompanyChange);
+document.getElementById('usageDays').addEventListener('change', loadUsage);
+document.getElementById('usageRefreshBtn').addEventListener('click', loadUsage);
+function tile(n, l){ return '<div class="tile"><div class="n">' + escapeHtml(n) + '</div><div class="l">' + escapeHtml(l) + '</div></div>'; }
+function bars(obj, emptyText){
+  const entries = Object.entries(obj || {}).sort((a, b) => b[1] - a[1]);
+  if(!entries.length) return '<p class="muted">' + emptyText + '</p>';
+  const max = Math.max.apply(null, entries.map(e => e[1])) || 1;
+  return entries.map(([k, v]) => '<div class="barrow"><div class="bl" title="' + escapeHtml(k) + '">' + escapeHtml(k) + '</div><div class="bar" style="width:' + Math.round(v / max * 160) + 'px"></div><div class="bn">' + v + '</div></div>').join('');
+}
+async function loadUsage(){
+  const id = usageCo(); if(!id) return;
+  const days = usageDays();
+  let sum = null, agents = [];
+  try{ sum = await api('/api/companies/' + id + '/usage/summary?days=' + days); agents = await api('/api/companies/' + id + '/usage/agents?days=' + days); }
+  catch(e){ return showMsg(document.getElementById('usageMsg'), escapeHtml(e.message), false); }
+  const t = sum.totals, a = sum.agents;
+  document.getElementById('usageTiles').innerHTML =
+    tile(a.total, 'Registered agents') + tile(a.active, 'Active in period') + tile(a.new, 'New in period') + tile(a.inactive, 'Inactive in period') +
+    tile(t.appOpens, 'App opens') + tile(t.calculations, 'Calculations') + tile(t.illustrationsPrinted, 'Illustrations printed') + tile(t.diagnosesCompleted, 'Needs diagnoses') +
+    tile(sum.agentsInstalledAsApp + ' / ' + sum.agentsWithKnownVersion, 'Installed as app') + tile(sum.agentsOnOutdatedVersion, 'On an older version') +
+    tile(t.errors, 'Errors') + tile(sum.feedback.count + (sum.feedback.averageRating ? ' (' + sum.feedback.averageRating + '/5)' : ''), 'Feedback received');
+  document.getElementById('usageProducts').innerHTML = bars(sum.products, 'No calculations in this period.') +
+    (Object.keys(sum.diagnosisTopProduct).length ? '<h3>Top recommendation from needs diagnosis</h3>' + bars(sum.diagnosisTopProduct, '') : '');
+  document.getElementById('usageVersions').innerHTML = bars(sum.versions, 'No version data yet.') +
+    (sum.latestVersion ? '<p class="muted">Latest released: ' + escapeHtml(sum.latestVersion) + (sum.minVersion ? ' &middot; minimum allowed: ' + escapeHtml(sum.minVersion) : '') + '</p>' : '');
+  document.getElementById('usageErrors').innerHTML = sum.topErrors.length ? '<h3>Top errors</h3>' + sum.topErrors.map(e => '<div class="barrow"><div class="bl" style="width:auto">' + escapeHtml(e.message) + '</div><div class="bn">&times;' + e.count + '</div></div>').join('') : '';
+  const dayMap = {}; sum.daily.forEach(d => { dayMap[d.day] = d.activeAgents; });
+  document.getElementById('usageDaily').innerHTML = sum.daily.length ? bars(dayMap, '').replace(/class="bl"/g, 'class="bl" style="width:90px"') + '<p class="muted">Active agents per day.</p>' : '<p class="muted">No activity in this period.</p>';
+  const tbody = document.querySelector('#usageAgentsTable tbody'); tbody.innerHTML = '';
+  document.getElementById('usageAgentsEmpty').textContent = agents.length ? '' : 'No agents registered yet.';
+  agents.forEach(ag => {
+    const tr = document.createElement('tr'); tr.className = 'clickable';
+    tr.innerHTML = '<td>' + escapeHtml(ag.agencyCode || '—') + '</td><td>' + escapeHtml(ag.name) + '</td><td>' + escapeHtml(ag.phone) + '</td><td>' + escapeHtml(ag.email || '—') + '</td><td>' + escapeHtml(ag.lastSeen || 'never') + '</td><td>' + ag.activeDays + '</td><td>' + ag.calculations + '</td><td>' + ag.printed + '</td><td>' + ag.diagnoses + '</td><td>' + escapeHtml(ag.appVersion || '—') + '</td><td>' + (ag.installedAsApp ? 'Yes' : 'No') + '</td>';
+    tr.addEventListener('click', () => openAgentReport(ag.id));
+    tbody.appendChild(tr);
+  });
+}
+document.getElementById('usageCsvBtn').addEventListener('click', async () => {
+  const msg = document.getElementById('usageMsg');
+  try{
+    const res = await fetch(API_BASE + '/api/companies/' + usageCo() + '/usage/agents?days=' + usageDays() + '&format=csv', { headers: authHeaders() });
+    if(!res.ok) throw new Error('Download failed: ' + res.status);
+    const blob = await res.blob(); const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'agents-usage-' + new Date().toISOString().slice(0, 10) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  } catch(e){ showMsg(msg, escapeHtml(e.message), false); }
+});
+document.getElementById('usageEmailBtn').addEventListener('click', async () => {
+  const msg = document.getElementById('usageMsg');
+  try{ const r = await api('/api/companies/' + usageCo() + '/usage/email-report?days=' + usageDays(), { method: 'POST', body: '{}' }); showMsg(msg, 'Summary emailed to ' + escapeHtml(r.to) + '.', true); }
+  catch(e){ showMsg(msg, escapeHtml(e.message), false); }
+});
+document.getElementById('agentReportClose').addEventListener('click', () => document.getElementById('agentReportCard').classList.add('hidden'));
+async function openAgentReport(agentId){
+  let r; try{ r = await api('/api/companies/' + usageCo() + '/agents/' + agentId + '/usage?days=' + Math.max(Number(usageDays()), 90)); }
+  catch(e){ return showMsg(document.getElementById('usageMsg'), escapeHtml(e.message), false); }
+  const card = document.getElementById('agentReportCard'); card.classList.remove('hidden');
+  document.getElementById('agentReportTitle').textContent = r.agent.name + ' — ' + r.agent.phone;
+  const t = r.totals;
+  document.getElementById('agentReportBody').innerHTML =
+    '<div class="kv" style="margin:10px 0;"><div class="k">Agency code</div><div>' + escapeHtml(r.agent.agencyCode || '—') + '</div><div class="k">Email</div><div>' + escapeHtml(r.agent.email || '—') + '</div><div class="k">Registered</div><div>' + escapeHtml(r.agent.registered) + '</div><div class="k">Terms accepted</div><div>' + escapeHtml(r.agent.acceptedTerms || '—') + '</div><div class="k">First / last seen</div><div>' + escapeHtml(r.firstSeen || '—') + ' &rarr; ' + escapeHtml(r.lastSeen || '—') + '</div><div class="k">Sessions (all time)</div><div>' + r.sessionsAllTime + '</div><div class="k">Versions used</div><div>' + (r.versions.map(v => escapeHtml(v.app_version) + (v.display_mode ? ' (' + escapeHtml(v.display_mode) + ')' : '')).join(', ') || '—') + '</div></div>' +
+    '<div class="tiles">' + tile(t.appOpens, 'App opens') + tile(t.calculations, 'Calculations') + tile(t.printed, 'Printed') + tile(t.diagnoses, 'Diagnoses') + tile(t.errors, 'Errors') + '</div>' +
+    '<h3>Calculations by product (last ' + r.periodDays + ' days)</h3>' + bars(r.products, 'None yet.') +
+    '<h3>Recent activity</h3><div style="overflow-x:auto;"><table><thead><tr><th>When (UTC)</th><th>Event</th><th>Details</th><th>Version</th></tr></thead><tbody>' +
+    r.recent.map(e => '<tr><td>' + escapeHtml(e.at) + '</td><td>' + escapeHtml(e.event) + '</td><td>' + escapeHtml(e.props ? Object.entries(e.props).map(([k, v]) => k + ': ' + v).join(', ') : '') + '</td><td>' + escapeHtml(e.appVersion || '') + '</td></tr>').join('') + '</tbody></table></div>' +
+    (r.feedback.length ? '<h3>Feedback from this agent</h3>' + r.feedback.map(f => '<p><strong>' + escapeHtml(f.category) + (f.rating ? ' · ' + f.rating + '/5' : '') + '</strong> <span class="muted">' + escapeHtml(f.created_at) + '</span><br>' + escapeHtml(f.message) + '</p>').join('') : '');
+  card.scrollIntoView({ behavior: 'smooth' });
+}
+
+function onFeedbackCompanyChange(){ loadFeedback(); }
+document.getElementById('feedbackCoSelect').addEventListener('change', onFeedbackCompanyChange);
+async function loadFeedback(){
+  const id = document.getElementById('feedbackCoSelect').value; if(!id) return;
+  let rows = []; try{ rows = await api('/api/companies/' + id + '/feedback'); } catch(e){}
+  const tbody = document.querySelector('#feedbackTable tbody'); tbody.innerHTML = '';
+  document.getElementById('feedbackEmpty').textContent = rows.length ? '' : 'No feedback received yet.';
+  rows.forEach(f => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + escapeHtml(f.created_at) + '</td><td>' + escapeHtml(f.agent_name || '—') + '</td><td>' + escapeHtml(f.agent_agency_code || '—') + '</td><td>' + escapeHtml(f.agent_phone || '') + (f.agent_email ? '<br>' + escapeHtml(f.agent_email) : '') + '</td><td>' + escapeHtml(f.category) + '</td><td>' + (f.rating ? f.rating + '/5' : '—') + '</td><td style="white-space:pre-wrap;max-width:360px;">' + escapeHtml(f.message) + '</td><td><span class="badge ' + (f.emailed_status === 'sent' ? 'yes' : 'no') + '">' + escapeHtml(f.emailed_status) + '</span></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function onUpdatesCompanyChange(){ loadUpdates(); }
+document.getElementById('updatesCoSelect').addEventListener('change', onUpdatesCompanyChange);
+async function loadUpdates(){
+  const id = document.getElementById('updatesCoSelect').value; if(!id) return;
+  try{
+    const c = await api('/api/companies/' + id + '/app-control');
+    document.getElementById('updLatest').value = c.latestVersion || '';
+    document.getElementById('updMin').value = c.minVersion || '';
+    document.getElementById('updInterval').value = c.checkIntervalDays;
+    document.getElementById('updOffline').value = c.maxOfflineDays;
+    document.getElementById('updNotice').value = c.notice || '';
+  } catch(e){}
+}
+document.getElementById('updSaveBtn').addEventListener('click', async () => {
+  const id = document.getElementById('updatesCoSelect').value; const msg = document.getElementById('updMsgBox');
+  const min = document.getElementById('updMin').value.trim();
+  if(min && !confirm('Agents on a version older than ' + min + ' will be blocked until they update. Continue?')) return;
+  try{
+    await api('/api/companies/' + id + '/app-control', { method: 'PUT', body: JSON.stringify({
+      latestVersion: document.getElementById('updLatest').value.trim() || null, minVersion: min || null,
+      checkIntervalDays: Number(document.getElementById('updInterval').value), maxOfflineDays: Number(document.getElementById('updOffline').value),
+      notice: document.getElementById('updNotice').value }) });
+    showMsg(msg, 'Update policy saved. Apps pick it up on their next check.', true);
+  } catch(e){ showMsg(msg, escapeHtml(e.message), false); }
+});
 
 function escapeHtml(s){
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

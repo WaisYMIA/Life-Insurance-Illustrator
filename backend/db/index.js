@@ -135,7 +135,9 @@ if(DRIVER === 'postgres'){
       ['otp_code_hash', 'TEXT'],
       ['otp_expires_at', 'TEXT'],
       ['otp_attempts', 'INTEGER NOT NULL DEFAULT 0'],
-      ['otp_last_sent_at', 'TEXT']
+      ['otp_last_sent_at', 'TEXT'],
+      ['email', 'TEXT'],
+      ['agency_code', 'TEXT']
     ]);
     await addColumnsIfMissingPg('admin_users', [
       ['reset_token_hash', 'TEXT'],
@@ -201,7 +203,9 @@ if(DRIVER === 'postgres'){
       ['otp_code_hash', 'TEXT'],
       ['otp_expires_at', 'TEXT'],
       ['otp_attempts', 'INTEGER NOT NULL DEFAULT 0'],
-      ['otp_last_sent_at', 'TEXT']
+      ['otp_last_sent_at', 'TEXT'],
+      ['email', 'TEXT'],
+      ['agency_code', 'TEXT']
     ]);
     addColumnsIfMissingSqlite('admin_users', [
       ['reset_token_hash', 'TEXT'],
