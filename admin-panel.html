@@ -260,7 +260,7 @@
       </div>
       <div class="card">
         <h2>Registered agents</h2>
-        <table id="agentsTable"><thead><tr><th>Agency code</th><th>Name</th><th>Phone</th><th>Email</th><th>Verified</th><th>Terms accepted</th><th>Registered</th></tr></thead><tbody></tbody></table>
+        <table id="agentsTable"><thead><tr><th>Agency code</th><th>Name</th><th>Phone</th><th>Email</th><th>Verified</th><th>Terms accepted</th><th>Registered</th><th>Access</th></tr></thead><tbody></tbody></table>
         <p class="muted" id="agentsEmptyMsg"></p>
       </div>
       <div class="card">
@@ -323,7 +323,7 @@
       <div class="card">
         <h2>App updates &amp; control</h2>
         <label for="updatesCoSelect">Company</label><select id="updatesCoSelect"></select>
-        <p class="muted" style="margin-top:10px;">Installed apps check this on launch and then once every "check interval". Publishing new files is done by deploying them (run <code>node scripts/bump-version.js &lt;version&gt;</code> first); the settings below decide how phones react.</p>
+        <p class="muted" style="margin-top:10px;">Installed apps check this every time they are opened (when online) and again at least once every "check interval" while open. Only set "Latest released version" to a version you have already deployed, or agents will be asked to install an update that does not exist yet. Publishing new files is done by deploying them (run <code>node scripts/bump-version.js &lt;version&gt;</code> first); the settings below decide how phones react.</p>
         <div class="row">
           <div><label for="updLatest">Latest released version</label><input type="text" id="updLatest" placeholder="e.g. 2026.11.02"></div>
           <div><label for="updMin">Minimum allowed version</label><input type="text" id="updMin" placeholder="blank = no minimum"></div>
@@ -332,6 +332,7 @@
           <div><label for="updInterval">Check for updates every (days)</label><input type="number" id="updInterval" min="1" max="90" value="7"></div>
           <div><label for="updOffline">Must reconnect at least every (days, 0 = never)</label><input type="number" id="updOffline" min="0" max="365" value="30"></div>
         </div>
+        <label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;"><input type="checkbox" id="updRequire" checked style="width:auto;margin-top:3px;"><span><strong>Require agents to install each new version</strong> — when a newer release is found, the app will not open until it has been installed. Untick to let agents postpone (only a banner is shown).</span></label>
         <label for="updNotice">Message shown to agents (optional)</label><input type="text" id="updNotice" maxlength="300" placeholder="e.g. Rates were updated — please update.">
         <button class="primary" id="updSaveBtn">Save update policy</button>
         <div id="updMsgBox"></div>
@@ -899,7 +900,16 @@ async function loadAgents(companyId){
     const tr = document.createElement('tr');
     tr.innerHTML = '<td>' + escapeHtml(a.agency_code || '—') + '</td><td>' + escapeHtml(a.name) + '</td><td>' + escapeHtml(a.phone) + '</td><td>' + escapeHtml(a.email || '—') + '</td>' +
       '<td><span class="badge ' + (a.verified ? 'yes' : 'no') + '">' + (a.verified ? 'Verified' : 'Not verified') + '</span></td>' +
-      '<td>' + (a.accepted_terms_at ? a.accepted_terms_at : '—') + '</td><td>' + (a.created_at || '') + '</td>';
+      '<td>' + (a.accepted_terms_at ? a.accepted_terms_at : '—') + '</td><td>' + (a.created_at || '') + '</td>' +
+      '<td><button class="ghost agentToggle">' + (a.is_active === 0 ? 'Enable' : 'Disable') + '</button></td>';
+    const btn = tr.querySelector('.agentToggle');
+    if(a.is_active === 0) tr.style.opacity = '.55';
+    btn.addEventListener('click', async () => {
+      const disabling = a.is_active !== 0;
+      if(disabling && !confirm('Disable ' + a.name + '? Their app will stop working and clear itself the next time it goes online.')) return;
+      try{ await api('/api/companies/' + companyId + '/agents/' + a.id, { method:'PATCH', body: JSON.stringify({ isActive: !disabling }) }); onAgentsCompanyChange(); }
+      catch(e){ alert(e.message); }
+    });
     tbody.appendChild(tr);
   });
 }
@@ -949,7 +959,7 @@ async function loadUsage(){
     (Object.keys(sum.diagnosisTopProduct).length ? '<h3>Top recommendation from needs diagnosis</h3>' + bars(sum.diagnosisTopProduct, '') : '');
   document.getElementById('usageVersions').innerHTML = bars(sum.versions, 'No version data yet.') +
     (sum.latestVersion ? '<p class="muted">Latest released: ' + escapeHtml(sum.latestVersion) + (sum.minVersion ? ' &middot; minimum allowed: ' + escapeHtml(sum.minVersion) : '') + '</p>' : '');
-  document.getElementById('usageErrors').innerHTML = sum.topErrors.length ? '<h3>Top errors</h3>' + sum.topErrors.map(e => '<div class="barrow"><div class="bl" style="width:auto">' + escapeHtml(e.message) + '</div><div class="bn">&times;' + e.count + '</div></div>').join('') : '';
+  document.getElementById('usageErrors').innerHTML = (sum.helpMisses && sum.helpMisses.length ? '<h3>Help searches with no result (' + sum.helpOpens + ' help opens)</h3><p class="muted">Terms agents looked for and did not find — add them to help-content.js.</p>' + sum.helpMisses.map(e => '<div class="barrow"><div class="bl" style="width:auto">' + escapeHtml(e.query) + '</div><div class="bn">&times;' + e.count + '</div></div>').join('') : '') + (sum.topErrors.length ? '<h3>Top errors</h3>' + sum.topErrors.map(e => '<div class="barrow"><div class="bl" style="width:auto">' + escapeHtml(e.message) + '</div><div class="bn">&times;' + e.count + '</div></div>').join('') : '');
   const dayMap = {}; sum.daily.forEach(d => { dayMap[d.day] = d.activeAgents; });
   document.getElementById('usageDaily').innerHTML = sum.daily.length ? bars(dayMap, '').replace(/class="bl"/g, 'class="bl" style="width:90px"') + '<p class="muted">Active agents per day.</p>' : '<p class="muted">No activity in this period.</p>';
   const tbody = document.querySelector('#usageAgentsTable tbody'); tbody.innerHTML = '';
@@ -1018,6 +1028,7 @@ async function loadUpdates(){
     document.getElementById('updInterval').value = c.checkIntervalDays;
     document.getElementById('updOffline').value = c.maxOfflineDays;
     document.getElementById('updNotice').value = c.notice || '';
+    document.getElementById('updRequire').checked = c.requireUpdate !== false;
   } catch(e){}
 }
 document.getElementById('updSaveBtn').addEventListener('click', async () => {
@@ -1028,7 +1039,7 @@ document.getElementById('updSaveBtn').addEventListener('click', async () => {
     await api('/api/companies/' + id + '/app-control', { method: 'PUT', body: JSON.stringify({
       latestVersion: document.getElementById('updLatest').value.trim() || null, minVersion: min || null,
       checkIntervalDays: Number(document.getElementById('updInterval').value), maxOfflineDays: Number(document.getElementById('updOffline').value),
-      notice: document.getElementById('updNotice').value }) });
+      requireUpdate: document.getElementById('updRequire').checked, notice: document.getElementById('updNotice').value }) });
     showMsg(msg, 'Update policy saved. Apps pick it up on their next check.', true);
   } catch(e){ showMsg(msg, escapeHtml(e.message), false); }
 });

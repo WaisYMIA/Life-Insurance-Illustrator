@@ -257,6 +257,7 @@ CREATE TABLE IF NOT EXISTS app_control (
   min_version          TEXT,
   check_interval_days  INTEGER NOT NULL DEFAULT 7,
   max_offline_days     INTEGER NOT NULL DEFAULT 30,
+  require_update INTEGER NOT NULL DEFAULT 1, -- 1 = an agent must install a newer release before the app opens
   notice               TEXT,
   updated_at           TEXT NOT NULL DEFAULT (datetime('now'))
 );

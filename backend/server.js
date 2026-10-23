@@ -46,11 +46,14 @@ app.use((req, res, next) => {
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || '*');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-App-Version');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
   if(req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
+
+const security = require('./security');
+security.install(app, db);   // version gate: runs before the routes it protects
 
 // Generous default limit on every API route, so no single client can hammer the server.
 app.use('/api/', rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false }));
@@ -487,6 +490,7 @@ app.post('/api/companies/:companyId/agents/request-otp', otpRequestLimiter, asyn
     if(!company) return res.status(404).json({ error: 'Company not found' });
 
     let agent = await db.prepare('SELECT * FROM agents WHERE company_id = ? AND phone = ?').get(company.id, normalizedPhone);
+    if(agent && !agent.is_active) return res.status(403).json({ error: 'This account has been disabled. Please contact your administrator.', code: 'account_disabled' });
     const code = generateOtpCode();
     const codeHash = bcrypt.hashSync(code, 10);
 
@@ -524,6 +528,7 @@ app.post('/api/companies/:companyId/agents/verify-otp', otpVerifyLimiter, async 
   const company = await db.prepare('SELECT * FROM companies WHERE id = ? AND is_active = 1').get(req.params.companyId);
   if(!company) return res.status(404).json({ error: 'Company not found' });
   const agent = await db.prepare('SELECT * FROM agents WHERE company_id = ? AND phone = ?').get(company.id, normalizedPhone);
+  if(agent && !agent.is_active) return res.status(403).json({ error: 'This account has been disabled. Please contact your administrator.', code: 'account_disabled' });
   if(!agent || !agent.otp_code_hash) return res.status(400).json({ error: 'No pending verification code for this number. Request a new one.' });
   if(agent.otp_attempts >= 5){
     return res.status(429).json({ error: 'Too many incorrect attempts. Request a new code.' });
@@ -569,7 +574,7 @@ app.get('/api/companies/:companyId/sms-outbox', requireAdmin, scopeToCompany, as
 });
 
 app.get('/api/companies/:companyId/agents', requireAdmin, scopeToCompany, async (req, res) => {
-  res.json(await db.prepare('SELECT id, name, phone, email, agency_code, verified, accepted_terms_at, created_at FROM agents WHERE company_id = ? ORDER BY id DESC').all(req.params.companyId));
+  res.json(await db.prepare('SELECT id, name, phone, email, agency_code, verified, is_active, accepted_terms_at, created_at FROM agents WHERE company_id = ? ORDER BY id DESC').all(req.params.companyId));
 });
 
 app.get('/api/companies/:companyId/illustrations', requireAdmin, scopeToCompany, async (req, res) => {
@@ -613,6 +618,7 @@ for(const f of ['plan-illustrator.html', 'index.html', 'manifest.json', 'sw.js',
 }
 app.use('/icons', express.static(path.join(ROOT, 'icons'), { index: false, dotfiles: 'ignore' }));
 
+security.register(app, { db, requireAgent, requireAdmin, scopeToCompany, audit, errorHandler });
 const analytics = require('./analytics')(app, { db, requireAdmin, requireAgent, scopeToCompany, rateLimit, ipKeyGenerator, audit, sendEmail, errorHandler });
 
 const PORT = process.env.PORT || 3001;

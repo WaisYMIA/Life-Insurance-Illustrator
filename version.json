@@ -1,7 +1,8 @@
 {
-  "version": "2026.10.20",
+  "version": "2026.10.23",
   "minVersion": null,
   "checkIntervalDays": 7,
   "maxOfflineDays": 30,
-  "notice": ""
+  "notice": "",
+  "requireUpdate": true
 }

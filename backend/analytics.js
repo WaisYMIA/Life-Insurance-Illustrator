@@ -25,11 +25,11 @@ const ALLOWED_EVENTS = new Set([
   'calc_completed', 'illustration_printed',
   'diagnosis_started', 'diagnosis_completed',
   'feedback_sent', 'update_check', 'update_applied',
-  'install_prompt_shown', 'app_installed', 'js_error', 'logout', 'profile_updated'
+  'install_prompt_shown', 'app_installed', 'js_error', 'logout', 'profile_updated', 'help_opened', 'help_search_miss'
 ]);
 // Property names an event may carry. Anything else (e.g. a stray clientName) is dropped on the server even if a
 // client sends it — the privacy promise is enforced here, not only in the app.
-const ALLOWED_PROP_KEYS = new Set(['product', 'plan', 'mode', 'term', 'freq', 'riders', 'verified', 'otp', 'topProduct', 'goal', 'result', 'from', 'to', 'msg', 'where']);
+const ALLOWED_PROP_KEYS = new Set(['product', 'plan', 'mode', 'term', 'freq', 'riders', 'verified', 'otp', 'topProduct', 'goal', 'result', 'from', 'to', 'msg', 'where', 'q']);
 const FEEDBACK_CATEGORIES = new Set(['bug', 'idea', 'question', 'praise', 'other']);
 
 function sinceStr(days){
@@ -106,6 +106,7 @@ module.exports = function registerAnalytics(app, deps){
       minVersion: row ? row.min_version : null,
       checkIntervalDays: row ? num(row.check_interval_days) || 7 : 7,
       maxOfflineDays: row ? num(row.max_offline_days) : 30,
+      requireUpdate: row ? row.require_update !== 0 && row.require_update !== false : true,
       notice: row ? row.notice : null
     };
   }
@@ -129,16 +130,17 @@ module.exports = function registerAnalytics(app, deps){
       let maxOffline = parseInt(b.maxOfflineDays, 10);
       if(!Number.isFinite(maxOffline) || maxOffline < 0) maxOffline = 30;
       maxOffline = Math.min(maxOffline, 365);
+      const requireUpdate = b.requireUpdate === false || b.requireUpdate === 0 || b.requireUpdate === 'false' ? 0 : 1;
       const notice = typeof b.notice === 'string' && b.notice.trim() ? b.notice.trim().slice(0, 300) : null;
       const exists = await db.prepare('SELECT company_id FROM app_control WHERE company_id = ?').get(req.params.companyId);
       if(exists){
-        await db.prepare("UPDATE app_control SET latest_version=?, min_version=?, check_interval_days=?, max_offline_days=?, notice=?, updated_at=datetime('now') WHERE company_id=?")
-          .run(latest, min, interval, maxOffline, notice, req.params.companyId);
+        await db.prepare("UPDATE app_control SET latest_version=?, min_version=?, check_interval_days=?, max_offline_days=?, require_update=?, notice=?, updated_at=datetime('now') WHERE company_id=?")
+          .run(latest, min, interval, maxOffline, requireUpdate, notice, req.params.companyId);
       } else {
-        await db.prepare('INSERT INTO app_control (company_id, latest_version, min_version, check_interval_days, max_offline_days, notice) VALUES (?,?,?,?,?,?)')
-          .run(req.params.companyId, latest, min, interval, maxOffline, notice);
+        await db.prepare('INSERT INTO app_control (company_id, latest_version, min_version, check_interval_days, max_offline_days, require_update, notice) VALUES (?,?,?,?,?,?,?)')
+          .run(req.params.companyId, latest, min, interval, maxOffline, requireUpdate, notice);
       }
-      await audit(Number(req.params.companyId), 'admin', req.admin.adminId, 'app_control.updated', { latest, min, interval, maxOffline });
+      await audit(Number(req.params.companyId), 'admin', req.admin.adminId, 'app_control.updated', { latest, min, interval, maxOffline, requireUpdate });
       res.json(await getControl(req.params.companyId));
     } catch(e){ errorHandler(res, e); }
   });
@@ -277,6 +279,10 @@ module.exports = function registerAnalytics(app, deps){
     const errs = {};
     for(const r of errRows){ try { const m = (JSON.parse(r.props_json || '{}').msg) || 'unknown'; errs[m] = (errs[m] || 0) + 1; } catch(e){} }
     const topErrors = Object.entries(errs).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([message, count]) => ({ message, count }));
+    const helpRows = await db.prepare("SELECT props_json FROM usage_events WHERE company_id = ? AND created_at >= ? AND event = 'help_search_miss' ORDER BY id DESC LIMIT 1000").all(companyId, since);
+    const misses = {};
+    for(const r of helpRows){ try { const q = String((JSON.parse(r.props_json || '{}').q) || '').toLowerCase().trim(); if(q) misses[q] = (misses[q] || 0) + 1; } catch(e){} }
+    const helpMisses = Object.entries(misses).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([query, count]) => ({ query, count }));
     const fbRow = await db.prepare('SELECT COUNT(*) AS n, AVG(rating) AS avg FROM feedback WHERE company_id = ? AND created_at >= ?').get(companyId, since);
 
     return {
@@ -290,7 +296,7 @@ module.exports = function registerAnalytics(app, deps){
       byEvent, products, diagnosisTopProduct: diagTop, daily,
       versions, latestVersion: control.latestVersion, minVersion: control.minVersion,
       agentsOnOutdatedVersion: outdated, agentsInstalledAsApp: installed, agentsWithKnownVersion: withVersion,
-      topErrors,
+      topErrors, helpMisses, helpOpens: byEvent.help_opened || 0,
       feedback: { count: num(fbRow.n), averageRating: fbRow.avg === null || fbRow.avg === undefined ? null : Math.round(Number(fbRow.avg) * 10) / 10 }
     };
   }

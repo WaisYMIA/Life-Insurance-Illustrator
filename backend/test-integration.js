@@ -7,6 +7,10 @@ const USING_POSTGRES = !!process.env.DATABASE_URL;
 if(!USING_POSTGRES){
   process.env.DB_PATH = require('path').join(__dirname, 'db', 'test-integration.sqlite');
 }
+const crypto = require('crypto');
+const TEST_KEYS = crypto.generateKeyPairSync('ec', { namedCurve:'prime256v1' });
+process.env.APP_SIGNING_PRIVATE_KEY = TEST_KEYS.privateKey.export({type:'pkcs8',format:'pem'});
+process.env.LEASE_TTL_SECONDS = '3600';
 const fs = require('fs');
 if(!USING_POSTGRES && fs.existsSync(process.env.DB_PATH)) fs.unlinkSync(process.env.DB_PATH);
 
@@ -39,7 +43,7 @@ async function main(){
   async function api(method, path, body, token){
     const res = await fetch(base + path, {
       method,
-      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      headers: { 'Content-Type': 'application/json', 'X-App-Version': (api.version === undefined ? '2026.10.23' : api.version), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: body ? JSON.stringify(body) : undefined,
     });
     let json = null;
@@ -251,6 +255,10 @@ async function main(){
   check('Admin can set the update policy', setCtl.status === 200 && setCtl.body.minVersion === '2026.10.01' && setCtl.body.checkIntervalDays === 3, setCtl.body);
   const ctl1 = await api('GET', `/api/public/companies/${companyId}/app-control`);
   check('Installed apps read the policy publicly', ctl1.body.latestVersion === '2026.10.18' && ctl1.body.maxOfflineDays === 14 && ctl1.body.notice === 'Please update', ctl1.body);
+  check('Installing a new release is required by default', ctl0.body.requireUpdate === true && ctl1.body.requireUpdate === true, [ctl0.body, ctl1.body]);
+  const optCtl = await api('PUT', `/api/companies/${companyId}/app-control`, { latestVersion: '2026.10.18', minVersion: '2026.10.01', checkIntervalDays: 3, maxOfflineDays: 14, notice: 'Please update', requireUpdate: false }, token);
+  check('Admin can switch the mandatory-install rule off and the public policy reflects it', optCtl.status === 200 && optCtl.body.requireUpdate === false, optCtl.body);
+  await api('PUT', `/api/companies/${companyId}/app-control`, { latestVersion: '2026.10.18', minVersion: '2026.10.01', checkIntervalDays: 3, maxOfflineDays: 14, notice: 'Please update', requireUpdate: true }, token);
 
   const agentToken = rightVerify.body.token;
   const unauthTel = await api('POST', `/api/companies/${companyId}/telemetry`, { events: [{ event: 'app_open' }] });
@@ -342,6 +350,14 @@ async function main(){
   const logoutEv = await api('POST', `/api/companies/${companyId}/telemetry`, { events: [{ event: 'logout' }, { event: 'profile_updated' }] }, pTok);
   check('Sign-out and profile-update events are accepted by telemetry', logoutEv.status === 200 && logoutEv.body.accepted === 2, logoutEv.body);
 
+  // ---- Help module analytics: which searches found nothing ----
+  const helpEv = await api('POST', `/api/companies/${companyId}/telemetry`, { events: [{ event: 'help_opened' }, { event: 'help_search_miss', props: { q: 'Bancassurance' } }, { event: 'help_search_miss', props: { q: 'bancassurance', client: 'Jane Doe' } }] }, pTok);
+  check('Help events are accepted', helpEv.status === 200 && helpEv.body.accepted === 3, helpEv.body);
+  const helpSum = await api('GET', `/api/companies/${companyId}/usage/summary?days=30`, null, token);
+  check('Summary lists unanswered help searches (case-folded) and help opens', helpSum.body.helpMisses && helpSum.body.helpMisses[0] && helpSum.body.helpMisses[0].query === 'bancassurance' && helpSum.body.helpMisses[0].count === 2 && helpSum.body.helpOpens === 1, helpSum.body.helpMisses);
+  const helpStored = await db.prepare("SELECT props_json FROM usage_events WHERE event = 'help_search_miss' ORDER BY id DESC").get();
+  check('Only the search text is stored — unexpected fields are dropped', helpStored && !/Jane/.test(helpStored.props_json), helpStored);
+
   // The database file and backend source must never be downloadable over HTTP.
   for(const leak of ['/backend/server.js', '/backend/db/schema.sql', '/package.json', '/data/faida-data.json', '/.env']){
     const r = await fetch(base + leak);
@@ -350,8 +366,55 @@ async function main(){
   const pub = await fetch(base + '/manifest.json');
   check('Server still serves the public app files', pub.status === 200);
 
+  // ---------- Controlled access: version gate, signed lease, remote disable ----------
+  {
+    api.version = '2026.09.01';
+    const old1 = await api('POST', `/api/companies/${companyId}/telemetry`, { events: [{ event: 'app_open' }] }, agentToken);
+    check('Server refuses (426) an app older than the minimum version', old1.status === 426 && old1.body.error === 'update_required' && old1.body.reason === 'below_minimum', old1.body);
+    api.version = '2026.10.10';
+    const old2 = await api('POST', `/api/companies/${companyId}/telemetry`, { events: [{ event: 'app_open' }] }, agentToken);
+    check('Server refuses an app behind the latest release when updates are required', old2.status === 426 && old2.body.reason === 'behind_latest', old2.body);
+    api.version = undefined;
+    const keyRes = await api('GET', '/api/public/signing-key');
+    check('Public signing key is published', keyRes.status === 200 && keyRes.body && keyRes.body.key && keyRes.body.key.kty === 'EC', keyRes.body);
+    const lease = await api('POST', `/api/companies/${companyId}/agents/lease`, {}, agentToken);
+    const L = lease.body && lease.body.lease;
+    const sigOk = L && crypto.verify('sha256', Buffer.from(L.p), { key: TEST_KEYS.publicKey, dsaEncoding: 'ieee-p1363' }, Buffer.from(L.s, 'base64url'));
+    check('Agent gets an access lease with a valid ECDSA signature', lease.status === 200 && sigOk === true, lease.body);
+    const pl = L && JSON.parse(L.p);
+    check('Lease binds company, agent and expiry', pl && pl.cid === Number(companyId) && pl.aid === rightVerify.body.agent.id && Date.parse(pl.exp) > Date.now() && Date.parse(pl.exp) - Date.parse(pl.iat) === 3600*1000, pl);
+    const forged = L && crypto.verify('sha256', Buffer.from(L.p.replace('"v":1','"v":2')), { key: TEST_KEYS.publicKey, dsaEncoding: 'ieee-p1363' }, Buffer.from(L.s, 'base64url'));
+    check('A tampered lease fails verification', forged === false);
+    const noTokLease = await api('POST', `/api/companies/${companyId}/agents/lease`, {});
+    check('Lease needs an agent token', noTokLease.status === 401);
+    const adminLease = await api('POST', `/api/companies/${companyId}/agents/lease`, {}, token);
+    check('An admin token cannot obtain an agent lease', adminLease.status === 401 || adminLease.status === 403, adminLease.status);
+    const aid = rightVerify.body.agent.id;
+    const noAuthPatch = await api('PATCH', `/api/companies/${companyId}/agents/${aid}`, { isActive:false });
+    check('Disabling an agent needs admin rights', noAuthPatch.status === 401);
+    const badPatch = await api('PATCH', `/api/companies/${companyId}/agents/${aid}`, { isActive:'no' }, token);
+    check('Disable request is validated', badPatch.status === 400, badPatch.body);
+    const dis = await api('PATCH', `/api/companies/${companyId}/agents/${aid}`, { isActive:false }, token);
+    check('Admin can disable an agent', dis.status === 200 && dis.body.isActive === false, dis.body);
+    const lease2 = await api('POST', `/api/companies/${companyId}/agents/lease`, {}, agentToken);
+    check('A disabled agent gets no lease (account_disabled)', lease2.status === 403 && lease2.body.error === 'account_disabled', lease2.body);
+    const listDis = await api('GET', `/api/companies/${companyId}/agents`, null, token);
+    const rowDis = listDis.body.find(a => a.id === aid);
+    check('Agents list shows disabled state', rowDis && Number(rowDis.is_active) === 0, rowDis);
+    const reqDis = await api('POST', `/api/companies/${companyId}/agents/request-otp`, { name: 'OTP Agent', phone: otpPhone });
+    check('A disabled agent cannot request a new login code', reqDis.status === 403 && reqDis.body.code === 'account_disabled', reqDis.body);
+    const en = await api('PATCH', `/api/companies/${companyId}/agents/${aid}`, { isActive:true }, token);
+    const lease3 = await api('POST', `/api/companies/${companyId}/agents/lease`, {}, agentToken);
+    check('Re-enabling restores access', en.status === 200 && lease3.status === 200, lease3.body);
+    const pre = await fetch(base + `/api/companies/${companyId}/telemetry`, { method:'OPTIONS' });
+    const hdr = (pre.headers.get('access-control-allow-headers') || '') + '|' + (pre.headers.get('access-control-allow-methods') || '');
+    check('CORS allows X-App-Version and PATCH/PUT', /X-App-Version/i.test(hdr) && /PATCH/.test(hdr) && /PUT/.test(hdr), hdr);
+  }
+
+
   console.log(`\n${'='.repeat(50)}`);
   console.log(`TOTAL: ${pass} passed, ${fail} failed`);
+
   console.log('='.repeat(50));
 
   server.close();

@@ -139,6 +139,9 @@ if(DRIVER === 'postgres'){
       ['email', 'TEXT'],
       ['agency_code', 'TEXT']
     ]);
+    await addColumnsIfMissingPg('app_control', [
+      ['require_update', 'INTEGER NOT NULL DEFAULT 1']
+    ]);
     await addColumnsIfMissingPg('admin_users', [
       ['reset_token_hash', 'TEXT'],
       ['reset_token_expires_at', 'TEXT']
@@ -206,6 +209,9 @@ if(DRIVER === 'postgres'){
       ['otp_last_sent_at', 'TEXT'],
       ['email', 'TEXT'],
       ['agency_code', 'TEXT']
+    ]);
+    addColumnsIfMissingSqlite('app_control', [
+      ['require_update', 'INTEGER NOT NULL DEFAULT 1']
     ]);
     addColumnsIfMissingSqlite('admin_users', [
       ['reset_token_hash', 'TEXT'],

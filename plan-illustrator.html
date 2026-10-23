@@ -14,6 +14,7 @@
 <title>Plan Illustrator</title>
 <link rel="manifest" href="manifest.json">
 <script src="app-config.js"></script>
+<script src="help-content.js"></script>
 <style>
   :root{
     --ink:#241c1c;
@@ -95,8 +96,10 @@
   }
   #acctBtn{position:absolute;top:12px;right:14px;width:38px;height:38px;border-radius:50%;border:2px solid var(--brand);background:var(--brand);color:#fff;font:700 14px system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
   #acctBtn:active{transform:scale(.95);}
-  @media print{#acctBtn{display:none!important;}}
-  header.top .brand, header.top h1{padding-right:48px;}
+  #helpBtn{position:absolute;top:12px;right:60px;width:38px;height:38px;border-radius:50%;border:2px solid var(--brand);background:#fff;color:var(--brand);font:700 19px system-ui,sans-serif;cursor:pointer;align-items:center;justify-content:center;padding:0;}
+  #helpBtn:active{transform:scale(.95);}
+  @media print{#acctBtn,#helpBtn{display:none!important;}}
+  header.top .brand, header.top h1{padding-right:96px;}
   header.top .brand{display:flex;align-items:center;gap:9px;}
   header.top .brand-logo{height:30px;width:auto;flex:none;}
   #gateScreen .gate-logo{height:64px;width:auto;display:block;margin:0 0 12px;}
@@ -540,6 +543,7 @@
 </div>
 
 <header class="top">
+  <button type="button" id="helpBtn" aria-label="Help and handbook" style="display:none;">?</button>
   <button type="button" id="acctBtn" aria-label="Account: edit profile or sign out" style="display:none;"><span id="acctInit">?</span></button>
   <div class="brand"><img class="brand-logo" src="icons/logo.png" alt="" width="20" height="32"><span>Insurance Life Plan Illustrator</span></div>
   <h1 id="headerTitle">New Illustration</h1>
@@ -3360,7 +3364,7 @@ function renderSSStep5(){
    for a fully offline/standalone device install.
    ============================================================ */
 const urlParams = new URLSearchParams(location.search);
-const APP_VERSION = '2026.10.20';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
+const APP_VERSION = '2026.10.23';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
 // Bump this whenever the Terms text changes in substance: every device then shows the gate again so the
 // new wording is actually accepted, instead of silently carrying the old acceptance forward.
 const TERMS_VERSION = '3';
@@ -3395,6 +3399,111 @@ async function fetchCompanyBranding(){
   }catch(e){ /* keep KES/en-KE defaults */ }
 }
 fetchCompanyBranding();
+
+/* ============================================================
+   ACCESS CONTROL — tamper-resistant enforcement (needs the backend)
+   1. Every call to the backend carries this app's version; the server refuses (426) versions that must update.
+   2. The server issues a short-lived, digitally signed access lease. With the public key in app-config.js
+      ("strict mode") the app will not open without a valid, unexpired lease for THIS agent, so editing local
+      storage or the clock does not unlock it.
+   3. An administrator can disable an agent; the app then clears itself.
+   ============================================================ */
+const LEASE_KEY = 'illustrator_lease_v1', HW_KEY = 'illustrator_hw_v1';
+const LEASE_PUBKEY = APP_CFG.publicKey || null;
+const STRICT = !!(OTP_ENABLED && LEASE_PUBKEY && window.crypto && crypto.subtle);
+const CLOCK_SKEW_MS = 10*60*1000;
+(function(){
+  const orig = window.fetch.bind(window);
+  window.fetch = function(input, init){
+    const url = typeof input==='string' ? input : (input && input.url) || '';
+    const toBackend = !!(BACKEND_API && url.indexOf(BACKEND_API)===0);
+    if(toBackend){ init = Object.assign({}, init||{}); init.headers = Object.assign({'X-App-Version':APP_VERSION}, init.headers||{}); }
+    return orig(input, init).then(r=>{
+      if(toBackend){
+        if(r.status===426) r.clone().json().then(j=>onServerUpdateRequired(j||{})).catch(()=>onServerUpdateRequired({}));
+        else if(r.status===403) r.clone().json().then(j=>{ if(j && (j.error==='account_disabled' || j.code==='account_disabled')) onAccountDisabled(); }).catch(()=>{});
+      }
+      return r;
+    });
+  };
+})();
+function onServerUpdateRequired(j){
+  const st = updState();
+  updSave({requireUpdate:true, latest: (j.latest && (!st.latest || cmpVersion(j.latest, st.latest)>0)) ? j.latest : st.latest, min: (j.min && (!st.min || cmpVersion(j.min, st.min)>0)) ? j.min : st.min});
+  showRequiredBlock(null, j.latest || updState().latest);
+}
+function showAccessBlock(title, message, buttonLabel, onClick){
+  const old = document.getElementById('accBlock'); if(old) old.remove();
+  const o = opsEl('div', 'position:fixed;inset:0;z-index:10050;background:linear-gradient(160deg,var(--brand) 0%,var(--brand-dark) 100%);display:flex;align-items:center;justify-content:center;padding:24px;');
+  o.id = 'accBlock';
+  o.innerHTML = `<div style="background:#fff;border-radius:16px;max-width:380px;width:100%;padding:24px;text-align:center;font-family:system-ui,sans-serif;"><h2 style="margin:0 0 8px;font-family:var(--font-display);color:var(--brand-dark);font-size:22px;">${opsEscape(title)}</h2><p id="accMsg" style="margin:0 0 18px;color:var(--ink);font-size:15px;line-height:1.5;">${opsEscape(message)}</p>${buttonLabel?`<button id="accBtn" style="width:100%;border:0;border-radius:12px;padding:13px;background:var(--brand);color:#fff;font:600 15px system-ui,sans-serif;cursor:pointer;">${opsEscape(buttonLabel)}</button>`:''}</div>`;
+  document.body.appendChild(o);
+  if(buttonLabel) o.querySelector('#accBtn').addEventListener('click', e=>onClick(e.currentTarget, o.querySelector('#accMsg')));
+  return o;
+}
+function hideAccessBlock(){ const o = document.getElementById('accBlock'); if(o) o.remove(); }
+function clearLocalAccess(){ try{ [AGENT_STORAGE_KEY, LEASE_KEY, HW_KEY, TQ_KEY, FBQ_KEY].forEach(k=>localStorage.removeItem(k)); }catch(e){} }
+let disabledShown = false;
+function onAccountDisabled(){
+  if(disabledShown) return; disabledShown = true;
+  clearLocalAccess(); AGENT = null;
+  showAccessBlock('Access withdrawn', 'Your access to the Plan Illustrator has been withdrawn. Please contact your administrator.', 'OK', ()=>location.reload());
+}
+function b64uToBytes(str){ let t = str.replace(/-/g,'+').replace(/_/g,'/'); while(t.length%4) t += '='; const bin = atob(t), a = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) a[i] = bin.charCodeAt(i); return a; }
+let leasePk = null;
+async function leaseKey(){ return leasePk || (leasePk = await crypto.subtle.importKey('jwk', {kty:LEASE_PUBKEY.kty, crv:LEASE_PUBKEY.crv, x:LEASE_PUBKEY.x, y:LEASE_PUBKEY.y, ext:true}, {name:'ECDSA', namedCurve:'P-256'}, false, ['verify'])); }
+async function leasePayload(lease){
+  try{
+    if(!lease || typeof lease.p!=='string' || typeof lease.s!=='string') return null;
+    const ok = await crypto.subtle.verify({name:'ECDSA', hash:'SHA-256'}, await leaseKey(), b64uToBytes(lease.s), new TextEncoder().encode(lease.p));
+    return ok ? JSON.parse(lease.p) : null;
+  }catch(e){ return null; }
+}
+async function refreshLease(){
+  if(!STRICT || !AGENT || !AGENT.token) return {ok:true, skipped:true};
+  try{
+    const res = await fetch(`${BACKEND_API}/api/companies/${BACKEND_COMPANY_ID}/agents/lease`, {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer '+AGENT.token}, body:'{}'});
+    if(res.status===401){ return {ok:false, reason:'session'}; }
+    if(!res.ok) return {ok:false, reason:'rejected'};
+    const j = await res.json();
+    const payload = await leasePayload(j.lease);
+    if(!payload) return {ok:false, reason:'badsig'};
+    if(Math.abs(Date.parse(payload.iat) - Date.now()) > CLOCK_SKEW_MS) return {ok:false, reason:'clock'};
+    lsSet(LEASE_KEY, j.lease); lsSet(HW_KEY, Date.now());
+    return {ok:true, payload};
+  }catch(e){ return {ok:false, reason:'offline'}; }
+}
+// Applies the SIGNED policy inside a lease. Returns true if the app must stay blocked.
+function leaseBlocks(payload){
+  if(payload.min && cmpVersion(APP_VERSION, payload.min) < 0){ showRequiredBlock(null, payload.latest); return true; }
+  if(payload.req && payload.latest && cmpVersion(APP_VERSION, payload.latest) < 0){ showRequiredBlock(null, payload.latest); return true; }
+  return false;
+}
+async function checkAccess(){
+  if(!STRICT || !AGENT || !AGENT.token) { hideAccessBlock(); return true; }
+  const now = Date.now(), hw = lsGet(HW_KEY, 0);
+  let stored = lsGet(LEASE_KEY, null), payload = await leasePayload(stored), why = '';
+  if(stored && !payload) why = 'tampered';
+  else if(payload && (payload.aid !== AGENT.agentId || payload.cid !== Number(BACKEND_COMPANY_ID))) { payload = null; why = 'tampered'; }
+  else if(payload && Date.parse(payload.exp) <= now) { payload = null; why = 'expired'; }
+  else if(payload && now < hw - CLOCK_SKEW_MS) { payload = null; why = 'clock'; }
+  if(why==='tampered'){ try{ localStorage.removeItem(LEASE_KEY); }catch(e){} }
+  // Online: renew now (this is also what picks up a disabled agent or a new mandatory version).
+  if(navigator.onLine){
+    const r = await refreshLease();
+    if(r.ok && r.payload){ payload = r.payload; why = ''; }
+    else if(r.reason==='clock'){ showAccessBlock('Check your phone’s date and time', 'Your phone’s clock is more than a few minutes away from the correct time. Set it to automatic date and time, then try again.', 'Try again', ()=>location.reload()); return false; }
+    else if(r.reason==='session'){ clearLocalAccess(); AGENT = null; location.reload(); return false; }
+  }
+  if(!payload){
+    const msg = why==='tampered' ? 'The security check failed. Connect to the internet and sign in again.' : why==='clock' ? 'Your phone’s date or time looks wrong. Correct it, connect to the internet and try again.' : 'To keep your access valid the app needs to go online. Connect to the internet and try again.';
+    showAccessBlock('Connect to continue', msg, 'Try again', async (btn)=>{ btn.disabled = true; btn.textContent = 'Checking…'; const ok = await checkAccess(); if(!ok){ btn.disabled = false; btn.textContent = 'Try again'; } });
+    return false;
+  }
+  hideAccessBlock();
+  lsSet(HW_KEY, Math.max(hw, now));
+  return !leaseBlocks(payload);
+}
 
 const AGENT_STORAGE_KEY = 'illustrator_agent_v1';
 // Remembered name/phone/acceptance are only trusted for 24 hours from the
@@ -3521,6 +3630,7 @@ function initGate(){
     trackLogin(extra && extra.verified);
     gate.style.display = 'none';
     render();
+    if(STRICT && AGENT.token) checkAccess();   // fetch the first access lease right away
   }
 
   btn.addEventListener('click', async ()=>{
@@ -3711,11 +3821,11 @@ function offlineExpired(){
   return !!(s.maxOfflineDays && last && Date.now() - last > s.maxOfflineDays * 86400000);
 }
 async function fetchRemotePolicy(){
-  const pol = {latest:null, min:null, intervalDays:null, maxOfflineDays:null, notice:null};
+  const pol = {latest:null, min:null, intervalDays:null, maxOfflineDays:null, notice:null, require:true};
   let ok = false;
   try{
     const r = await fetch('version.json?t='+Date.now(), {cache:'no-store'});
-    if(r.ok){ const j = await r.json(); ok = true; pol.latest = j.version||null; pol.min = j.minVersion||null; pol.intervalDays = j.checkIntervalDays||null; pol.maxOfflineDays = (j.maxOfflineDays===undefined?null:j.maxOfflineDays); pol.notice = j.notice||null; }
+    if(r.ok){ const j = await r.json(); ok = true; pol.latest = j.version||null; if(j.requireUpdate===false) pol.require = false; pol.min = j.minVersion||null; pol.intervalDays = j.checkIntervalDays||null; pol.maxOfflineDays = (j.maxOfflineDays===undefined?null:j.maxOfflineDays); pol.notice = j.notice||null; }
   }catch(e){}
   if(BACKEND_API && BACKEND_COMPANY_ID){
     try{
@@ -3728,6 +3838,7 @@ async function fetchRemotePolicy(){
         if(c.checkIntervalDays) pol.intervalDays = c.checkIntervalDays;
         if(c.maxOfflineDays!==undefined && c.maxOfflineDays!==null) pol.maxOfflineDays = c.maxOfflineDays;
         if(c.notice) pol.notice = c.notice;
+        if(c.requireUpdate===false) pol.require = false; else if(c.requireUpdate===true) pol.require = true;   // the administrator service decides when it answers
       }
     }catch(e){}
   }
@@ -3755,6 +3866,7 @@ function showBlock(title, message, buttonLabel, onClick){
 }
 async function applyUpdate(btn){
   if(btn){ btn.disabled = true; btn.textContent = 'Updating…'; }
+  updSave({applyAttempt:{from:APP_VERSION, at:Date.now()}});
   track('update_applied', {from:APP_VERSION, to:updState().latest||''});
   flushTelemetry(true);
   try{ const reg = await navigator.serviceWorker.getRegistration(); if(reg) await reg.update(); }catch(e){}
@@ -3765,12 +3877,17 @@ async function applyUpdate(btn){
 }
 function enforceStoredPolicy(){
   const st = updState();
-  if(st.min && cmpVersion(APP_VERSION, st.min) < 0) return showRequiredBlock(st.notice);
+  const behind = !!(st.latest && cmpVersion(APP_VERSION, st.latest) < 0);
+  if(st.min && cmpVersion(APP_VERSION, st.min) < 0) return showRequiredBlock(st.notice, st.latest);
+  if(behind && st.requireUpdate!==false) return showRequiredBlock(st.notice, st.latest);   // a known newer release must be installed before the app opens
   if(offlineExpired()) return showOfflineBlock();
-  if(st.latest && cmpVersion(APP_VERSION, st.latest) < 0) showUpdateBanner(st.latest, st.notice);
+  if(behind) showUpdateBanner(st.latest, st.notice);
 }
-function showRequiredBlock(notice){
-  showBlock('Update required', (notice ? notice + ' ' : '') + 'This version of the Plan Illustrator is no longer supported. Update to continue.', 'Update now', btn=>applyUpdate(btn));
+function showRequiredBlock(notice, version){
+  const st = updState(), tried = st.applyAttempt && st.applyAttempt.from===APP_VERSION && Date.now()-st.applyAttempt.at < 15*60*1000;
+  const msg = (notice ? notice + ' ' : '') + `A new version${version?' ('+version+')':''} of the Plan Illustrator is ready. Install it to continue — the app will reopen automatically.` +
+    (tried ? ' The last attempt did not finish — please make sure you are online and try again.' : '');
+  showBlock('Update required', msg, 'Install update', btn=>applyUpdate(btn));
 }
 function showOfflineBlock(){
   const days = updSettings().maxOfflineDays;
@@ -3789,14 +3906,16 @@ async function runUpdateCheck(){
     try{ const reg = await navigator.serviceWorker.getRegistration(); if(reg) await reg.update(); }catch(e){}
     const pol = await fetchRemotePolicy();
     if(!pol){ updSave({lastTry:Date.now()}); track('update_check', {result:'error'}); return {ok:false}; }
-    updSave({lastOk:Date.now(), lastTry:Date.now(), latest:pol.latest, min:pol.min, notice:pol.notice||'',
+    updSave({lastOk:Date.now(), lastTry:Date.now(), latest:pol.latest, min:pol.min, notice:pol.notice||'', requireUpdate:pol.require,
              checkIntervalDays: pol.intervalDays||undefined, maxOfflineDays: pol.maxOfflineDays===null?undefined:pol.maxOfflineDays});
     const required = !!(pol.min && cmpVersion(APP_VERSION, pol.min) < 0);
     const available = !!(pol.latest && cmpVersion(APP_VERSION, pol.latest) < 0);
     track('update_check', {result: required?'required':available?'available':'current', from:APP_VERSION, to:pol.latest||APP_VERSION});
     hideUpdateUi();
-    if(required) showRequiredBlock(pol.notice); else if(available) showUpdateBanner(pol.latest, pol.notice);
-    return {ok:true, required, available, latest:pol.latest};
+    if(STRICT && AGENT && AGENT.token){ const lr = await refreshLease(); if(lr.ok && lr.payload && leaseBlocks(lr.payload)) return {ok:true, required:true, available, latest:pol.latest}; }
+    const mustInstall = required || (available && pol.require);
+    if(mustInstall) showRequiredBlock(pol.notice, pol.latest); else if(available) showUpdateBanner(pol.latest, pol.notice);
+    return {ok:true, required:mustInstall, available, latest:pol.latest};
   } finally { checking = false; }
 }
 async function registerPeriodicSync(){
@@ -3807,15 +3926,18 @@ async function registerPeriodicSync(){
     if(perm.state==='granted') await reg.periodicSync.register('check-update', {minInterval: updSettings().intervalDays*86400000});
   }catch(e){}
 }
-function updateTick(){
-  if(updateDue() || offlineExpired()){
+function updateTick(force){
+  const st = updState();
+  const stale = Date.now() - (st.lastTry || 0) > 6*3600*1000;   // also catches a release shortly after it is published
+  if(force || stale || updateDue() || offlineExpired()){
     runUpdateCheck().then(r=>{ if(r && !r.ok && offlineExpired()) showOfflineBlock(); });
   }
 }
 function startOpsRoutines(){
   if(!updState().firstRun) updSave({firstRun:Date.now()});
+  if(STRICT && AGENT && AGENT.token){ showAccessBlock('Checking your access…', 'One moment.', null); checkAccess(); }   // covered until the signed lease is verified
   enforceStoredPolicy();
-  updateTick();
+  updateTick(true);                          // every launch while online: an installed app never runs on an unchecked version
   setInterval(updateTick, 60*60*1000);       // an app left open all week still checks when due
   let hiddenAt = 0;
   document.addEventListener('visibilitychange', ()=>{
@@ -3943,7 +4065,7 @@ async function signOut(){
   try{ track('logout'); await Promise.race([flushTelemetry(true), new Promise(r=>setTimeout(r,2500))]); }catch(e){}
   try{ await Promise.race([flushFeedbackQueue(), new Promise(r=>setTimeout(r,1500))]); }catch(e){}
   try{
-    localStorage.removeItem(AGENT_STORAGE_KEY);
+    localStorage.removeItem(AGENT_STORAGE_KEY); localStorage.removeItem(LEASE_KEY); localStorage.removeItem(HW_KEY);
     localStorage.removeItem(TQ_KEY);      // this agent's unsent events were just flushed; never hand leftovers to the next person
     localStorage.removeItem(FBQ_KEY);
     sessionStorage.setItem('illustrator_signedout', '1');
@@ -3998,7 +4120,191 @@ async function pushPendingProfile(){
     if(res.ok){ AGENT.profilePending = false; localStorage.setItem(AGENT_STORAGE_KEY, JSON.stringify(AGENT)); }
   }catch(e){}
 }
+/* ---------- Help & handbook: searchable glossary, handbook, live product guide ---------- */
+const HELP_CSS = `
+#helpPanel{position:fixed;inset:0;z-index:10002;background:#fff;display:flex;flex-direction:column;font-family:system-ui,sans-serif;color:var(--ink);}
+#helpPanel .hp-top{background:var(--brand-dark);color:#fff;padding:12px 14px 10px;flex:none;}
+#helpPanel .hp-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+#helpPanel h2{margin:0;font-family:var(--font-display);font-size:19px;font-weight:700;}
+#helpPanel .hp-x{border:0;background:rgba(255,255,255,.16);color:#fff;width:36px;height:36px;min-width:36px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;padding:0;margin:0;display:flex;align-items:center;justify-content:center;flex:none;}
+#helpPanel .hp-search{position:relative;margin-top:10px;}
+#helpPanel .hp-search input{width:100%;box-sizing:border-box;border:0;border-radius:12px;padding:12px 40px 12px 14px;font:16px system-ui,sans-serif;color:var(--ink);background:#fff;}
+#helpPanel .hp-search input::-webkit-search-cancel-button,#helpPanel .hp-search input::-webkit-search-decoration{-webkit-appearance:none;display:none;}
+#helpPanel .hp-clear{position:absolute;right:4px;top:0;bottom:0;margin:auto 0;border:0;background:transparent;font-size:24px;color:var(--muted);cursor:pointer;width:36px;height:36px;min-height:0;padding:0;line-height:36px;text-align:center;display:none;}
+#helpPanel .hp-tabs{display:flex;gap:6px;margin-top:10px;}
+#helpPanel .hp-tab{flex:1;border:0;border-radius:10px;padding:9px 4px;font:600 13.5px system-ui,sans-serif;background:rgba(255,255,255,.14);color:#fff;cursor:pointer;}
+#helpPanel .hp-tab.on{background:#fff;color:var(--brand-dark);}
+#helpPanel .hp-body{flex:1;overflow:auto;padding:12px 14px 40px;-webkit-overflow-scrolling:touch;}
+#helpPanel .hp-strip{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;margin:0 -2px;}
+#helpPanel .hp-chip{flex:none;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:6px 12px;font:600 12.5px system-ui,sans-serif;cursor:pointer;white-space:nowrap;}
+#helpPanel .hp-chip.on{background:var(--brand);border-color:var(--brand);color:#fff;}
+#helpPanel .hp-letters .hp-chip{padding:5px 0;width:32px;text-align:center;}
+#helpPanel .hp-card{border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin:0 0 10px;background:#fff;}
+#helpPanel .hp-term{font-weight:700;font-size:16px;color:var(--brand-dark);margin:0 0 2px;}
+#helpPanel .hp-cat{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+#helpPanel .hp-def{font-size:14.5px;line-height:1.5;margin:0;}
+#helpPanel .hp-ex{font-size:13.5px;line-height:1.45;margin:8px 0 0;padding:8px 10px;background:#f7f2ea;border-radius:8px;}
+#helpPanel .hp-rel{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--muted);}
+#helpPanel .hp-rel button{border:1px solid var(--line);background:#fff;color:var(--brand);border-radius:999px;padding:4px 10px;font:600 12.5px system-ui,sans-serif;cursor:pointer;}
+#helpPanel mark{background:#ffe08a;color:inherit;padding:0 1px;border-radius:3px;}
+#helpPanel .hp-h{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 8px;font-weight:700;}
+#helpPanel .hp-art h3{margin:0 0 6px;font-size:16px;color:var(--brand-dark);}
+#helpPanel .hp-art{font-size:14.5px;line-height:1.55;}
+#helpPanel .hp-art ul,#helpPanel .hp-art ol{padding-left:20px;margin:6px 0;}
+#helpPanel .hp-art li{margin:4px 0;}
+#helpPanel .help-note{font-size:12.5px;color:var(--muted);}
+#helpPanel table{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0;}
+#helpPanel th,#helpPanel td{border:1px solid var(--line);padding:6px 7px;text-align:left;vertical-align:top;}
+#helpPanel th{background:#f2f2f2;}
+#helpPanel .hp-tw{overflow-x:auto;}
+#helpPanel .hp-tw table{min-width:620px;}
+#helpPanel .hp-empty{text-align:center;padding:26px 10px;color:var(--muted);}
+#helpPanel .hp-primary{border:0;border-radius:12px;padding:12px 16px;background:var(--brand);color:#fff;font:600 14.5px system-ui,sans-serif;cursor:pointer;margin-top:10px;}
+@media print{#helpPanel,#helpBtn{display:none!important;}}
+`;
+const hpNum = v => typeof v==='number' ? v : (parseFloat(String(v).replace(/[^0-9.]/g,''))||0);
+const hpKES = n => 'KES ' + Math.round(n).toLocaleString('en-KE');
+function hpProductGuide(){
+  const out = [];
+  const tag = (...a)=>a.filter(Boolean).join(' · ');
+  try{
+    const rn = DATA.riderNames || [];
+    const rows = DATA.plans.map(p=>{
+      const unlimited = !p.maxTerm;
+      const riders = (p.riders||[]).map((f,i)=>f ? rn[i] : null).filter(Boolean);
+      return `<tr><td><b>${opsEscape(p.name)}</b></td><td>up to ${p.maxAge}</td><td>${unlimited?'whole of life':p.minTerm+'–'+p.maxTerm+' yrs'+(p.termStep>1?' (steps of '+p.termStep+')':'')}</td><td>${p.maxMatAge}</td><td>${hpKES(p.minSA)}</td><td>${opsEscape(tag(p.par?'With profits':'Without profits', p.singlePremium?'Single premium available':'', p.wholeLife?'Whole of life':'', p.terminalBonus?'Terminal bonus':''))}</td><td>${riders.length?opsEscape(riders.join(', ')):'None'}</td></tr>`;
+    }).join('');
+    const ff = DATA.freqFactor ? Object.keys(DATA.freqFactor) : [];
+    out.push({t:'Traditional & Endowment plans (Fanaka family)', k:'fanaka career life anticipated endowment maxlife triplex jubilant mortgage term assurance whole assurance joint', h:`<p>Entry age, term, maturity-age and minimum sum assured limits for each plan, and the riders each plan accepts. Premium frequencies: ${opsEscape(ff.join(', '))}. Tax relief (15% of premium) is capped per payment at: ${Object.entries(DATA.taxReliefCap||{}).map(([k,v])=>opsEscape(k)+' '+hpKES(v)).join(', ')}.</p><div class="hp-tw"><table><thead><tr><th>Plan</th><th>Entry age</th><th>Term</th><th>Max age at maturity</th><th>Min sum assured</th><th>Features</th><th>Riders</th></tr></thead><tbody>${rows}</tbody></table></div>`});
+  }catch(e){}
+  try{
+    const rn = SMARTSAVE.riderNames || {};
+    const mins = (SMARTSAVE.freq||[]).map(f=>`${opsEscape(f[0])}: ${hpKES(hpNum(f[3]))}`).join(' · ');
+    const cards = Object.entries(SMARTSAVE.productConfig).map(([name,c])=>`<tr><td><b>${opsEscape(name)}</b></td><td>${c.ageMin}–${c.ageMax}</td><td>${c.termMin}–${c.termMax} yrs</td><td>${opsEscape((c.riders||[]).map(r=>rn[r]||r).join(', '))}</td></tr>`).join('');
+    out.push({t:'Smart Save & Smart Scholar', k:'smart save scholar education savings child school', h:`<p>Smart Save builds savings for any goal; Smart Scholar is aimed at funding children’s education. Minimum sum assured: ${hpKES(SMARTSAVE.minSumAssured)}. Minimum premium by payment frequency — ${mins}. Tax relief for taxpaying clients is 15% of annual premium, capped at ${hpKES(SMARTSAVE.taxReliefCap)} a year.</p><div class="hp-tw"><table><thead><tr><th>Product</th><th>Entry age</th><th>Term</th><th>Riders available</th></tr></thead><tbody>${cards}</tbody></table></div>`});
+  }catch(e){}
+  try{
+    const ages = (FAIDA.ageLimits||[]).map(r=>r[0]), maxTerms = (FAIDA.ageLimits||[]).map(r=>r[1]);
+    const terms = (FAIDA.wop && FAIDA.wop.terms) || [];
+    const mins = (FAIDA.freq||[]).map(f=>`${opsEscape(f[0])}: ${hpKES(hpNum(f[3]))}`).join(' · ');
+    const sc = (FAIDA.returnRates||[]).map(r=>`${opsEscape(r[0])} ${(r[1]*100).toFixed(0)}%`).join(', ');
+    out.push({t:'Faida Elimu, Maisha & Elite', k:'faida elimu maisha elite investment fund whole life cover last expense waiver of premium', h:`<ul><li><b>Entry age:</b> ${Math.min.apply(null,ages)}–${Math.max.apply(null,ages)} (age next birthday). The maximum term is ${Math.max.apply(null,maxTerms)} years and shortens for the oldest ages; the maximum age at maturity is capped (see the illustration).</li><li><b>Terms offered in the rate tables:</b> ${terms.length?Math.min.apply(null,terms)+'–'+Math.max.apply(null,terms)+' years':'see calculator'}.</li><li><b>Minimum premium by frequency:</b> ${mins}.</li><li><b>Growth scenarios shown:</b> ${sc} a year — projections, not guarantees.</li><li><b>Faida Maisha</b> carries a Last Expense rider and an optional Whole Life Cover rider (sum assured ${hpKES(MAISHA_WLC_MIN_SA)} to ${hpKES(MAISHA_WLC_MAX_SA)}).</li><li><b>Faida Elimu</b> carries a Last Expense rider and a Waiver of Premium rider (for regular-premium policies).</li><li><b>Faida Elite</b> is the investment-focused version; rider and fund charges are shown on its illustration.</li></ul>`});
+  }catch(e){}
+  out.push({t:'Reminder: always confirm with official documents', k:'disclaimer prevail official', h:'<p class="help-note">These tables are read directly from the calculator’s own data, so they match what the app will accept. They are a quick reference for agents — the company’s product brochures, policy terms and official illustrations always prevail.</p>'});
+  return out;
+}
+let HP = null;   // cached search index
+function hpIndex(){
+  if(HP) return HP;
+  const C = window.HELP_CONTENT || {GLOSSARY:[], HANDBOOK:[], categories:[]};
+  const plain = h=>String(h).replace(/<[^>]+>/g,' ').replace(/&amp;/g,'&').replace(/\s+/g,' ');
+  const gl = C.GLOSSARY.map((g,i)=>({kind:'term', i, title:g.t, cat:g.c, def:g.d, ex:g.x||'', kw:(g.k||'').toLowerCase(), rel:g.r||[], hay:(g.t+' '+(g.k||'')+' '+g.d+' '+(g.x||'')).toLowerCase(), tl:g.t.toLowerCase()}));
+  const hb = C.HANDBOOK.map((a,i)=>({kind:'handbook', i, title:a.t, cat:a.c, html:a.h, hay:(a.t+' '+plain(a.h)).toLowerCase(), tl:a.t.toLowerCase(), kw:''}));
+  const pg = hpProductGuide().map((a,i)=>({kind:'product', i, title:a.t, cat:'Products', html:a.h, hay:(a.t+' '+(a.k||'')+' '+plain(a.h)).toLowerCase(), tl:a.t.toLowerCase(), kw:(a.k||'').toLowerCase()}));
+  HP = {C, gl: gl.sort((a,b)=>a.title.localeCompare(b.title)), hb, pg, byTerm:new Map(gl.map(x=>[x.tl,x]))};
+  return HP;
+}
+function hpRegexSafe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function hpHL(text, tokens){
+  if(!tokens.length) return opsEscape(text);
+  const re = new RegExp('('+tokens.map(hpRegexSafe).join('|')+')','ig');
+  return String(text).split(re).map((part,i)=> i%2 ? '<mark>'+opsEscape(part)+'</mark>' : opsEscape(part)).join('');
+}
+function hpScore(e, tokens, q){
+  let s = 0;
+  for(const t of tokens){
+    if(e.hay.indexOf(t) < 0) return 0;
+    if(e.tl===q) s += 100; else if(e.tl.startsWith(t)) s += 60; else if(e.tl.indexOf(t) >= 0) s += 40;
+    if(e.kw && e.kw.indexOf(t) >= 0) s += 25;
+    s += 5;
+  }
+  return s;
+}
+function hpSearch(q){
+  const ix = hpIndex(), tokens = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const all = [].concat(ix.gl, ix.hb, ix.pg).map(e=>({e, s:hpScore(e, tokens, q.toLowerCase().trim())})).filter(x=>x.s>0);
+  all.sort((a,b)=>b.s-a.s || a.e.title.localeCompare(b.e.title));
+  return {tokens, hits: all.map(x=>x.e)};
+}
+function hpTermCard(e, tokens){
+  const rel = (e.rel||[]).filter(r=>hpIndex().byTerm.has(r.toLowerCase()));
+  return `<div class="hp-card" data-term="${opsEscape(e.tl)}"><div class="hp-term">${hpHL(e.title,tokens)}</div><div class="hp-cat">${opsEscape(e.cat)}</div><p class="hp-def">${hpHL(e.def,tokens)}</p>${e.ex?`<p class="hp-ex"><b>Example:</b> ${hpHL(e.ex,tokens)}</p>`:''}${rel.length?`<div class="hp-rel">See also: ${rel.map(r=>`<button type="button" data-go="${opsEscape(r)}">${opsEscape(r)}</button>`).join('')}</div>`:''}</div>`;
+}
+function hpArticle(e){ return `<div class="hp-card hp-art"><h3>${opsEscape(e.title)}</h3><div class="hp-cat">${opsEscape(e.cat)}</div>${e.html}</div>`; }
+function openHelp(startQuery){
+  if(document.getElementById('helpPanel')) return;
+  if(!document.getElementById('helpCss')){ const st = document.createElement('style'); st.id = 'helpCss'; st.textContent = HELP_CSS; document.head.appendChild(st); }
+  if(!window.HELP_CONTENT){ opsToast('Help content is not available yet. Check your connection and reopen the app.'); return; }
+  const ix = hpIndex();
+  track('help_opened');
+  const el = opsEl('div'); el.id = 'helpPanel'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Help and handbook');
+  el.innerHTML = `<div class="hp-top"><div class="hp-row"><h2>Help &amp; handbook</h2><button class="hp-x" id="hpClose" aria-label="Close help">&times;</button></div>
+    <div class="hp-search"><input id="hpQ" type="search" inputmode="search" enterkeyhint="search" autocomplete="off" autocapitalize="none" placeholder="Search e.g. indemnity, surrender, rider…" aria-label="Search help"><button class="hp-clear" id="hpClear" aria-label="Clear search">&times;</button></div>
+    <div class="hp-tabs" id="hpTabs"><button class="hp-tab on" data-tab="glossary">Glossary</button><button class="hp-tab" data-tab="handbook">Handbook</button><button class="hp-tab" data-tab="products">Products</button></div></div>
+    <div class="hp-body" id="hpBody"></div>`;
+  document.body.appendChild(el);
+  const $ = s=>el.querySelector(s);
+  let tab = 'glossary', cat = 'All', letter = '', timer = null;
+  const body = $('#hpBody'), qEl = $('#hpQ');
+  const letters = Array.from(new Set(ix.gl.map(g=>g.title[0].toUpperCase()))).sort();
+  function draw(){
+    const q = qEl.value.trim();
+    $('#hpClear').style.display = q ? 'block' : 'none';
+    $('#hpTabs').style.display = q ? 'none' : 'flex';
+    if(q){
+      const {tokens, hits} = hpSearch(q);
+      if(!hits.length){
+        const pre = q.toLowerCase().slice(0,3);
+        const near = ix.gl.filter(g=>pre.length>=2 && g.tl.indexOf(pre)>=0).slice(0,6);
+        body.innerHTML = `<div class="hp-empty"><b>No match for “${opsEscape(q)}”.</b><br>Try a shorter or different word.${near.length?`<div class="hp-rel" style="justify-content:center;margin-top:10px;">Did you mean: ${near.map(n=>`<button type="button" data-go="${opsEscape(n.title)}">${opsEscape(n.title)}</button>`).join('')}</div>`:''}<br><button class="hp-primary" id="hpAsk">Ask for this term to be added</button></div>`;
+        clearTimeout(timer); timer = setTimeout(()=>{ if(qEl.value.trim()===q) track('help_search_miss', {q:q.slice(0,40)}); }, 900);
+        const ask = $('#hpAsk'); if(ask) ask.addEventListener('click', ()=>{ close(); openFeedback(); setTimeout(()=>{ const t = document.getElementById('fbText'); if(t){ t.value = 'Help request — please add or explain: ' + q; t.focus(); } }, 50); });
+        return;
+      }
+      const shown = hits.slice(0, 40);
+      body.innerHTML = `<div class="hp-h">${hits.length} result${hits.length===1?'':'s'}${hits.length>40?' (showing the first 40)':''}</div>` + shown.map(e=> e.kind==='term' ? hpTermCard(e, tokens) : hpArticle(e)).join('');
+      return;
+    }
+    if(tab==='glossary'){
+      const cats = ['All'].concat(ix.C.categories.filter(c=>ix.gl.some(g=>g.cat===c)));
+      let list = ix.gl.filter(g=>(cat==='All'||g.cat===cat) && (!letter || g.title[0].toUpperCase()===letter));
+      body.innerHTML = `<div class="hp-strip hp-letters">${['All'].concat(letters).map(l=>`<button class="hp-chip ${((l==='All'&&!letter)||l===letter)?'on':''}" data-letter="${l}">${l==='All'?'A–Z':l}</button>`).join('')}</div>
+        <div class="hp-strip">${cats.map(c=>`<button class="hp-chip ${c===cat?'on':''}" data-cat="${opsEscape(c)}">${opsEscape(c)}</button>`).join('')}</div>
+        <div class="hp-h">${list.length} term${list.length===1?'':'s'}</div>` + list.map(e=>hpTermCard(e, [])).join('');
+    } else if(tab==='handbook'){
+      body.innerHTML = '<p class="help-note" style="margin:0 0 10px;">Practical guidance for using the app and working with clients. The company’s documents and policy terms always prevail.</p>' + ix.hb.map(hpArticle).join('');
+    } else {
+      body.innerHTML = '<p class="help-note" style="margin:0 0 10px;">Live product rules, read from the calculator’s own data.</p>' + ix.pg.map(hpArticle).join('');
+    }
+  }
+  function goTerm(name){ qEl.value = name; draw(); body.scrollTop = 0; }
+  el.addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    if(b.id==='hpClose'){ close(); return; }
+    if(b.id==='hpClear'){ qEl.value = ''; draw(); qEl.focus(); return; }
+    if(b.dataset.tab){ tab = b.dataset.tab; el.querySelectorAll('.hp-tab').forEach(x=>x.classList.toggle('on', x===b)); body.scrollTop = 0; draw(); return; }
+    if(b.dataset.letter!==undefined){ letter = b.dataset.letter==='All' ? '' : b.dataset.letter; draw(); return; }
+    if(b.dataset.cat!==undefined){ cat = b.dataset.cat; draw(); return; }
+    if(b.dataset.go){ goTerm(b.dataset.go); return; }
+  });
+  qEl.addEventListener('input', ()=>{ body.scrollTop = 0; draw(); });
+  qEl.addEventListener('keydown', e=>{ if(e.key==='Enter') qEl.blur(); });
+  const onKey = e=>{ if(e.key==='Escape') close(); };
+  document.addEventListener('keydown', onKey);
+  // Android's back button closes help instead of leaving the app
+  try{ history.pushState({help:1}, ''); }catch(e){}
+  const onPop = ()=>{ el.remove(); cleanup(); };
+  window.addEventListener('popstate', onPop);
+  function cleanup(){ document.removeEventListener('keydown', onKey); window.removeEventListener('popstate', onPop); }
+  function close(){ const had = history.state && history.state.help; el.remove(); cleanup(); if(had){ try{ history.back(); }catch(e){} } }
+  if(startQuery){ qEl.value = startQuery; }
+  draw();
+  setTimeout(()=>{ if(!startQuery) qEl.focus(); }, 60);
+}
+
 function syncOpsUi(){
+  const hb = document.getElementById('helpBtn');
+  if(hb){ hb.style.display = AGENT ? 'flex' : 'none'; if(!hb._wired){ hb._wired = true; hb.addEventListener('click', ()=>openHelp()); } }
   const ab = document.getElementById('acctBtn');
   if(ab){ ab.style.display = AGENT ? 'flex' : 'none'; if(AGENT){ document.getElementById('acctInit').textContent = agentInitials(); if(!ab._wired){ ab._wired = true; ab.addEventListener('click', openAccount); } } }
   pushPendingProfile();
