@@ -467,6 +467,41 @@
   .print-table th, .print-table td{border:1px solid #ccc;padding:5px 7px;text-align:left;}
   .print-table th{background:#f2f2f2;}
 }
+
+  /* ---------- Adaptive layout: phone (default) -> tablet -> desktop ---------- */
+  .app-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;}
+  .app-btn{flex:1 1 160px;border:1.5px solid var(--brand);background:#fff;color:var(--brand);border-radius:12px;padding:11px 14px;font:600 14px system-ui,sans-serif;cursor:pointer;min-height:44px;}
+  .app-btn:hover{background:var(--brand-light);}
+  .app-btn:disabled{opacity:.6;cursor:default;}
+  @media (min-width:768px){
+    main{max-width:760px;padding:26px 28px 16px;}
+    header.top{padding:18px 28px 14px;}
+    header.top .brand, header.top h1{padding-right:110px;}
+    #acctBtn{right:28px;} #helpBtn{right:74px;}
+    #gateScreen .gate-body{max-width:640px;}
+    .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .mode-card{padding:18px;}
+    #fbSheet,#acctSheet{align-items:center!important;}
+    #fbSheet>div,#fbSheet>[role=dialog]{border-radius:18px!important;}
+    body>div[style*="align-items:flex-end"]{align-items:center!important;}
+    body>div[style*="align-items:flex-end"]>[role=dialog]{border-radius:18px!important;max-width:560px!important;}
+    #atPanel{inset:3vh 0;margin:0 auto;width:min(880px,94vw);border-radius:18px;overflow:hidden;box-shadow:0 0 0 100vmax rgba(20,10,12,.55),0 20px 60px rgba(0,0,0,.35);}
+    #atPanel .at-body{padding:18px 26px 80px;}
+    #helpPanel{inset:3vh 0;margin:0 auto;width:min(880px,94vw);border-radius:18px;overflow:hidden;box-shadow:0 0 0 100vmax rgba(20,10,12,.55),0 20px 60px rgba(0,0,0,.35);}
+    #dqCard{max-width:520px!important;}
+  }
+  @media (min-width:1100px){
+    main{max-width:960px;padding:30px 36px 20px;}
+    header.top{padding:18px max(36px,calc((100vw - 960px)/2 + 36px)) 14px;}
+    header.top .brand, header.top h1{padding-right:120px;}
+    #acctBtn{right:max(36px,calc((100vw - 960px)/2 + 36px));} #helpBtn{right:calc(max(36px,calc((100vw - 960px)/2 + 36px)) + 46px);}
+    .mode-grid{grid-template-columns:1fr 1fr;}
+    #atPanel,#helpPanel{width:min(960px,86vw);}
+    body{font-size:16px;}
+  }
+  @media (min-width:1500px){ main{max-width:1040px;} }
+  @media (hover:hover) and (pointer:fine){ .mode-card:hover{border-color:var(--brand);box-shadow:0 2px 10px rgba(76,21,32,.1);} }
+  @media print{ .app-row{display:none!important;} }
 </style>
 </head>
 <body>
@@ -1377,13 +1412,22 @@ function renderHome(){
       </div>
     </div>
     <div class="note" style="margin-top:8px;">The diagnosis is a guide for further advisor assessment — it does not replace full fact-finding, affordability checks, or the official product illustration.</div>
-    <div class="note" style="margin-top:6px;">Version ${APP_VERSION} &middot; <a href="#" id="chkUpd">Check for updates</a> <span id="updStatus"></span></div>
+    <div class="app-row" role="group" aria-label="App">
+      <button type="button" class="app-btn" id="homeInstall" data-install>&#11015; Install app</button>
+      <button type="button" class="app-btn" id="homeUpdate">&#8635; Check for updates</button>
+    </div>
+    <div class="note" style="margin-top:6px;" id="verLine">Version ${APP_VERSION} <span data-installed style="display:none;">&middot; installed</span> <span id="updStatus" role="status"></span></div>
   `;
-  document.getElementById('chkUpd').addEventListener('click', async (e)=>{
-    e.preventDefault();
-    const st = document.getElementById('updStatus'); st.textContent = 'Checking…';
+  if(window.syncInstallUi) window.syncInstallUi();
+  document.getElementById('homeInstall').addEventListener('click', ()=>window.installApp && window.installApp());
+  document.getElementById('homeUpdate').addEventListener('click', async (e)=>{
+    const b = e.currentTarget, st = document.getElementById('updStatus');
+    if(b.dataset.ready){ return applyUpdate(b); }
+    b.disabled = true; st.textContent = '— checking…';
     const r = await runUpdateCheck();
-    st.textContent = !r || !r.ok ? '— could not reach the update service' : (r.required||r.available) ? '— update available' : '— you are up to date';
+    b.disabled = false;
+    if(r && r.ok && (r.required||r.available)){ st.textContent = '— version '+(r.latest||'')+' available'; b.dataset.ready = '1'; b.innerHTML = '&#8635; Update now'; }
+    else st.textContent = !r || !r.ok ? '— could not reach the update service' : '— you are up to date';
   });
   document.getElementById('homeDiagnose').addEventListener('click', ()=>{
     state.diag = defaultState().diag;
@@ -3378,7 +3422,7 @@ function renderSSStep5(){
    for a fully offline/standalone device install.
    ============================================================ */
 const urlParams = new URLSearchParams(location.search);
-const APP_VERSION = '2026.10.27';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
+const APP_VERSION = '2026.10.28';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
 // Bump this whenever the Terms text changes in substance: every device then shows the gate again so the
 // new wording is actually accepted, instead of silently carrying the old acceptance forward.
 const TERMS_VERSION = '3';
@@ -4372,24 +4416,83 @@ if('serviceWorker' in navigator){
   });
 }
 
-/* Visible "Install app" button — shown only when the browser says the app is
-   installable (Chrome fires beforeinstallprompt), hidden once installed. */
+/* Install + update controls. Install works on Chrome/Edge/Android (native prompt), and gives
+   step-by-step help on iPhone/iPad Safari and browsers without a prompt. Hidden once installed. */
 (function(){
   let deferred = null;
+  const standalone = ()=> (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  const ua = navigator.userAgent || '';
+  const isIOS = /iphone|ipad|ipod/i.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  const isSafari = /safari/i.test(ua) && !/crios|fxios|edgios|chrome|android/i.test(ua);
+  const isFirefox = /firefox|fxios/i.test(ua);
+  const isAndroid = /android/i.test(ua);
+  const isEdge = /edg\//i.test(ua);
   const btn = document.createElement('button');
-  btn.textContent = 'Install app';
+  btn.id = 'floatInstall'; btn.type = 'button'; btn.textContent = 'Install app';
   btn.setAttribute('aria-label','Install Plan Illustrator on this device');
   btn.style.cssText = 'display:none;position:fixed;right:14px;bottom:14px;z-index:9999;padding:10px 16px;border:0;border-radius:999px;background:var(--brand);color:#fff;font:600 14px system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;';
   document.body.appendChild(btn);
-  window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferred = e; btn.style.display = 'block'; track('install_prompt_shown'); });
-  btn.addEventListener('click', async ()=>{
-    if(!deferred) return;
-    btn.style.display = 'none';
-    deferred.prompt();
-    try{ await deferred.userChoice; }catch(_){}
-    deferred = null;
-  });
-  window.addEventListener('appinstalled', ()=>{ btn.style.display = 'none'; deferred = null; track('app_installed'); });
+  function syncButtons(){
+    const inst = standalone();
+    btn.style.display = (!inst && deferred) ? 'block' : 'none';
+    document.querySelectorAll('[data-install]').forEach(el=>{ el.style.display = inst ? 'none' : ''; });
+    document.querySelectorAll('[data-installed]').forEach(el=>{ el.style.display = inst ? '' : 'none'; });
+  }
+  function howTo(){
+    let title = 'Install this app', steps;
+    if(isIOS && isSafari) steps = ['Tap the <b>Share</b> button (square with an arrow) at the bottom or top of Safari.','Scroll down and tap <b>Add to Home Screen</b>.','Tap <b>Add</b>. The app now opens full-screen from your home screen.'];
+    else if(isIOS) steps = ['On iPhone and iPad, installing only works from <b>Safari</b>.','Open this same page in Safari.','Tap <b>Share</b>, then <b>Add to Home Screen</b>.'];
+    else if(isFirefox && !isAndroid) steps = ['Firefox on computers cannot install web apps.','Open this page in <b>Chrome</b> or <b>Edge</b>.','Click the install icon at the right end of the address bar, then <b>Install</b>.'];
+    else if(isAndroid) steps = ['Tap the browser menu (<b>&#8942;</b>) at the top right.','Tap <b>Install app</b> or <b>Add to Home screen</b>.','Confirm. The app appears on your home screen.'];
+    else steps = [`Look for the <b>install icon</b> (a monitor with a down arrow) at the right end of the ${isEdge?'Edge':'Chrome'} address bar and click it, then choose <b>Install</b>.`,'Or open the browser menu (<b>&#8942;</b>) and choose <b>Install Plan Illustrator</b> / <b>Cast, save and share &gt; Install page as app</b>.','The app then opens in its own window and from your desktop or Start menu.'];
+    const wrap = opsEl('div','position:fixed;inset:0;z-index:10060;background:rgba(20,10,12,.55);display:flex;align-items:center;justify-content:center;padding:16px;');
+    wrap.innerHTML = `<div role="dialog" aria-modal="true" aria-label="${title}" style="background:#fff;width:100%;max-width:440px;border-radius:18px;padding:20px 20px 18px;font-family:system-ui,sans-serif;color:var(--ink);max-height:92vh;overflow:auto;box-sizing:border-box;"><h2 style="margin:0 0 10px;font-family:var(--font-display);color:var(--brand-dark);font-size:20px;">${title}</h2><ol style="margin:0 0 14px;padding-left:20px;font-size:14.5px;line-height:1.5;">${steps.map(x=>`<li style="margin-bottom:6px;">${x}</li>`).join('')}</ol><p style="margin:0 0 14px;font-size:12.5px;color:var(--muted);">Once installed it opens like any other app and keeps working offline.</p><button type="button" id="insOk" style="width:100%;border:0;border-radius:12px;padding:12px;background:var(--brand);color:#fff;font:600 15px system-ui;cursor:pointer;">Got it</button></div>`;
+    document.body.appendChild(wrap);
+    const ok = wrap.querySelector('#insOk'); ok.focus();
+    const close = ()=>wrap.remove();
+    ok.addEventListener('click', close);
+    wrap.addEventListener('click', e=>{ if(e.target===wrap) close(); });
+    wrap.addEventListener('keydown', e=>{ if(e.key==='Escape') close(); });
+  }
+  async function installApp(){
+    if(standalone()) { opsToast && opsToast('The app is already installed.'); return; }
+    if(deferred){
+      const d = deferred; deferred = null; syncButtons();
+      d.prompt();
+      try{ const c = await d.userChoice; track('install_choice', {outcome:c&&c.outcome}); }catch(_){}
+      return;
+    }
+    howTo();
+  }
+  window.installApp = installApp;
+  window.appIsInstalled = standalone;
+  window.syncInstallUi = syncButtons;
+  window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferred = e; syncButtons(); track('install_prompt_shown'); });
+  btn.addEventListener('click', installApp);
+  window.addEventListener('appinstalled', ()=>{ deferred = null; syncButtons(); track('app_installed'); });
+  try{ matchMedia('(display-mode: standalone)').addEventListener('change', syncButtons); }catch(_){}
+
+  /* A new version found by the browser in the background: offer it without interrupting work. */
+  function offerReload(){
+    if(document.getElementById('updReady') || document.getElementById('updBlock')) return;
+    const b = opsEl('div','position:fixed;left:50%;transform:translateX(-50%);bottom:14px;width:calc(100% - 20px);max-width:460px;z-index:9996;background:var(--brand-dark);color:#fff;padding:11px 14px;border-radius:14px;display:flex;gap:10px;align-items:center;font:600 13.5px system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.3);');
+    b.id = 'updReady'; b.setAttribute('role','status');
+    b.innerHTML = '<span style="flex:1;">A new version is ready.</span><button type="button" id="urNow" style="border:0;border-radius:9px;padding:8px 14px;background:var(--accent);color:#2b1d05;font:700 13px system-ui;cursor:pointer;">Update now</button><button type="button" id="urX" aria-label="Later" style="border:0;background:transparent;color:#fff;font-size:20px;cursor:pointer;min-width:32px;min-height:32px;">&times;</button>';
+    document.body.appendChild(b);
+    b.querySelector('#urNow').addEventListener('click', e=>applyUpdate(e.currentTarget));
+    b.querySelector('#urX').addEventListener('click', ()=>b.remove());
+  }
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistration().then(reg=>{
+      if(!reg) return;
+      if(reg.waiting && navigator.serviceWorker.controller) offerReload();
+      reg.addEventListener('updatefound', ()=>{
+        const w = reg.installing; if(!w) return;
+        w.addEventListener('statechange', ()=>{ if((w.state==='installed'||w.state==='activated') && navigator.serviceWorker.controller) offerReload(); });
+      });
+    }).catch(()=>{});
+  }
+  syncButtons();
 })();
 
 </script>
