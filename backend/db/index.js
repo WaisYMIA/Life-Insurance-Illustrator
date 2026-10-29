@@ -60,7 +60,8 @@ if(DRIVER === 'postgres'){
   // in this codebase wants the new row's id back, so it's appended
   // automatically rather than requiring every call site to ask for it.
   function withReturningId(sql){
-    const isInsert = /^\s*INSERT\s+INTO/i.test(sql);
+    // Tables keyed by company_id have no "id" column to return.
+    const isInsert = /^\s*INSERT\s+INTO/i.test(sql) && !/^\s*INSERT\s+INTO\s+(company_config|app_control|sms_settings|targets)\b/i.test(sql);
     const alreadyHasReturning = /\breturning\b/i.test(sql);
     if(isInsert && !alreadyHasReturning) return sql.replace(/;?\s*$/, ' RETURNING id');
     return sql;
@@ -139,6 +140,40 @@ if(DRIVER === 'postgres'){
       ['email', 'TEXT'],
       ['agency_code', 'TEXT']
     ]);
+    await addColumnsIfMissingPg('agents', [
+      ['source', "TEXT NOT NULL DEFAULT 'self'"],
+      ['group_name', 'TEXT']
+    ]);
+    await addColumnsIfMissingPg('product_data_versions', [
+      ['change_summary', 'TEXT'],
+      ['impact_json', 'TEXT'],
+      ['approved_by', 'INTEGER'],
+      ['approved_at', 'TEXT']
+    ]);
+    await addColumnsIfMissingPg('agents', [
+      ['licence_no', 'TEXT'],
+      ['licence_expiry', 'TEXT'],
+      ['region', 'TEXT']
+    ]);
+    await addColumnsIfMissingPg('product_data_versions', [
+      ['scheduled_for', 'TEXT'],
+      ['scheduled_by', 'INTEGER']
+    ]);
+    await addColumnsIfMissingPg('leads', [
+      ['client_ref', 'TEXT']
+    ]);
+    await addColumnsIfMissingPg('suitability_records', [
+      ['client_ref', 'TEXT']
+    ]);
+    await addColumnsIfMissingPg('companies', [
+      ['app_name', 'TEXT'],
+      ['support_phone', 'TEXT'],
+      ['support_email', 'TEXT'],
+      ['website', 'TEXT']
+    ]);
+    await addColumnsIfMissingPg('custom_products', [
+      ['pending_json', 'TEXT']
+    ]);
     await addColumnsIfMissingPg('app_control', [
       ['require_update', 'INTEGER NOT NULL DEFAULT 1']
     ]);
@@ -209,6 +244,40 @@ if(DRIVER === 'postgres'){
       ['otp_last_sent_at', 'TEXT'],
       ['email', 'TEXT'],
       ['agency_code', 'TEXT']
+    ]);
+    addColumnsIfMissingSqlite('agents', [
+      ['source', "TEXT NOT NULL DEFAULT 'self'"],
+      ['group_name', 'TEXT']
+    ]);
+    addColumnsIfMissingSqlite('product_data_versions', [
+      ['change_summary', 'TEXT'],
+      ['impact_json', 'TEXT'],
+      ['approved_by', 'INTEGER'],
+      ['approved_at', 'TEXT']
+    ]);
+    addColumnsIfMissingSqlite('agents', [
+      ['licence_no', 'TEXT'],
+      ['licence_expiry', 'TEXT'],
+      ['region', 'TEXT']
+    ]);
+    addColumnsIfMissingSqlite('product_data_versions', [
+      ['scheduled_for', 'TEXT'],
+      ['scheduled_by', 'INTEGER']
+    ]);
+    addColumnsIfMissingSqlite('leads', [
+      ['client_ref', 'TEXT']
+    ]);
+    addColumnsIfMissingSqlite('suitability_records', [
+      ['client_ref', 'TEXT']
+    ]);
+    addColumnsIfMissingSqlite('companies', [
+      ['app_name', 'TEXT'],
+      ['support_phone', 'TEXT'],
+      ['support_email', 'TEXT'],
+      ['website', 'TEXT']
+    ]);
+    addColumnsIfMissingSqlite('custom_products', [
+      ['pending_json', 'TEXT']
     ]);
     addColumnsIfMissingSqlite('app_control', [
       ['require_update', 'INTEGER NOT NULL DEFAULT 1']

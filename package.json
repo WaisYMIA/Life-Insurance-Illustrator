@@ -9,13 +9,16 @@
   },
   "scripts": {
     "test:update-flow": "node test/update-flow-test.js",
-    "test": "node test/regression-suite.js && node test/needs-scoring-test.js && node test/version-sync-test.js && node test/help-content-test.js && node backend/test-integration.js"
+    "test": "node test/regression-suite.js && node test/engine-parity-test.js && node test/needs-scoring-test.js && node test/version-sync-test.js && node test/help-content-test.js && node backend/test-integration.js && node backend/test-platform.js && node test/daily-quote-test.js",
+    "release": "node scripts/release.js",
+    "backup": "node scripts/backup.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "compression": "^1.8.2",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.7.0",
@@ -23,6 +26,9 @@
     "multer": "^2.4.0",
     "nodemailer": "^10.0.14",
     "pg": "^8.23.1",
-    "xlsx": "^0.18.5"
+    "read-excel-file": "^9.3.12"
+  },
+  "devDependencies": {
+    "write-excel-file": "^4.1.1"
   }
 }

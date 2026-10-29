@@ -28,7 +28,11 @@
  * safety gate.
  */
 'use strict';
-const XLSX = require('xlsx');
+// Reads .xlsx with read-excel-file (no known vulnerabilities). The previous library (SheetJS 0.18.5) has
+// unpatched advisories and was removed. It is loaded lazily because the library is an ES module.
+let readerPromise = null;
+const reader = () => (readerPromise = readerPromise || import('read-excel-file/node'));
+const MAX_ROWS = 5000;
 
 // Fuzzy header matcher: normalizes punctuation/case/whitespace, then looks
 // for any of a field's known aliases as a substring. Good enough for real
@@ -53,15 +57,18 @@ function matchField(header){
   return null;
 }
 
-function sheetToRows(sheet){
-  return XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false, defval: null });
+const norm = v => (v === undefined || v === '' ? null : v instanceof Date ? v.toISOString().slice(0, 10) : v);
+function clean(rows){
+  return rows.slice(0, MAX_ROWS).map(r => r.map(norm)).filter(r => r.some(c => c !== null));
 }
 
-function scanWorkbook(buffer, opts){
+async function scanWorkbook(buffer, opts){
   opts = opts || {};
-  const workbook = XLSX.read(buffer, { type: 'buffer' });
+  const mod = await reader(); const { Readable } = require('stream');
+  const all = await (mod.default || mod.readSheet)(Readable.from(buffer));
+  const workbook = { SheetNames: all.map(s => s.sheet), data: Object.fromEntries(all.map(s => [s.sheet, clean(s.data)])) };
   const sheets = workbook.SheetNames.map(name => {
-    const rows = sheetToRows(workbook.Sheets[name]);
+    const rows = workbook.data[name];
     const headerRow = rows[0] || [];
     return {
       name,
@@ -90,7 +97,7 @@ function scanWorkbook(buffer, opts){
   let extractedRates = null;
   if(ratesSheet && fieldMap){
     extractedRates = [];
-    const rows = sheetToRows(workbook.Sheets[ratesSheet.name]).slice(1);
+    const rows = workbook.data[ratesSheet.name].slice(1);
     for(const row of rows){
       if(row.every(c => c === null || c === '')) continue;
       const rec = {};

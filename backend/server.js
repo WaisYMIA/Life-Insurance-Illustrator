@@ -21,7 +21,7 @@ const { signToken, requireAdmin, requireAgent, requireSuperadmin, scopeToCompany
 const multer = require('multer');
 const { compute } = require('./engineRegistry');
 const crypto = require('crypto');
-const { sendSms, currentProvider } = require('./sms');
+const { sendSms, currentProvider, providerFor, getSettings: getSmsSettings } = require('./sms');
 const { sendEmail, currentProvider: currentEmailProvider } = require('./email');
 const { scanWorkbook } = require('./workbookScanner');
 const UtilsEngine = require('../engines/utils-engine.js');
@@ -29,6 +29,7 @@ const UtilsEngine = require('../engines/utils-engine.js');
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
 const app = express();
+app.use(require('compression')());
 // PRODUCTION: if deployed behind a reverse proxy (nginx, a load balancer, Render/Railway/etc.),
 // this must stay enabled so express-rate-limit and req.ip see the real client IP from
 // X-Forwarded-For rather than the proxy's own address.
@@ -45,18 +46,21 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || '*');
+  const allowed = (process.env.CORS_ORIGIN || '*').split(',').map(x => x.trim()).filter(Boolean);
+  if(allowed.includes('*')) res.header('Access-Control-Allow-Origin', '*');
+  else if(req.headers.origin && allowed.includes(req.headers.origin)){ res.header('Access-Control-Allow-Origin', req.headers.origin); res.header('Vary', 'Origin'); }
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-App-Version');
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
   if(req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
 
+let enterpriseRef = { applyScheduledActivations: async () => 0 };
 const security = require('./security');
 security.install(app, db);   // version gate: runs before the routes it protects
 
 // Generous default limit on every API route, so no single client can hammer the server.
-app.use('/api/', rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false }));
+app.use('/api/', rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false, skip: req => req.path.startsWith('/mpesa/callback/') }));
 // Tighter limit on login specifically, to slow down password-guessing — keyed on IP + email
 // so one slow attacker can't lock out every admin by spamming a shared IP's budget onto one account.
 const loginLimiter = rateLimit({
@@ -305,7 +309,7 @@ app.get('/api/companies/:companyId', requireAdmin, scopeToCompany, async (req, r
 });
 app.patch('/api/companies/:companyId', requireAdmin, scopeToCompany, async (req, res) => {
   const body = req.body || {};
-  const keyMap = { name:'name', logoUrl:'logo_url', colorPrimary:'color_primary', colorSecondary:'color_secondary', colorAccent:'color_accent', contactFooter:'contact_footer', disclaimerText:'disclaimer_text', isActive:'is_active', currencyCode:'currency_code', locale:'locale' };
+  const keyMap = { name:'name', logoUrl:'logo_url', colorPrimary:'color_primary', colorSecondary:'color_secondary', colorAccent:'color_accent', contactFooter:'contact_footer', disclaimerText:'disclaimer_text', isActive:'is_active', currencyCode:'currency_code', locale:'locale', appName:'app_name', supportPhone:'support_phone', supportEmail:'support_email', website:'website' };
   const hexColor = /^#[0-9a-fA-F]{6}$/;
   if(body.colorPrimary && !hexColor.test(body.colorPrimary)) return res.status(400).json({ error: 'colorPrimary must be a hex color' });
   if(body.colorSecondary && !hexColor.test(body.colorSecondary)) return res.status(400).json({ error: 'colorSecondary must be a hex color' });
@@ -323,12 +327,12 @@ app.patch('/api/companies/:companyId', requireAdmin, scopeToCompany, async (req,
   res.json(await db.prepare('SELECT * FROM companies WHERE id = ?').get(req.params.companyId));
 });
 app.get('/api/public/companies/by-slug/:slug', async (req, res) => {
-  const company = await db.prepare('SELECT id, name, slug, logo_url, color_primary, color_secondary, color_accent, contact_footer, disclaimer_text, currency_code, locale FROM companies WHERE slug = ? AND is_active = 1').get(req.params.slug);
+  const company = await db.prepare('SELECT id, name, slug, logo_url, color_primary, color_secondary, color_accent, contact_footer, disclaimer_text, currency_code, locale, app_name, support_phone, support_email, website FROM companies WHERE slug = ? AND is_active = 1').get(req.params.slug);
   if(!company) return res.status(404).json({ error: 'Not found' });
   res.json(company);
 });
 app.get('/api/public/companies/:companyId', async (req, res) => {
-  const company = await db.prepare('SELECT id, name, slug, logo_url, color_primary, color_secondary, color_accent, contact_footer, disclaimer_text, currency_code, locale FROM companies WHERE id = ? AND is_active = 1').get(req.params.companyId);
+  const company = await db.prepare('SELECT id, name, slug, logo_url, color_primary, color_secondary, color_accent, contact_footer, disclaimer_text, currency_code, locale, app_name, support_phone, support_email, website FROM companies WHERE id = ? AND is_active = 1').get(req.params.companyId);
   if(!company) return res.status(404).json({ error: 'Not found' });
   res.json(company);
 });
@@ -364,8 +368,13 @@ app.post('/api/product-lines/:lineId/scan-workbook', requireAdmin, upload.single
     return res.status(403).json({ error: 'Not authorized for this product line' });
   }
   if(!req.file) return res.status(400).json({ error: 'No workbook file uploaded (expected multipart field "workbook").' });
+  // The spreadsheet library has an unpatched advisory (parsing hostile files), so only plausible,
+  // reasonably small modern workbooks from signed-in admins are accepted. See DEPLOYMENT.md.
+  const buf = req.file.buffer;
+  if(buf.length > 5 * 1024 * 1024) return res.status(413).json({ error: 'That workbook is larger than 5 MB. Remove unused sheets and try again.' });
+  if(!(buf[0] === 0x50 && buf[1] === 0x4b)) return res.status(400).json({ error: 'Only modern Excel workbooks (.xlsx / .xlsm) are accepted.' });
   try {
-    const result = scanWorkbook(req.file.buffer);
+    const result = await scanWorkbook(req.file.buffer);
     await audit(line.company_id, 'admin', req.admin.adminId, 'product_version.workbook_scanned', { lineId: line.id, filename: req.file.originalname, extractedRows: result.extracted ? result.extracted.rows.length : 0 });
     res.json(Object.assign({ sourceFilename: req.file.originalname }, result));
   } catch(e){
@@ -393,7 +402,7 @@ app.post('/api/product-lines/:lineId/versions', requireAdmin, async (req, res) =
   res.status(201).json(await db.prepare('SELECT id, product_line_id, version_number, source_filename, validated, activated_at, created_at FROM product_data_versions WHERE id = ?').get(info.lastInsertRowid));
 });
 app.get('/api/product-lines/:lineId/versions', requireAdmin, async (req, res) => {
-  res.json(await db.prepare('SELECT id, version_number, source_filename, validated, validated_at, activated_at, superseded_at, created_at FROM product_data_versions WHERE product_line_id = ? ORDER BY version_number DESC').all(req.params.lineId));
+  res.json(await db.prepare('SELECT id, version_number, source_filename, validated, validated_at, activated_at, superseded_at, scheduled_for, created_at, change_summary, approved_at, CASE WHEN impact_json IS NULL THEN 0 ELSE 1 END AS has_impact FROM product_data_versions WHERE product_line_id = ? ORDER BY version_number DESC').all(req.params.lineId));
 });
 app.post('/api/product-lines/:lineId/versions/:versionId/validate', requireAdmin, async (req, res) => {
   const version = await db.prepare('SELECT * FROM product_data_versions WHERE id = ? AND product_line_id = ?').get(req.params.versionId, req.params.lineId);
@@ -436,6 +445,9 @@ app.post('/api/product-lines/:lineId/versions/:versionId/activate', requireAdmin
   if(req.admin.role !== 'superadmin' && req.admin.companyId !== line.company_id){
     return res.status(403).json({ error: 'Not authorized for this product line' });
   }
+  if(version.change_summary && !version.approved_at){
+    return res.status(422).json({ error: 'This rate change has not been approved yet. Run the impact report, then have it approved.' });
+  }
   // One atomic transaction: supersede whatever was active, activate this version, flip the
   // line live. db.transaction() is implemented per-driver in backend/db/index.js — on SQLite
   // it's a plain BEGIN/COMMIT/ROLLBACK (node:sqlite has no .transaction() helper); on Postgres
@@ -443,7 +455,7 @@ app.post('/api/product-lines/:lineId/versions/:versionId/activate', requireAdmin
   // really are atomic against a connection pool, not just sequential.
   await db.transaction(async () => {
     await db.prepare("UPDATE product_data_versions SET superseded_at = datetime('now') WHERE product_line_id = ? AND activated_at IS NOT NULL AND superseded_at IS NULL").run(line.id);
-    await db.prepare("UPDATE product_data_versions SET activated_by = ?, activated_at = datetime('now') WHERE id = ?").run(req.admin.adminId, version.id);
+    await db.prepare("UPDATE product_data_versions SET activated_by = ?, activated_at = datetime('now'), scheduled_for = NULL WHERE id = ?").run(req.admin.adminId, version.id);
     await db.prepare('UPDATE product_lines SET is_active = 1 WHERE id = ?').run(line.id);
   });
   await audit(line.company_id, 'admin', req.admin.adminId, 'product_version.activated', { lineId: line.id, versionId: version.id });
@@ -504,18 +516,32 @@ app.post('/api/companies/:companyId/agents/request-otp', otpRequestLimiter, asyn
     }
 
     const message = `Your Plan Illustrator verification code is ${code}. It expires in 10 minutes. Do not share this code.`;
-    let sendResult;
-    try {
-      sendResult = await sendSms(company.id, normalizedPhone, message);
-    } catch(smsErr){
-      return res.status(502).json({ error: 'Could not send the verification code. Please try again shortly.', detail: smsErr.message });
+    const targetEmail = email || agent.email || null;
+    const wantsEmail = (req.body || {}).channel === 'email';
+    if(wantsEmail && !targetEmail) return res.status(400).json({ error: 'No email address is on file for this agent. Enter your email above, or request the code by SMS.' });
+    let sendResult, channel = 'sms', smsProvider = await providerFor(company.id);
+    async function viaEmail(){
+      const r = await sendEmail(company.id, targetEmail, 'Your Plan Illustrator verification code', message);
+      channel = 'email'; return { provider: 'email:' + r.provider };
     }
-    await audit(company.id, 'agent', agent.id, 'agent.otp_requested', { phone: normalizedPhone, provider: sendResult.provider });
+    try {
+      sendResult = wantsEmail ? await viaEmail() : await sendSms(company.id, normalizedPhone, message);
+    } catch(sendErr){
+      const st = await getSmsSettings(company.id);
+      if(!wantsEmail && targetEmail && st.email_fallback){
+        try { sendResult = await viaEmail(); }
+        catch(e2){ console.error('[otp] send failed:', sendErr.message, '| email fallback:', e2.message); return res.status(502).json({ error: 'Could not send the verification code. Please try again shortly.' }); }
+      } else {
+        console.error('[otp] send failed:', sendErr.message);
+        return res.status(502).json({ error: 'Could not send the verification code. Please try again shortly.' });
+      }
+    }
+    await audit(company.id, 'agent', agent.id, 'agent.otp_requested', { phone: normalizedPhone, provider: sendResult.provider, channel });
 
-    const response = { sent: true, provider: sendResult.provider, expiresInSeconds: 600 };
-    // The code is only ever handed back here in 'console' mode — the local, network-free dev
-    // substitute. In any real provider mode it is sent exclusively to the phone.
-    if(currentProvider() === 'console') response.devCode = code;
+    const response = { sent: true, provider: sendResult.provider, channel, expiresInSeconds: 600 };
+    // The code is only ever handed back here when the carrying provider is the local, network-free 'console'
+    // substitute. With a real SMS or email provider it goes exclusively to the phone / mailbox.
+    if((channel === 'sms' && smsProvider === 'console') || (channel === 'email' && currentEmailProvider() === 'console')) response.devCode = code;
     res.json(response);
   } catch(e){ errorHandler(res, e); }
 });
@@ -574,7 +600,7 @@ app.get('/api/companies/:companyId/sms-outbox', requireAdmin, scopeToCompany, as
 });
 
 app.get('/api/companies/:companyId/agents', requireAdmin, scopeToCompany, async (req, res) => {
-  res.json(await db.prepare('SELECT id, name, phone, email, agency_code, verified, is_active, accepted_terms_at, created_at FROM agents WHERE company_id = ? ORDER BY id DESC').all(req.params.companyId));
+  res.json(await db.prepare('SELECT id, name, phone, email, agency_code, group_name, source, verified, is_active, accepted_terms_at, created_at FROM agents WHERE company_id = ? ORDER BY id DESC').all(req.params.companyId));
 });
 
 app.get('/api/companies/:companyId/illustrations', requireAdmin, scopeToCompany, async (req, res) => {
@@ -610,7 +636,7 @@ app.get('/app', (req, res) => res.sendFile(path.join(__dirname, '..', 'plan-illu
 // would have let anyone download backend source and the SQLite database — now that the database also
 // holds agent phone numbers and usage logs, that must never be reachable over HTTP.)
 const ROOT = path.join(__dirname, '..');
-for(const f of ['plan-illustrator.html', 'index.html', 'manifest.json', 'sw.js', 'version.json', 'app-config.js']){
+for(const f of ['plan-illustrator.html', 'index.html', 'manifest.json', 'sw.js', 'version.json', 'app-config.js', 'help-content.js', 'agent-tools.js', 'agent-apps.js', 'daily-quote.js', 'daily-quotes.js', 'custom-products.js', 'admin-extras.js']){
   app.get('/' + f, (req, res) => {
     if(f === 'sw.js' || f === 'version.json' || f === 'app-config.js') res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(path.join(ROOT, f), err => { if(err && !res.headersSent) res.status(404).end(); });
@@ -619,15 +645,21 @@ for(const f of ['plan-illustrator.html', 'index.html', 'manifest.json', 'sw.js',
 app.use('/icons', express.static(path.join(ROOT, 'icons'), { index: false, dotfiles: 'ignore' }));
 
 security.register(app, { db, requireAgent, requireAdmin, scopeToCompany, audit, errorHandler });
+app.use('/api/companies/:companyId/rates', async (req, res, next) => { try { await enterpriseRef.applyScheduledActivations(); } catch(e){} next(); });
+require('./features')(app, { db, requireAdmin, requireAgent, scopeToCompany, audit, errorHandler, sendEmail });
+const platform = require('./platform')(app, { db, requireAdmin, requireAgent, scopeToCompany, audit, errorHandler, sendEmail });
+const enterprise = enterpriseRef = require('./enterprise')(app, { db, requireAdmin, requireSuperadmin, scopeToCompany, audit, errorHandler, sendEmail, platform, rateLimit });
 const analytics = require('./analytics')(app, { db, requireAdmin, requireAgent, scopeToCompany, rateLimit, ipKeyGenerator, audit, sendEmail, errorHandler });
 
 const PORT = process.env.PORT || 3001;
 async function start(){
   // Safe to call on every boot against either driver: every statement in the schema files is
   // CREATE TABLE/INDEX IF NOT EXISTS, and the migrate step only adds a column if it's missing.
+  require('./guard').assertProduction();
   await initSchema();
   app.listen(PORT, () => console.log(`Plan Illustrator API listening on :${PORT}`));
   analytics.startDigestScheduler();
+  enterprise.startSchedulers();
 }
 if(require.main === module){
   start().catch(e => { console.error('Failed to start:', e); process.exit(1); });

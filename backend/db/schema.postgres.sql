@@ -261,3 +261,278 @@ CREATE TABLE IF NOT EXISTS app_control (
   notice               TEXT,
   updated_at           TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- ============================================================
+-- SMS SETTINGS — per-company switch for live SMS (Africa's Talking).
+-- Off by default; an admin turns it on once credentials are saved.
+-- The API key is stored encrypted and never returned to any client.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS sms_settings (
+  company_id    INTEGER PRIMARY KEY REFERENCES companies(id) ON DELETE CASCADE,
+  enabled       INTEGER NOT NULL DEFAULT 0,
+  provider      TEXT NOT NULL DEFAULT 'africastalking',
+  username      TEXT,
+  api_key_enc   TEXT,
+  sender_id     TEXT,
+  email_fallback INTEGER NOT NULL DEFAULT 1,
+  updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ============================================================
+-- LEADS — a quote handed from an agent to the sales / underwriting team.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS leads (
+  id            SERIAL PRIMARY KEY,
+  company_id    INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  agent_id      INTEGER REFERENCES agents(id) ON DELETE SET NULL,
+  client_name   TEXT NOT NULL,
+  client_phone  TEXT,
+  client_email  TEXT,
+  product       TEXT,
+  needs_summary TEXT,
+  note          TEXT,
+  status        TEXT NOT NULL DEFAULT 'new',
+  created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_leads_company ON leads(company_id, created_at);
+
+-- ============================================================
+-- TARGETS — monthly activity targets per agent, set by the company.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS targets (
+  company_id        INTEGER PRIMARY KEY REFERENCES companies(id) ON DELETE CASCADE,
+  calcs_per_month   INTEGER NOT NULL DEFAULT 0,
+  prints_per_month  INTEGER NOT NULL DEFAULT 0,
+  leads_per_month   INTEGER NOT NULL DEFAULT 0,
+  updated_at        TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ============================================================
+-- QUOTE RECORDS — compliance trail. One row per illustration an agent
+-- printed or shared: product inputs (no client name/phone/DOB), the
+-- headline result, the rate-table version and the disclaimer version.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS quote_records (
+  id             SERIAL PRIMARY KEY,
+  company_id     INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  agent_id       INTEGER REFERENCES agents(id) ON DELETE SET NULL,
+  product        TEXT,
+  action         TEXT,
+  rates_version  TEXT,
+  app_version    TEXT,
+  terms_version  TEXT,
+  language       TEXT,
+  inputs_json    TEXT,
+  result_json    TEXT,
+  occurred_at    TEXT,
+  created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_quotes_company ON quote_records(company_id, created_at);
+
+-- ============================================================
+-- v2026.11 additions: company config, applications, policies, complaints,
+-- suitability, payments, release plans, integration, custom products, quiz.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS company_config (
+  company_id   INTEGER PRIMARY KEY REFERENCES companies(id) ON DELETE CASCADE,
+  config_json  TEXT NOT NULL DEFAULT '{}',
+  updated_at   TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS applications (
+  id            SERIAL PRIMARY KEY,
+  company_id    INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  agent_id      INTEGER REFERENCES agents(id) ON DELETE SET NULL,
+  ref           TEXT NOT NULL,
+  client_key    TEXT,
+  status        TEXT NOT NULL DEFAULT 'draft',
+  product       TEXT,
+  plan_json     TEXT,
+  client_json   TEXT,
+  beneficiaries_json TEXT,
+  declaration_json   TEXT,
+  signature     TEXT,
+  signed_at     TEXT,
+  consent_at    TEXT,
+  premium_amount REAL,
+  payment_status TEXT NOT NULL DEFAULT 'none',
+  policy_no     TEXT,
+  admin_note    TEXT,
+  submitted_at  TEXT,
+  created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_applications_company ON applications(company_id, created_at);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_applications_ref ON applications(company_id, ref);
+
+CREATE TABLE IF NOT EXISTS application_docs (
+  id             SERIAL PRIMARY KEY,
+  company_id     INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  application_id INTEGER NOT NULL REFERENCES applications(id) ON DELETE CASCADE,
+  kind           TEXT NOT NULL,
+  filename       TEXT,
+  mime           TEXT,
+  size           INTEGER,
+  data           TEXT NOT NULL,
+  created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_appdocs_app ON application_docs(application_id);
+
+CREATE TABLE IF NOT EXISTS payments (
+  id             SERIAL PRIMARY KEY,
+  company_id     INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  application_id INTEGER REFERENCES applications(id) ON DELETE SET NULL,
+  policy_id      INTEGER,
+  agent_id       INTEGER REFERENCES agents(id) ON DELETE SET NULL,
+  phone          TEXT,
+  amount         REAL NOT NULL,
+  provider       TEXT NOT NULL DEFAULT 'manual',
+  status         TEXT NOT NULL DEFAULT 'pending',
+  checkout_id    TEXT,
+  receipt        TEXT,
+  note           TEXT,
+  created_at     TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_payments_company ON payments(company_id, created_at);
+
+CREATE TABLE IF NOT EXISTS policies (
+  id             SERIAL PRIMARY KEY,
+  company_id     INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  agent_id       INTEGER REFERENCES agents(id) ON DELETE SET NULL,
+  application_id INTEGER,
+  policy_no      TEXT NOT NULL,
+  client_name    TEXT NOT NULL,
+  client_phone   TEXT,
+  client_email   TEXT,
+  product        TEXT,
+  sum_assured    REAL,
+  premium        REAL,
+  frequency      TEXT NOT NULL DEFAULT 'monthly',
+  start_date     TEXT,
+  next_due_date  TEXT,
+  maturity_date  TEXT,
+  status         TEXT NOT NULL DEFAULT 'active',
+  created_at     TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_policies_company ON policies(company_id, agent_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_policies_no ON policies(company_id, policy_no);
+
+CREATE TABLE IF NOT EXISTS complaints (
+  id             SERIAL PRIMARY KEY,
+  company_id     INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  agent_id       INTEGER REFERENCES agents(id) ON DELETE SET NULL,
+  ref            TEXT NOT NULL,
+  client_name    TEXT NOT NULL,
+  client_phone   TEXT,
+  policy_no      TEXT,
+  category       TEXT,
+  description    TEXT NOT NULL,
+  status         TEXT NOT NULL DEFAULT 'open',
+  resolution     TEXT,
+  due_at         TEXT,
+  acknowledged_at TEXT,
+  resolved_at    TEXT,
+  created_at     TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_complaints_company ON complaints(company_id, status);
+
+CREATE TABLE IF NOT EXISTS suitability_records (
+  id             SERIAL PRIMARY KEY,
+  company_id     INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  agent_id       INTEGER REFERENCES agents(id) ON DELETE SET NULL,
+  client_name    TEXT,
+  client_phone   TEXT,
+  needs_json     TEXT,
+  recommended    TEXT,
+  chosen         TEXT,
+  rationale      TEXT,
+  deviation_reason TEXT,
+  disclosures_json TEXT,
+  signature      TEXT,
+  occurred_at    TEXT,
+  created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_suit_company ON suitability_records(company_id, created_at);
+
+CREATE TABLE IF NOT EXISTS quiz_attempts (
+  id             SERIAL PRIMARY KEY,
+  company_id     INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  agent_id       INTEGER NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+  score          INTEGER NOT NULL,
+  total          INTEGER NOT NULL,
+  passed         INTEGER NOT NULL DEFAULT 0,
+  quiz_version   TEXT,
+  created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_quiz_agent ON quiz_attempts(agent_id);
+
+CREATE TABLE IF NOT EXISTS release_plans (
+  id             SERIAL PRIMARY KEY,
+  company_id     INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  version        TEXT NOT NULL,
+  target_group   TEXT,
+  announce_at    TEXT,
+  enforce_at     TEXT,
+  banner         TEXT,
+  status         TEXT NOT NULL DEFAULT 'scheduled',
+  created_by     INTEGER,
+  created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_release_company ON release_plans(company_id);
+
+CREATE TABLE IF NOT EXISTS api_keys (
+  id             SERIAL PRIMARY KEY,
+  company_id     INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  name           TEXT NOT NULL,
+  key_prefix     TEXT NOT NULL,
+  key_hash       TEXT NOT NULL,
+  scope          TEXT NOT NULL DEFAULT 'read',
+  revoked        INTEGER NOT NULL DEFAULT 0,
+  last_used_at   TEXT,
+  created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS outbound_events (
+  id             SERIAL PRIMARY KEY,
+  company_id     INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  event          TEXT NOT NULL,
+  payload_json   TEXT NOT NULL,
+  status         TEXT NOT NULL DEFAULT 'pending',
+  attempts       INTEGER NOT NULL DEFAULT 0,
+  next_attempt_at TEXT,
+  last_error     TEXT,
+  created_at     TEXT NOT NULL DEFAULT (datetime('now')),
+  delivered_at   TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_outbound_status ON outbound_events(status, next_attempt_at);
+
+CREATE TABLE IF NOT EXISTS custom_products (
+  id             SERIAL PRIMARY KEY,
+  company_id     INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  pkey           TEXT NOT NULL,
+  name           TEXT NOT NULL,
+  kind           TEXT NOT NULL,
+  definition_json TEXT NOT NULL,
+  status         TEXT NOT NULL DEFAULT 'draft',
+  version        INTEGER NOT NULL DEFAULT 1,
+  change_note    TEXT,
+  created_by     INTEGER,
+  approved_by    INTEGER,
+  approved_at    TEXT,
+  pending_json   TEXT,
+  updated_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_custom_products_key ON custom_products(company_id, pkey);
+
+CREATE TABLE IF NOT EXISTS report_log (
+  id             SERIAL PRIMARY KEY,
+  company_id     INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  kind           TEXT NOT NULL,
+  period_key     TEXT,
+  recipients     TEXT,
+  created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);

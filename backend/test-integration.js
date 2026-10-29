@@ -43,7 +43,7 @@ async function main(){
   async function api(method, path, body, token){
     const res = await fetch(base + path, {
       method,
-      headers: { 'Content-Type': 'application/json', 'X-App-Version': (api.version === undefined ? '2026.10.23' : api.version), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      headers: { 'Content-Type': 'application/json', 'X-App-Version': (api.version === undefined ? '2026.10.24' : api.version), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: body ? JSON.stringify(body) : undefined,
     });
     let json = null;
@@ -109,14 +109,11 @@ async function main(){
 
   // ---- Workbook structure scanner ----
   {
-    const XLSX = require('xlsx');
+    const writeXlsx = require('write-excel-file/node');
     const fanakaData = require('../data/fanaka-data.json');
     const rows = [['Plan Name','Age (ANB)','Policy Term','Rate per Mille','Survival Factor','Death Benefit Factor']];
     fanakaData.prates.slice(0, 10).forEach(r => rows.push([r.plan, r.anb, r.term, r.rate, r.surv, r.death]));
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Rates');
-    const wbBuffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    const wbBuffer = await (writeXlsx.default || writeXlsx)(rows.map(r => r.map(v => ({ value: v })))).toBuffer();
 
     const form = new FormData();
     form.append('workbook', new Blob([wbBuffer]), 'test-workbook.xlsx');
@@ -365,6 +362,13 @@ async function main(){
   }
   const pub = await fetch(base + '/manifest.json');
   check('Server still serves the public app files', pub.status === 200);
+  {
+    const swSrc = fs.readFileSync(require('path').join(__dirname, '..', 'sw.js'), 'utf8');
+    const shell = (/APP_SHELL = \[([\s\S]*?)\];/.exec(swSrc)[1].match(/'([^']+)'/g) || []).map(x => x.slice(1, -1));
+    const missing = [];
+    for(const f of shell){ const r = await fetch(base + '/' + f); if(r.status !== 200) missing.push(f + ' ' + r.status); }
+    check('Every file the offline cache needs is actually served (otherwise the app cannot install)', shell.length > 10 && missing.length === 0, missing);
+  }
 
   // ---------- Controlled access: version gate, signed lease, remote disable ----------
   {
@@ -411,6 +415,139 @@ async function main(){
     check('CORS allows X-App-Version and PATCH/PUT', /X-App-Version/i.test(hdr) && /PATCH/.test(hdr) && /PUT/.test(hdr), hdr);
   }
 
+
+
+  // ---------- v2026.10.24 features ----------
+  {
+    // SMS settings: off by default, key never returned, switch needs credentials
+    const sms0 = await api('GET', `/api/companies/${companyId}/sms-settings`, null, token);
+    check('Live SMS is OFF by default and uses the local substitute', sms0.status === 200 && sms0.body.enabled === false && sms0.body.activeProvider === 'console' && sms0.body.apiKeySaved === false, sms0.body);
+    const smsNoKey = await api('PUT', `/api/companies/${companyId}/sms-settings`, { enabled: true }, token);
+    check('Cannot switch live SMS on without credentials', smsNoKey.status === 422, smsNoKey.body);
+    const smsNoAuth = await api('GET', `/api/companies/${companyId}/sms-settings`);
+    check('SMS settings need an admin', smsNoAuth.status === 401);
+    const smsSave = await api('PUT', `/api/companies/${companyId}/sms-settings`, { enabled: false, username: 'sandbox', apiKey: 'SECRET-KEY-123', senderId: 'ILLUSTR' }, token);
+    check('Credentials save without being echoed back', smsSave.status === 200 && smsSave.body.apiKeySaved === true && JSON.stringify(smsSave.body).indexOf('SECRET-KEY-123') < 0 && smsSave.body.activeProvider === 'console', smsSave.body);
+    const rawRow = await db.prepare('SELECT api_key_enc FROM sms_settings WHERE company_id = ?').get(companyId);
+    check('API key is stored encrypted, not in plain text', rawRow && rawRow.api_key_enc && rawRow.api_key_enc.indexOf('SECRET-KEY-123') < 0);
+    const smsOn = await api('PUT', `/api/companies/${companyId}/sms-settings`, { enabled: true }, token);
+    check('Admin can switch live SMS on once credentials exist', smsOn.status === 200 && smsOn.body.enabled === true && smsOn.body.activeProvider === 'africastalking', smsOn.body);
+    await api('PUT', `/api/companies/${companyId}/sms-settings`, { enabled: false }, token);
+    const smsTest = await api('POST', `/api/companies/${companyId}/sms-settings/test`, { phone: '0711222333' }, token);
+    check('Test SMS goes to the log while live SMS is off', smsTest.status === 200 && smsTest.body.provider === 'console', smsTest.body);
+    // OTP by email fallback
+    const emailOtp = await api('POST', `/api/companies/${companyId}/agents/request-otp`, { name: 'Mail Agent', phone: '0733444555', email: 'mail.agent@example.com', channel: 'email' });
+    check('Login code can be sent by email instead', emailOtp.status === 200 && emailOtp.body.channel === 'email' && /^\d{6}$/.test(emailOtp.body.devCode || ''), emailOtp.body);
+    const emailNo = await api('POST', `/api/companies/${companyId}/agents/request-otp`, { name: 'No Mail', phone: '0733444556', channel: 'email' });
+    check('Email code needs an email address', emailNo.status === 400, emailNo.body);
+
+    // Bulk import
+    const dry = await api('POST', `/api/companies/${companyId}/agents/import`, { dryRun: true, rows: [
+      { name: 'Imp One', phone: '0701000001', email: 'one@example.com', agencyCode: 'ag 1', group: 'Nairobi' },
+      { name: 'Imp Two', phone: '+254701000002', group: 'Nairobi' },
+      { name: '', phone: '0701000003' }, { name: 'Bad Phone', phone: '123' }, { name: 'Dup', phone: '0701000001' } ] }, token);
+    check('Import dry run reports created / invalid / duplicate rows', dry.status === 200 && dry.body.created === 2 && dry.body.invalid === 2 && dry.body.duplicates === 1, dry.body);
+    const noneYet = await api('GET', `/api/companies/${companyId}/agents`, null, token);
+    check('Dry run saves nothing', !noneYet.body.some(a => a.phone === '0701000001' || a.phone === '254701000001'), noneYet.body.length);
+    const imp = await api('POST', `/api/companies/${companyId}/agents/import`, { rows: [
+      { name: 'Imp One', phone: '0701000001', email: 'one@example.com', agencyCode: 'ag 1', group: 'Nairobi' },
+      { name: 'Imp Two', phone: '0701000002', group: 'Nairobi' }, { name: 'Imp Three', phone: '0701000004', group: 'Mombasa' } ] }, token);
+    check('Import creates the agents', imp.status === 200 && imp.body.created === 3, imp.body);
+    const impList = await api('GET', `/api/companies/${companyId}/agents`, null, token);
+    const impRow = impList.body.find(a => a.name === 'Imp One');
+    check('Imported agents are unverified, grouped and marked as imported', impRow && impRow.verified === 0 && impRow.group_name === 'Nairobi' && impRow.source === 'import' && impRow.agency_code === 'AG 1', impRow);
+    const impAgain = await api('POST', `/api/companies/${companyId}/agents/import`, { rows: [{ name: 'Imp One', phone: '0701000001' }] }, token);
+    check('Re-importing the same phone updates instead of duplicating', impAgain.body.updated === 1 && impAgain.body.created === 0, impAgain.body);
+    const impNoAuth = await api('POST', `/api/companies/${companyId}/agents/import`, { rows: [{ name: 'x', phone: '0701000009' }] });
+    check('Import needs admin rights', impNoAuth.status === 401);
+    // self-registration still works for an imported agent
+    const selfReq = await api('POST', `/api/companies/${companyId}/agents/request-otp`, { name: 'Imp Two', phone: '0701000002' });
+    const selfVer = await api('POST', `/api/companies/${companyId}/agents/verify-otp`, { phone: '0701000002', code: selfReq.body.devCode, acceptedTerms: true });
+    check('Imported agents can still sign in by themselves (self-registration kept)', selfReq.status === 200 && selfVer.status === 200 && selfVer.body.verified === true, selfVer.body);
+    const newSelf = await api('POST', `/api/companies/${companyId}/agents/request-otp`, { name: 'Walk In', phone: '0701000077' });
+    check('A brand-new agent can still self-register', newSelf.status === 200 && !!newSelf.body.devCode, newSelf.body);
+    const bulkOff = await api('POST', `/api/companies/${companyId}/agents/bulk`, { action: 'disable', group: 'Nairobi' }, token);
+    check('Bulk-disable a whole group', bulkOff.status === 200 && bulkOff.body.affected === 2, bulkOff.body);
+    const offReq = await api('POST', `/api/companies/${companyId}/agents/request-otp`, { name: 'Imp One', phone: '0701000001' });
+    check('Disabled group members cannot sign in', offReq.status === 403 && offReq.body.code === 'account_disabled', offReq.body);
+    const bulkOn = await api('POST', `/api/companies/${companyId}/agents/bulk`, { action: 'enable', group: 'Nairobi' }, token);
+    check('Bulk-enable the group again', bulkOn.status === 200 && bulkOn.body.affected === 2, bulkOn.body);
+    const bulkGrp = await api('POST', `/api/companies/${companyId}/agents/bulk`, { action: 'set_group', ids: [impRow.id], newGroup: 'Kisumu' }, token);
+    check('Bulk change of group', bulkGrp.status === 200 && bulkGrp.body.affected === 1, bulkGrp.body);
+    const bulkBad = await api('POST', `/api/companies/${companyId}/agents/bulk`, { action: 'delete', ids: [1] }, token);
+    check('Unknown bulk action is refused', bulkBad.status === 400);
+
+    // Leads
+    const leadNoConsent = await api('POST', `/api/companies/${companyId}/leads`, { clientName: 'Client A', clientPhone: '0722111222' }, agentToken);
+    check('A lead needs the client\'s consent', leadNoConsent.status === 400, leadNoConsent.body);
+    const leadNoContact = await api('POST', `/api/companies/${companyId}/leads`, { clientName: 'Client A', consent: true }, agentToken);
+    check('A lead needs a phone or email', leadNoContact.status === 400);
+    const lead = await api('POST', `/api/companies/${companyId}/leads`, { clientName: 'Client A', clientPhone: '0722111222', product: 'Fanaka', needsSummary: 'Education, 2 children', note: 'Call after 5pm', consent: true }, agentToken);
+    check('Agent hands a quote to the sales team', lead.status === 201 && lead.body.status === 'new', lead.body);
+    const leadAnon = await api('POST', `/api/companies/${companyId}/leads`, { clientName: 'Client A', clientPhone: '0722111222', consent: true });
+    check('Leads need an agent token', leadAnon.status === 401);
+    const myLeads = await api('GET', `/api/companies/${companyId}/leads/mine`, null, agentToken);
+    check('Agent can follow the status of their leads', myLeads.status === 200 && myLeads.body.length === 1 && myLeads.body[0].status === 'new', myLeads.body);
+    const adminLeads = await api('GET', `/api/companies/${companyId}/leads`, null, token);
+    check('Admin sees the lead with the agent', adminLeads.status === 200 && adminLeads.body[0].clientName === 'Client A' && adminLeads.body[0].agentName === 'OTP Agent', adminLeads.body);
+    const leadSt = await api('PATCH', `/api/companies/${companyId}/leads/${adminLeads.body[0].id}`, { status: 'contacted' }, token);
+    const leadBad = await api('PATCH', `/api/companies/${companyId}/leads/${adminLeads.body[0].id}`, { status: 'nonsense' }, token);
+    check('Admin updates lead status; bad status refused', leadSt.status === 200 && leadBad.status === 400);
+
+    // Targets + leaderboard
+    const tgt = await api('PUT', `/api/companies/${companyId}/targets`, { calcs: 20, prints: 5, leads: 2 }, token);
+    const tgtBad = await api('PUT', `/api/companies/${companyId}/targets`, { calcs: -1, prints: 5, leads: 2 }, token);
+    check('Admin sets monthly targets (validated)', tgt.status === 200 && tgt.body.calcs === 20 && tgtBad.status === 400);
+    const lb = await api('GET', `/api/companies/${companyId}/leaderboard?period=month`, null, token);
+    const lbMe = lb.body && lb.body.rows && lb.body.rows.find(r => r.agentId === rightVerify.body.agent.id);
+    check('Leaderboard ranks agents against targets', lb.status === 200 && lbMe && lbMe.leads === 1 && lbMe.calcs >= 1 && lbMe.targetPct !== null && lbMe.rank === 1, lb.body);
+    const standing = await api('GET', `/api/companies/${companyId}/agents/me/standing`, null, agentToken);
+    check('Agent sees only their own standing', standing.status === 200 && standing.body.me && standing.body.me.rank === 1 && JSON.stringify(standing.body).indexOf('Imp ') < 0, standing.body);
+
+    // Quote trail
+    const q = await api('POST', `/api/companies/${companyId}/quotes`, { records: [{ product: 'Fanaka', action: 'print', ratesVersion: 'built-in', appVersion: '2026.10.24', termsVersion: '3', language: 'sw', at: new Date().toISOString(), inputs: { age: 35, term: 20, clientName: 'SHOULD NOT SAVE', phone: '0722', premium: 5000 }, result: { sa: 1000000 } }] }, agentToken);
+    check('Printed/shared quotes are recorded', q.status === 200 && q.body.saved === 1, q.body);
+    const qs = await api('GET', `/api/companies/${companyId}/quotes?days=7`, null, token);
+    check('Quote trail keeps rate and app versions but strips client details', qs.status === 200 && qs.body.length === 1 && qs.body[0].ratesVersion === 'built-in' && qs.body[0].inputs.indexOf('SHOULD NOT SAVE') < 0 && qs.body[0].inputs.indexOf('0722') < 0 && /"age":35/.test(qs.body[0].inputs), qs.body[0]);
+
+    // Rates editor: outline, draft, impact, four-eyes approval, publish to app
+    const line = await api('POST', `/api/companies/${companyId}/product-lines`, { engineType: 'smartsave', displayName: 'Rates test' }, token);
+    const outline = await api('GET', `/api/product-lines/${line.body.id}/data-outline?path=`, null, token);
+    check('Editor can browse the current rate data', outline.status === 200 && outline.body.children.some(c => c.key === 'taxReliefCap'), outline.body.children && outline.body.children.map(c => c.key));
+    const taxNode = outline.body.children.find(c => c.key === 'taxReliefCap');
+    const draftNoWhy = await api('POST', `/api/product-lines/${line.body.id}/versions/draft`, { changes: [{ path: 'taxReliefCap', value: 5 }] }, token);
+    check('A change needs a reason', draftNoWhy.status === 400);
+    const draftBad = await api('POST', `/api/product-lines/${line.body.id}/versions/draft`, { summary: 'x', changes: [{ path: 'doesNot.exist', value: 5 }] }, token);
+    check('Only existing values can be edited', draftBad.status === 422, draftBad.body);
+    const draftObj = await api('POST', `/api/product-lines/${line.body.id}/versions/draft`, { summary: 'x', changes: [{ path: 'products', value: 5 }] }, token);
+    check('A whole group of values cannot be overwritten', draftObj.status === 422, draftObj.body);
+    const newCap = Number(taxNode.value) + 1000;
+    const draft = await api('POST', `/api/product-lines/${line.body.id}/versions/draft`, { summary: 'Test: raise tax relief cap', changes: [{ path: 'taxReliefCap', value: newCap }] }, token);
+    check('Draft version is created from the current data', draft.status === 201 && draft.body.diffs[0].from === taxNode.value && draft.body.diffs[0].to === newCap, draft.body);
+    const actEarly = await api('POST', `/api/product-lines/${line.body.id}/versions/${draft.body.id}/activate`, {}, token);
+    check('A draft cannot go live before the impact report and approval', actEarly.status === 422, actEarly.body);
+    const impact = await api('POST', `/api/product-lines/${line.body.id}/versions/${draft.body.id}/impact`, {}, token);
+    check('Impact report compares real quotes before and after', impact.status === 200 && impact.body.ok === true && impact.body.scenariosCompared > 3 && impact.body.scenariosWithErrors === 0, { ok: impact.body.ok, n: impact.body.scenariosCompared });
+    const approve = await api('POST', `/api/product-lines/${line.body.id}/versions/${draft.body.id}/approve`, {}, token);
+    check('Approval works (single administrator may approve own change)', approve.status === 200 || approve.status === 403, approve.body);
+    if(approve.status === 403){
+      // another admin approves (four-eyes rule)
+      await db.prepare('INSERT INTO admin_users (company_id, email, password_hash, role) VALUES (?,?,?,?)').run(companyId, 'second@example.com', bcrypt.hashSync('pw12345678', 10), 'company_admin');
+      const lg = await api('POST', '/api/auth/admin/login', { email: 'second@example.com', password: 'pw12345678' });
+      const ap2 = await api('POST', `/api/product-lines/${line.body.id}/versions/${draft.body.id}/approve`, {}, lg.body.token);
+      check('A different administrator can approve (four-eyes rule)', ap2.status === 200, ap2.body);
+    }
+    const act = await api('POST', `/api/product-lines/${line.body.id}/versions/${draft.body.id}/activate`, {}, token);
+    check('Approved version can be activated', act.status === 200 && act.body.activated === true, act.body);
+    const mani = await api('GET', `/api/companies/${companyId}/rates/manifest`, null, agentToken);
+    check('The app can see which rate version is published', mani.status === 200 && mani.body.smartsave && mani.body.smartsave.versionNumber === draft.body.versionNumber, mani.body);
+    const pub = await api('GET', `/api/companies/${companyId}/rates/smartsave`, null, agentToken);
+    check('The app can download the published rate table', pub.status === 200 && pub.body.data.taxReliefCap === newCap, pub.body && pub.body.versionNumber);
+    const pubAnon = await api('GET', `/api/companies/${companyId}/rates/smartsave`);
+    check('Published rates need an agent token', pubAnon.status === 401);
+    const det = await api('GET', `/api/product-lines/${line.body.id}/versions/${draft.body.id}/detail`, null, token);
+    check('Version detail shows the reason, changes and impact', det.status === 200 && det.body.summary && det.body.changes.length === 1 && det.body.impact);
+  }
 
   console.log(`\n${'='.repeat(50)}`);
   console.log(`TOTAL: ${pass} passed, ${fail} failed`);
