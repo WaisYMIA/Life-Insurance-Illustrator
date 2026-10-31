@@ -485,10 +485,8 @@
     #fbSheet>div,#fbSheet>[role=dialog]{border-radius:18px!important;}
     body>div[style*="align-items:flex-end"]{align-items:center!important;}
     body>div[style*="align-items:flex-end"]>[role=dialog]{border-radius:18px!important;max-width:560px!important;}
-    #atPanel{inset:3vh 0;margin:0 auto;width:min(880px,94vw);border-radius:18px;overflow:hidden;box-shadow:0 0 0 100vmax rgba(20,10,12,.55),0 20px 60px rgba(0,0,0,.35);}
-    #atPanel .at-body{padding:18px 26px 80px;}
-    #helpPanel{inset:3vh 0;margin:0 auto;width:min(880px,94vw);border-radius:18px;overflow:hidden;box-shadow:0 0 0 100vmax rgba(20,10,12,.55),0 20px 60px rgba(0,0,0,.35);}
-    #dqCard{max-width:520px!important;}
+    #atPanel>.at-top{padding-left:max(14px,calc((100vw - 1000px)/2)) !important;padding-right:max(14px,calc((100vw - 1000px)/2))!important;}
+    #atPanel>.at-body{padding:18px max(26px,calc((100vw - 1000px)/2)) 80px!important;}
   }
   @media (min-width:1100px){
     main{max-width:960px;padding:30px 36px 20px;}
@@ -496,8 +494,6 @@
     header.top .brand, header.top h1{padding-right:120px;}
     #acctBtn{right:max(36px,calc((100vw - 960px)/2 + 36px));} #helpBtn{right:calc(max(36px,calc((100vw - 960px)/2 + 36px)) + 46px);}
     .mode-grid{grid-template-columns:1fr 1fr;}
-    #atPanel,#helpPanel{width:min(960px,86vw);}
-    body{font-size:16px;}
   }
   @media (min-width:1500px){ main{max-width:1040px;} }
   @media (hover:hover) and (pointer:fine){ .mode-card:hover{border-color:var(--brand);box-shadow:0 2px 10px rgba(76,21,32,.1);} }
@@ -3422,7 +3418,7 @@ function renderSSStep5(){
    for a fully offline/standalone device install.
    ============================================================ */
 const urlParams = new URLSearchParams(location.search);
-const APP_VERSION = '2026.10.28';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
+const APP_VERSION = '2026.10.32';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
 // Bump this whenever the Terms text changes in substance: every device then shows the gate again so the
 // new wording is actually accepted, instead of silently carrying the old acceptance forward.
 const TERMS_VERSION = '3';
@@ -4206,6 +4202,10 @@ async function pushPendingProfile(){
 }
 /* ---------- Help & handbook: searchable glossary, handbook, live product guide ---------- */
 const HELP_CSS = `
+#helpPanel .hp-lines{border:0;margin:0 0 10px;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;}
+#helpPanel .hp-lines legend{float:left;margin:0 10px 0 0;padding:0;font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+#helpPanel .hp-ck{display:inline-flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;min-height:32px;}
+#helpPanel .hp-ck input{width:18px;height:18px;accent-color:var(--brand);margin:0;}
 #helpPanel{position:fixed;inset:0;z-index:10002;background:#fff;display:flex;flex-direction:column;font-family:system-ui,sans-serif;color:var(--ink);}
 #helpPanel .hp-top{background:var(--brand-dark);color:#fff;padding:12px 14px 10px;flex:none;}
 #helpPanel .hp-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
@@ -4329,6 +4329,13 @@ function openHelp(startQuery){
   document.body.appendChild(el);
   const $ = s=>el.querySelector(s);
   let tab = 'glossary', cat = 'All', letter = '', timer = null;
+  /* Line-of-business filter for the glossary: tick one or more, or none to see everything. */
+  const LINES = [['life','Life'],['medical','Medical'],['motor','Motor'],['general','Other general'],['common','Common terms']];
+  const LINE_OF = {'Types of life cover':'life','Riders & extra covers':'life','Savings & investment':'life','Benefits & values':'life','Policy life-cycle':'life','Medical insurance':'medical','Health financing (Kenya)':'medical','Motor insurance':'motor','General insurance':'general','Property & liability':'general','Marine, engineering & specialist':'general','Reinsurance & finance':'general'};
+  const lineOf = c=>LINE_OF[c] || 'common';
+  let lines = new Set(); try{ lines = new Set(JSON.parse(localStorage.getItem('illustrator_help_lines')||'[]').filter(x=>LINES.some(l=>l[0]===x))); }catch(e){}
+  const lineOk = g=>!lines.size || lines.has(lineOf(g.cat));
+  const lineBar = ()=>`<fieldset class="hp-lines"><legend>Show terms for</legend>${LINES.map(([k,t])=>`<label class="hp-ck"><input type="checkbox" data-line="${k}" ${lines.has(k)?'checked':''}> ${t}</label>`).join('')}${lines.size?'<button type="button" class="hp-chip" data-lineall="1">Show all</button>':''}</fieldset>`;
   const body = $('#hpBody'), qEl = $('#hpQ');
   const letters = Array.from(new Set(ix.gl.map(g=>g.title[0].toUpperCase()))).sort();
   function draw(){
@@ -4336,7 +4343,7 @@ function openHelp(startQuery){
     $('#hpClear').style.display = q ? 'block' : 'none';
     $('#hpTabs').style.display = q ? 'none' : 'flex';
     if(q){
-      const {tokens, hits} = hpSearch(q);
+      let {tokens, hits} = hpSearch(q);
       if(!hits.length){
         const pre = q.toLowerCase().slice(0,3);
         const near = ix.gl.filter(g=>pre.length>=2 && g.tl.indexOf(pre)>=0).slice(0,6);
@@ -4345,14 +4352,18 @@ function openHelp(startQuery){
         const ask = $('#hpAsk'); if(ask) ask.addEventListener('click', ()=>{ close(); openFeedback(); setTimeout(()=>{ const t = document.getElementById('fbText'); if(t){ t.value = 'Help request — please add or explain: ' + q; t.focus(); } }, 50); });
         return;
       }
+      hits = hits.filter(e=>e.kind!=='term' || lineOk(e));
+      if(!hits.length){ body.innerHTML = lineBar() + '<div class="hp-empty"><b>No match in the selected types.</b><br>Untick a type or press Show all.</div>'; return; }
       const shown = hits.slice(0, 40);
-      body.innerHTML = `<div class="hp-h">${hits.length} result${hits.length===1?'':'s'}${hits.length>40?' (showing the first 40)':''}</div>` + shown.map(e=> e.kind==='term' ? hpTermCard(e, tokens) : hpArticle(e)).join('');
+      body.innerHTML = lineBar() + `<div class="hp-h">${hits.length} result${hits.length===1?'':'s'}${hits.length>40?' (showing the first 40)':''}</div>` + shown.map(e=> e.kind==='term' ? hpTermCard(e, tokens) : hpArticle(e)).join('');
       return;
     }
     if(tab==='glossary'){
-      const cats = ['All'].concat(ix.C.categories.filter(c=>ix.gl.some(g=>g.cat===c)));
-      let list = ix.gl.filter(g=>(cat==='All'||g.cat===cat) && (!letter || g.title[0].toUpperCase()===letter));
-      body.innerHTML = `<div class="hp-strip hp-letters">${['All'].concat(letters).map(l=>`<button class="hp-chip ${((l==='All'&&!letter)||l===letter)?'on':''}" data-letter="${l}">${l==='All'?'A–Z':l}</button>`).join('')}</div>
+      const pool = ix.gl.filter(lineOk);
+      const cats = ['All'].concat(ix.C.categories.filter(c=>pool.some(g=>g.cat===c)));
+      if(cat!=='All' && !cats.includes(cat)) cat = 'All';
+      let list = pool.filter(g=>(cat==='All'||g.cat===cat) && (!letter || g.title[0].toUpperCase()===letter));
+      body.innerHTML = lineBar() + `<div class="hp-strip hp-letters">${['All'].concat(letters).map(l=>`<button class="hp-chip ${((l==='All'&&!letter)||l===letter)?'on':''}" data-letter="${l}">${l==='All'?'A–Z':l}</button>`).join('')}</div>
         <div class="hp-strip">${cats.map(c=>`<button class="hp-chip ${c===cat?'on':''}" data-cat="${opsEscape(c)}">${opsEscape(c)}</button>`).join('')}</div>
         <div class="hp-h">${list.length} term${list.length===1?'':'s'}</div>` + list.map(e=>hpTermCard(e, [])).join('');
     } else if(tab==='handbook'){
@@ -4367,9 +4378,17 @@ function openHelp(startQuery){
     if(b.id==='hpClose'){ close(); return; }
     if(b.id==='hpClear'){ qEl.value = ''; draw(); qEl.focus(); return; }
     if(b.dataset.tab){ tab = b.dataset.tab; el.querySelectorAll('.hp-tab').forEach(x=>x.classList.toggle('on', x===b)); body.scrollTop = 0; draw(); return; }
+    if(b.dataset.lineall){ lines.clear(); saveLines(); draw(); return; }
     if(b.dataset.letter!==undefined){ letter = b.dataset.letter==='All' ? '' : b.dataset.letter; draw(); return; }
     if(b.dataset.cat!==undefined){ cat = b.dataset.cat; draw(); return; }
     if(b.dataset.go){ goTerm(b.dataset.go); return; }
+  });
+  function saveLines(){ try{ localStorage.setItem('illustrator_help_lines', JSON.stringify([...lines])); }catch(e){} }
+  el.addEventListener('change', e=>{
+    const c = e.target.closest && e.target.closest('input[data-line]'); if(!c) return;
+    if(c.checked) lines.add(c.dataset.line); else lines.delete(c.dataset.line);
+    saveLines(); letter = ''; body.scrollTop = 0; draw();
+    const again = el.querySelector('input[data-line="'+c.dataset.line+'"]'); if(again) again.focus();
   });
   qEl.addEventListener('input', ()=>{ body.scrollTop = 0; draw(); });
   qEl.addEventListener('keydown', e=>{ if(e.key==='Enter') qEl.blur(); });

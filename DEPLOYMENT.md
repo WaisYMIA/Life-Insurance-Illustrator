@@ -99,9 +99,17 @@ Set the printed `APP_SIGNING_PRIVATE_KEY="…"` as an environment variable on th
 ### 11. Daily spark (2026.10.26)
 On the first open each day an agent sees a greeting card ("Good morning, Walter") with one quote from a library of 1,000+ (`daily-quotes.js`). Each agent walks through the library in their own shuffled order, so nothing repeats for 1,000+ days and colleagues see different quotes. Shown once per day per phone; "Today's spark" on the home screen re-reads it. Switch it off per company under Admin → Settings → What agents can use. To preview: open the app with `?dq=random`. To edit the library, change lines in `daily-quotes.js` (a review list is in `docs/quotes-review.tsv`). **Attribution caution:** quotes were compiled from memory of widely cited sources; entries marked "A key idea from…" are summaries of a book's ideas, not word-for-word quotes. Have someone verify attributions before using the quotes in marketing.
 
-## 12. Install, update and screen sizes (v2026.10.28)
+## 12. Install, update and screen sizes (v2026.10.28–29)
 
 - **Install app** button on the home screen (plus a floating button where the browser offers a native prompt). Chrome/Edge/Android use the native prompt; iPhone/iPad Safari and other browsers get step-by-step instructions. Hidden once the app runs installed.
 - **Check for updates / Update now** on the home screen; a "new version is ready" bar also appears when the browser finds a new release in the background.
-- **Adaptive layout**: phone (default), tablet (>=768px: wider column, two-column tiles, dialogs centred, panels as large centred windows) and desktop (>=1100px: wider column, hover states). Printing is unchanged.
+- **Adaptive layout**: phone (default), tablet (>=768px: wider column, two-column tiles, dialogs centred, agent panels as large centred windows; the ? Help handbook is unchanged and stays full-screen) and desktop (>=1100px: wider column, hover states). Printing is unchanged.
 - iOS can only install from Safari; Firefox on computers cannot install web apps (documented in the in-app instructions).
+
+## 13. Help glossary expansion (v2026.10.31)
+
+- Glossary grown from 129 to 845 terms across 19 categories: life, medical insurance, Kenya health financing (SHA/SHIF), general, motor, property & liability, marine/engineering/specialist, reinsurance & finance, regulation, selling, and a Kiswahili section.
+- Term batches live in `help-src/` and are merged by `node scripts/merge-help.js` (idempotent; skips existing terms). Edit `help-content.js` directly for later changes.
+- Definitions are general industry guidance and never refer to a particular illustration or document. Tax, levy and regulatory details change, so confirm current figures before quoting them.
+- App name is now "Life Insurance Plan Illustrator" (installed apps keep the old title until reinstalled). The manifest no longer locks orientation to portrait, so tablets and PCs can rotate freely.
+- Help glossary has tick-box filters (Life, Medical, Motor, Other general, Common terms); none ticked shows everything; choice is remembered on the device (v2026.10.32).
