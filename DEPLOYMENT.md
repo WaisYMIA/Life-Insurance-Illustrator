@@ -113,3 +113,10 @@ On the first open each day an agent sees a greeting card ("Good morning, Walter"
 - Definitions are general industry guidance and never refer to a particular illustration or document. Tax, levy and regulatory details change, so confirm current figures before quoting them.
 - App name is now "Life Insurance Plan Illustrator" (installed apps keep the old title until reinstalled). The manifest no longer locks orientation to portrait, so tablets and PCs can rotate freely.
 - Help glossary has tick-box filters (Life, Medical, Motor, Other general, Common terms); none ticked shows everything; choice is remembered on the device (v2026.10.32).
+
+## 14. Daily inspiration categories and frequency (v2026.10.34)
+
+- Categories: motivation (daily-quotes.js, 1,012) plus daily-library.js (Bible/KJV, Stoic, history facts, African proverbs, money & insurance wisdom). Sources are in `quote-src/`; rebuild with `node scripts/build-quote-library.js`.
+- Agents choose categories (at least one) and frequency (1-3 a day: first open, from 12:00, from 17:00) under My account > Daily inspiration. Stored per agent on the device (not asked at sign-up). Default: Motivation, once a day.
+- Admin can still switch the whole feature off (Settings > What agents can use > daily quote).
+- Verses were typed from the King James Version and history/Stoic/proverb entries from published sources; have a reviewer proofread before wide release.

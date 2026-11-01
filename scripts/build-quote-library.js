@@ -1,0 +1,16 @@
+// Builds daily-library.js (Bible, Stoic, History, Proverbs, Money) from quote-src/*.js. Run: node scripts/build-quote-library.js
+const fs=require('fs'),path=require('path'); const dir=path.join(__dirname,'..','quote-src');
+const drop={
+ stoic:['Luck is what happens','A smooth sea never made','The only wealth which you','Do not let the behaviour of others','Anger is an acid','Quality is not an act','Patience is bitter','The roots of education','The best answer to anger','Learning is a lifelong','Every new beginning','Hang on to your youthful','Between stimulus','He who has overcome his fears','The secret of change','To find yourself','It is the mark of an educated','Caretake this moment','It is hard to begin without fear','Other people’s views and troubles'],
+ history:['The first recorded Nairobi horse race','The Association of Kenya Insurers','The first motor insurance policy','Kenya’s Huduma Namba','Wangari Maathai once said','The world’s first parametric'],
+ proverbs:['Kuokoa kuna maana','Maisha ni safari','Mchovu hana kinyongo','Unaona vyaelea','Kazi njema huzaa','Mapema ni bora','Mkulima ni mkulima','Rafiki wa kweli ni dawa','Mzigo wa wengi','Kinga ni bora','Kuchelewa si kufika','Cattle are born','Where you eat is','If the beard','Hospitality is','The sun will shine','A ruler who has not','He who does not know one','The man who has no children','The one who tells the stories','When you pray, move','Let us rely on small','You must act as if','Even the best cooking pot','Better a small fire','The one who goes with','A visitor has long eyes','A small insurance','The ruin of a nation','If water is not near','Today’s fruit was','The elephant is never tired','A man is rich when','Success is not to arrive','A hungry stomach','A river is made of drops','If you carry water','When a man is wrong','Where there is peace','A coward turns','If you are in a hurry','A man who uses force','A bird does not change','The calm sea does not produce'],
+};
+const fix={history:[['about 250 million dollars','hundreds of millions of dollars'],['A Nairobi','A Nairobi'],['The first recorded Nairobi horse race was held in 1900, soon after the town was founded. ','']]};
+const out={}; let total=0;
+for(const k of ['bible','stoic','history','proverbs','money']){
+  const rows=require(path.join(dir,k+'.js')); const seen=new Set(); out[k]=[];
+  for(let [t,a,s] of rows){ if((drop[k]||[]).some(p=>t.startsWith(p))) continue; for(const [x,y] of (fix[k]||[])) t=t.replace(x,y); const key=t.toLowerCase().replace(/[^a-z0-9]/g,''); if(seen.has(key)) continue; seen.add(key); out[k].push([t,a,s||'']); }
+  total+=out[k].length;
+}
+const js=`/* Daily inspiration library (${total} entries): Bible verses (King James Version, public domain), Stoic thoughts, history facts, African proverbs and money/insurance wisdom. [text, author or reference or label, source]. Built from quote-src/ by scripts/build-quote-library.js. */\nwindow.DAILY_LIBRARY = {\n`+Object.keys(out).map(k=>`${k}: [\n`+out[k].map(r=>'  '+JSON.stringify(r)).join(',\n')+'\n]').join(',\n')+'\n};\n';
+fs.writeFileSync(path.join(__dirname,'..','daily-library.js'),js); console.log(Object.fromEntries(Object.entries(out).map(([k,v])=>[k,v.length])),'total',total);

@@ -1,11 +1,11 @@
 /* ============================================================
-   DAILY SPARK — one motivational quote per agent per day, shown once, as a greeting card.
-   - Shows the first time the agent opens the app on a given (local) day, morning, afternoon or evening.
-   - Each agent walks through the whole library in their own shuffled order, so a quote does not repeat
-     until every quote (1,000+) has been shown, and colleagues do not all see the same one on the same day.
-   - Library: daily-quotes.js (loaded on demand, cached for offline use).
-   - Testing: open the app with ?dq=random to see a random card every time (nothing is recorded);
-     the home screen also has a "Today's spark" tile to read today's quote again.
+   DAILY SPARK — a short thought for each agent, one to three times a day, as a greeting card.
+   - Categories (agent's choice, at least one, changed under My account > Daily inspiration):
+     motivation quotes, Bible verses (KJV), Stoic wisdom, history facts, African proverbs, money & insurance wisdom.
+   - Frequency 1-3 a day: first time the app is opened, around midday (from 12:00), around evening (from 17:00).
+   - Each agent walks through every category in their own shuffled order, so nothing repeats until a category is used up.
+   - Libraries: daily-quotes.js (motivation) and daily-library.js (the rest), loaded on demand and cached for offline use.
+   - Testing: ?dq=random shows a random card every time (nothing recorded); ?dq=random&dqcat=bible forces a category.
    ============================================================ */
 (function(){
 'use strict';
@@ -22,13 +22,32 @@ const permCache = {};
 function permutation(n, who){ const k = who + '|' + n; if(permCache[k]) return permCache[k]; const a = Array.from({ length: n }, (_, i) => i), r = mulberry(hash(k)); for(let i = n - 1; i > 0; i--){ const j = Math.floor(r() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return permCache[k] = a; }
 function pickIndex(n, who, date){ return permutation(n, who)[dayNumber(date) % n]; }
 
-/* ---------- library loading ---------- */
-let loading = null;
-function library(){
-  if(window.DAILY_QUOTES) return Promise.resolve(window.DAILY_QUOTES);
-  if(loading) return loading;
-  return loading = new Promise(res => { const s = document.createElement('script'); s.src = 'daily-quotes.js'; s.onload = () => res(window.DAILY_QUOTES || []); s.onerror = () => { loading = null; res([]); }; document.head.appendChild(s); });
+/* ---------- categories and library loading ---------- */
+const CATS = [
+  { k: 'motivation', en: 'Motivation quotes', sw: 'Nukuu za hamasa', tag: ["Today's spark", 'Cheche ya leo'], glyph: '', quote: true },
+  { k: 'bible', en: 'Bible verses', sw: 'Mistari ya Biblia', tag: ['Verse of the day', 'Mstari wa siku'], glyph: '✝', quote: true },
+  { k: 'stoic', en: 'Stoic wisdom', sw: 'Hekima ya Wastoiki', tag: ['Stoic thought', 'Wazo la Kistoiki'], glyph: '', quote: true },
+  { k: 'history', en: 'History facts', sw: 'Ukweli wa historia', tag: ['From history', 'Kutoka historia'], glyph: 'H', quote: false },
+  { k: 'proverbs', en: 'African proverbs', sw: 'Methali za Kiafrika', tag: ['Proverb of the day', 'Methali ya leo'], glyph: '❝', quote: true },
+  { k: 'money', en: 'Money & insurance wisdom', sw: 'Hekima ya pesa na bima', tag: ['Money wisdom', 'Hekima ya pesa'], glyph: 'KSh', quote: false },
+];
+const CAT = Object.fromEntries(CATS.map(c => [c.k, c]));
+const loadJs = (src, test) => test() ? Promise.resolve() : new Promise(res => { const s = document.createElement('script'); s.src = src; s.onload = () => res(); s.onerror = () => res(); document.head.appendChild(s); });
+async function libraryFor(keys){
+  const need = keys.filter(k => k !== 'motivation').length > 0;
+  await Promise.all([keys.includes('motivation') ? loadJs('daily-quotes.js', () => window.DAILY_QUOTES) : null, need ? loadJs('daily-library.js', () => window.DAILY_LIBRARY) : null]);
+  const out = {}; keys.forEach(k => { out[k] = (k === 'motivation' ? window.DAILY_QUOTES : (window.DAILY_LIBRARY || {})[k]) || []; });
+  return out;
 }
+
+/* ---------- the agent's choices ---------- */
+const PREF_KEY = 'illustrator_dqp_v1';
+function prefs(){ const p = get(K(PREF_KEY), null) || {}; let cats = Array.isArray(p.cats) ? p.cats.filter(c => CAT[c]) : []; if(!cats.length) cats = ['motivation']; const freq = [1, 2, 3].includes(p.freq) ? p.freq : 1; return { cats: CATS.map(c => c.k).filter(k => cats.includes(k)), freq }; }
+function savePrefs(p){ put(K(PREF_KEY), { cats: p.cats, freq: p.freq }); }
+
+/* ---------- when a card is due ---------- */
+const SLOTS = [{ k: 'first', h: 0 }, { k: 'mid', h: 12 }, { k: 'eve', h: 17 }];
+function dueSlot(hour, done, freq){ const act = SLOTS.slice(0, freq).filter(s => hour >= s.h); const pend = act.filter(s => !(done || []).includes(s.k)); return pend.length ? { slot: pend[pend.length - 1].k, mark: act.map(s => s.k) } : null; }
 
 /* ---------- look ---------- */
 const PALETTES = [
@@ -63,6 +82,26 @@ const CSS = `
 #dqCard .dq-orb{animation:dqFloat 7s ease-in-out infinite;}
 @media (prefers-reduced-motion:reduce){#dqBack,#dqCard,#dqCard .dq-orb{animation:none!important;}}
 @media print{#dqBack{display:none!important;}}
+
+#dqCard .dq-set{display:block;margin:12px auto 0;background:transparent;border:0;color:rgba(255,255,255,.8);font:13px system-ui,sans-serif;text-decoration:underline;cursor:pointer;min-height:36px;padding:4px 10px;}
+#dqSetBack{position:fixed;inset:0;z-index:9600;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.6);}
+#dqSetBox{background:#fff;color:#2b1d1d;width:100%;max-width:460px;max-height:92vh;overflow:auto;border-radius:20px;padding:18px 20px 20px;font-family:system-ui,sans-serif;box-sizing:border-box;}
+#dqSetBox .dqs-top{display:flex;align-items:center;justify-content:space-between;}
+#dqSetBox h2{margin:0;font:700 20px Georgia,serif;color:#4c1520;}
+#dqSetBox #dqsX{border:0;background:transparent;font-size:28px;line-height:1;cursor:pointer;min-width:44px;min-height:44px;color:#4c1520;}
+#dqSetBox .dqs-p{margin:2px 0 8px;font-size:14px;color:#5b4b4b;}
+#dqSetBox .dqs-f{border:0;margin:10px 0 0;padding:0;}
+#dqSetBox legend{font:700 12.5px system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#5b4b4b;padding:0;margin-bottom:4px;}
+#dqSetBox .dqs-ck{display:flex;align-items:flex-start;gap:10px;padding:8px 2px;font-size:15px;cursor:pointer;min-height:40px;}
+#dqSetBox .dqs-ck input{width:20px;height:20px;margin:1px 0 0;accent-color:#7b2434;flex:none;}
+#dqSetBox .dqs-r small{color:#5b4b4b;font-size:12.5px;}
+#dqSetBox .dqs-m{min-height:20px;margin:8px 0 0;font-size:13.5px;color:#a3182f;}
+#dqSetBox .dqs-b{display:flex;gap:10px;margin-top:8px;}
+#dqSetBox .dqs-1,#dqSetBox .dqs-2{flex:1;border-radius:12px;padding:13px;min-height:48px;font:700 15px system-ui,sans-serif;cursor:pointer;}
+#dqSetBox .dqs-1{border:0;background:#7b2434;color:#fff;}
+#dqSetBox .dqs-2{border:1.5px solid #7b2434;background:#fff;color:#7b2434;}
+#dqSetBox :focus-visible{outline:3px solid #4c1520;outline-offset:2px;}
+@media print{#dqSetBack{display:none!important;}}
 `;
 function injectCss(){ if($('#dqCss')) return; const s = document.createElement('style'); s.id = 'dqCss'; s.textContent = CSS; document.head.appendChild(s); }
 
@@ -77,6 +116,7 @@ function art(p){
   <circle cx="60" cy="500" r="3" fill="${p[2]}" fill-opacity=".8"/><circle cx="395" cy="300" r="2.5" fill="${p[2]}" fill-opacity=".7"/><circle cx="330" cy="520" r="2" fill="#fff" fill-opacity=".6"/><circle cx="30" cy="250" r="2" fill="#fff" fill-opacity=".5"/></svg>`;
 }
 
+
 /* ---------- text helpers ---------- */
 function greeting(now){
   const h = now.getHours(); const part = h < 12 ? 0 : h < 17 ? 1 : 2;
@@ -86,62 +126,114 @@ function greeting(now){
 function firstName(){ const n = ((typeof AGENT !== 'undefined' && AGENT && AGENT.name) || '').trim().split(/\s+/)[0] || ''; return n ? n.charAt(0).toUpperCase() + n.slice(1).toLowerCase() : L('Agent', 'Wakala'); }
 function initials(a){ if(/\d|proverb|saying|motto/i.test(a)){ return /swahili|kenyan/i.test(a) ? 'KE' : '❝'; } const w = a.replace(/[^A-Za-zÀ-ÿ'.\s-]/g, ' ').split(/\s+/).filter(x => x && !/^(jr\.?|the|of|von|de|van)$/i.test(x)); return ((w[0] || '?')[0] + (w.length > 1 ? w[w.length - 1][0] : '')).toUpperCase(); }
 function sizeFor(len){ return len < 70 ? 27 : len < 120 ? 23 : len < 190 ? 20 : 17; }
-function sourceLine(q){ const s = q[2] || ''; if(!s) return ''; if(/^meaning: /i.test(s)) return L('Meaning: ', 'Maana: ') + s.slice(9); if(/^idea from /i.test(s)) return L('A key idea from ', 'Wazo kuu kutoka ') + s.slice(10); if(/^[A-Z][a-z]+ \d+:\d+$|^\d? ?[A-Z][a-z]+ \d+:\d+$/.test(s)) return s; return L('From ', 'Kutoka ') + s; }
+function sourceLine(q, cat){ const s = q[2] || ''; if(!s || s === 'summary') return ''; if(s === 'attributed') return L('Attributed', 'Inahusishwa'); if(/^meaning: /i.test(s)) return L('Meaning: ', 'Maana: ') + s.slice(9); if(/^idea from /i.test(s)) return L('A key idea from ', 'Wazo kuu kutoka ') + s.slice(10); if(cat === 'bible' || cat === 'history' || cat === 'money') return s; if(/^[A-Z][a-z]+ \d+:\d+$|^\d? ?[A-Z][a-z]+ \d+:\d+$/.test(s)) return s; return L('From ', 'Kutoka ') + s; }
+const closing = slot => slot === 'mid' ? L('Keep going — the day is still yours.', 'Endelea — siku bado ni yako.') : slot === 'eve' ? L('Finish the day strong.', 'Maliza siku kwa nguvu.') : L('Make today count.', 'Fanya leo ihesabike.');
 
 /* ---------- the card ---------- */
 function build(q, opts){
   injectCss(); const old = $('#dqBack'); if(old) old.remove();
+  const cat = CAT[opts.cat] || CAT.motivation;
   const now = new Date(), p = PALETTES[(dayNumber(now) + hash(q[1])) % PALETTES.length];
   const wrap = document.createElement('div'); wrap.id = 'dqBack';
   const streak = opts.streak > 1 ? L(opts.streak + '-day streak', 'Siku ' + opts.streak + ' mfululizo') : L('A new day, a fresh start', 'Siku mpya, mwanzo mpya');
   const dateTxt = now.toLocaleDateString(T.lang() === 'sw' ? 'sw-KE' : 'en-KE', { weekday: 'long', day: 'numeric', month: 'long' });
+  const mono = cat.glyph || initials(q[1]);
+  const src = sourceLine(q, cat.k);
+  const shareTxt = (cat.quote ? '“' + q[0] + '” — ' : q[0] + ' — ') + q[1];
   wrap.innerHTML = `<div id="dqCard" role="dialog" aria-modal="true" aria-labelledby="dqHi" aria-describedby="dqQ" style="--dq-acc:${p[2]}">${art(p)}
    <div class="dq-in"><button class="dq-x" id="dqX" aria-label="${esc(L('Close', 'Funga'))}">&times;</button>
-   <div class="dq-tag"><i></i>${esc(L("Today's spark", 'Cheche ya leo'))}</div>
+   <div class="dq-tag"><i></i>${esc(L(cat.tag[0], cat.tag[1]))}</div>
    <h2 class="dq-hi" id="dqHi">${esc(greeting(now))}, ${esc(firstName())}</h2><div class="dq-date">${esc(dateTxt)}</div>
-   <div class="dq-mark" aria-hidden="true">&ldquo;</div>
-   <blockquote id="dqQ" style="font-size:${sizeFor(q[0].length)}px;line-height:1.38;">${esc(q[0])}</blockquote>
-   <div class="dq-by"><div class="dq-mono" aria-hidden="true">${esc(initials(q[1]))}</div><div><div class="dq-au">${esc(q[1])}</div>${sourceLine(q) ? `<div class="dq-src">${esc(sourceLine(q))}</div>` : ''}</div></div>
-   <div class="dq-rule"></div><div class="dq-meta"><span>${esc(streak)}</span><span>${esc(L('Make today count.', 'Fanya leo ihesabike.'))}</span></div>
-   <div class="dq-btns"><button class="dq-go" id="dqGo">${esc(L("Let's go", 'Tuanze'))}</button><a class="dq-sh" id="dqSh" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent('“' + q[0] + '” — ' + q[1])}">${esc(L('Share', 'Shiriki'))}</a></div></div></div>`;
+   ${cat.quote ? '<div class="dq-mark" aria-hidden="true">&ldquo;</div>' : '<div style="height:18px"></div>'}
+   <blockquote id="dqQ" style="font-size:${sizeFor(q[0].length)}px;line-height:1.38;${cat.quote ? '' : 'font-style:normal;'}">${esc(q[0])}</blockquote>
+   <div class="dq-by"><div class="dq-mono" aria-hidden="true" style="${mono.length > 2 ? 'font-size:13px;' : ''}">${esc(mono)}</div><div><div class="dq-au">${esc(q[1])}</div>${src ? `<div class="dq-src">${esc(src)}</div>` : ''}</div></div>
+   <div class="dq-rule"></div><div class="dq-meta"><span>${esc(streak)}</span><span>${esc(closing(opts.slot))}</span></div>
+   <div class="dq-btns"><button class="dq-go" id="dqGo">${esc(L("Let's go", 'Tuanze'))}</button><a class="dq-sh" id="dqSh" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(shareTxt)}">${esc(L('Share', 'Shiriki'))}</a></div>
+   <button type="button" class="dq-set" id="dqSet">${esc(L('Change what I see', 'Badilisha ninachoona'))}</button></div></div>`;
   document.body.appendChild(wrap);
   const prev = document.activeElement; const close = () => { wrap.remove(); document.removeEventListener('keydown', onKey); if(prev && prev.focus) try{ prev.focus(); }catch(e){} };
   const onKey = e => { if(e.key === 'Escape') close(); if(e.key === 'Tab'){ const f = Array.from(wrap.querySelectorAll('button,a')); if(!f.length) return; const first = f[0], last = f[f.length - 1]; if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); } else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); } } };
   document.addEventListener('keydown', onKey);
   $('#dqX', wrap).addEventListener('click', close); $('#dqGo', wrap).addEventListener('click', close);
+  $('#dqSet', wrap).addEventListener('click', () => { close(); openSettings(); });
   wrap.addEventListener('click', e => { if(e.target === wrap) close(); });
   setTimeout(() => { const g = $('#dqGo', wrap); if(g) g.focus(); }, 60);
 }
 
-/* ---------- once per day ---------- */
+/* ---------- settings: categories (at least one) and how often ---------- */
+function openSettings(){
+  injectCss(); const old = $('#dqSetBack'); if(old) old.remove();
+  const cur = prefs(); let libs = {};
+  const wrap = document.createElement('div'); wrap.id = 'dqSetBack';
+  const freqs = [[1, L('Once a day', 'Mara moja kwa siku'), L('When I first open the app', 'Ninapofungua programu mara ya kwanza')], [2, L('Twice a day', 'Mara mbili kwa siku'), L('First open, plus around midday (from 12:00)', 'Mara ya kwanza, na mchana (kuanzia saa 6 mchana)')], [3, L('Three times a day', 'Mara tatu kwa siku'), L('First open, midday (from 12:00) and evening (from 17:00)', 'Mara ya kwanza, mchana na jioni (kuanzia saa 11 jioni)')]];
+  wrap.innerHTML = `<div id="dqSetBox" role="dialog" aria-modal="true" aria-labelledby="dqSetH">
+    <div class="dqs-top"><h2 id="dqSetH">${esc(L('Daily inspiration', 'Mawazo ya kila siku'))}</h2><button type="button" id="dqsX" aria-label="${esc(L('Close', 'Funga'))}">&times;</button></div>
+    <p class="dqs-p">${esc(L('Choose what you would like to read. Tick one or more.', 'Chagua unachopenda kusoma. Chagua moja au zaidi.'))}</p>
+    <fieldset class="dqs-f"><legend>${esc(L('What I would like to see', 'Ninachopenda kuona'))}</legend>${CATS.map(c => `<label class="dqs-ck"><input type="checkbox" name="dqcat" value="${c.k}" ${cur.cats.includes(c.k) ? 'checked' : ''}> <span>${esc(L(c.en, c.sw))}</span></label>`).join('')}</fieldset>
+    <fieldset class="dqs-f"><legend>${esc(L('How often', 'Mara ngapi'))}</legend>${freqs.map(f => `<label class="dqs-ck dqs-r"><input type="radio" name="dqfreq" value="${f[0]}" ${cur.freq === f[0] ? 'checked' : ''}> <span><b>${esc(f[1])}</b><br><small>${esc(f[2])}</small></span></label>`).join('')}</fieldset>
+    <div id="dqsMsg" role="alert" class="dqs-m"></div>
+    <div class="dqs-b"><button type="button" id="dqsPrev" class="dqs-2">${esc(L('Preview', 'Hakiki'))}</button><button type="button" id="dqsSave" class="dqs-1">${esc(L('Save', 'Hifadhi'))}</button></div></div>`;
+  document.body.appendChild(wrap);
+  const box = $('#dqSetBox', wrap), prev = document.activeElement;
+  const read = () => ({ cats: Array.from(wrap.querySelectorAll('input[name=dqcat]:checked')).map(i => i.value), freq: parseInt((wrap.querySelector('input[name=dqfreq]:checked') || {}).value || '1', 10) });
+  const close = () => { wrap.remove(); document.removeEventListener('keydown', onKey); if(prev && prev.focus) try{ prev.focus(); }catch(e){} };
+  const onKey = e => { if(e.key === 'Escape') close(); if(e.key === 'Tab'){ const f = Array.from(wrap.querySelectorAll('button,input')); if(!f.length) return; const a = f[0], z = f[f.length - 1]; if(e.shiftKey && document.activeElement === a){ e.preventDefault(); z.focus(); } else if(!e.shiftKey && document.activeElement === z){ e.preventDefault(); a.focus(); } } };
+  document.addEventListener('keydown', onKey);
+  const msg = t => { $('#dqsMsg', wrap).textContent = t || ''; };
+  wrap.addEventListener('change', e => { if(e.target.name === 'dqcat' && !read().cats.length){ e.target.checked = true; msg(L('Keep at least one ticked.', 'Acha angalau moja limechaguliwa.')); } else msg(''); });
+  $('#dqsX', wrap).addEventListener('click', close);
+  wrap.addEventListener('click', e => { if(e.target === wrap) close(); });
+  $('#dqsPrev', wrap).addEventListener('click', async () => { const r = read(); if(!r.cats.length) return msg(L('Choose at least one.', 'Chagua angalau moja.')); libs = await libraryFor(r.cats); const k = r.cats[Math.floor(Math.random() * r.cats.length)], a = libs[k]; if(a && a.length){ close(); build(a[Math.floor(Math.random() * a.length)], { streak: 1, cat: k, slot: 'first' }); } });
+  $('#dqsSave', wrap).addEventListener('click', () => { const r = read(); if(!r.cats.length) return msg(L('Choose at least one.', 'Chagua angalau moja.')); savePrefs(r); close(); try{ T.toast(L('Saved. Your daily inspiration is updated.', 'Imehifadhiwa.')); }catch(e){} });
+  setTimeout(() => { const f = wrap.querySelector('input'); if(f) f.focus(); }, 60);
+}
+
+/* ---------- showing cards ---------- */
 const who = () => (typeof AGENT !== 'undefined' && AGENT && (AGENT.agentId || AGENT.phone)) || 'anon';
 const state = () => get(K(KEY), { last: '', streak: 0, idx: -1 });
+function cardsToday(st, today){ return st.date === today ? st : { date: today, done: [], count: 0 }; }
+function pickFor(libs, cats, st, now, count, whoId){
+  const cat = cats[(dayNumber(now) + count) % cats.length], arr = libs[cat] || [];
+  if(!arr.length) return null;
+  const n = (st.n && st.n[cat] != null) ? st.n[cat] : (cat === 'motivation' ? dayNumber(now) : 0);
+  const idx = permutation(arr.length, cat === 'motivation' ? whoId : whoId + '|' + cat)[n % arr.length];
+  return { cat, idx, n, q: arr[idx] };
+}
 let showing = false;
 async function showToday(force){
   if(showing) return; showing = true;
   try{
-    const lib = await library(); if(!lib.length) return;
     const params = new URLSearchParams(location.search), rnd = params.get('dq') === 'random';
-    const now = new Date(), today = ymd(now), st = state();
-    if(rnd){ build(lib[Math.floor(Math.random() * lib.length)], { streak: 3 }); return; }
-    const idx = pickIndex(lib.length, String(who()), now);
-    if(force){ build(lib[idx], { streak: st.streak || 1 }); return; }
-    if(st.last === today) return;
-    const y = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1), streak = st.last === ymd(y) ? (st.streak || 0) + 1 : 1;
-    put(K(KEY), { last: today, streak, idx });
-    build(lib[idx], { streak });
+    const pr = prefs(), now = new Date(), today = ymd(now), st = state();
+    const cats = rnd && params.get('dqcat') && CAT[params.get('dqcat')] ? [params.get('dqcat')] : pr.cats;
+    const libs = await libraryFor(rnd ? CATS.map(c => c.k) : cats);
+    if(rnd){ const ks = cats.filter(k => libs[k] && libs[k].length), k = ks[Math.floor(Math.random() * ks.length)]; if(k) build(libs[k][Math.floor(Math.random() * libs[k].length)], { streak: 3, cat: k, slot: 'first' }); return; }
+    const w = String(who());
+    if(force){
+      const li = st.date === today && st.lastItem; const lk = li && libs[li.cat] ? li : null;
+      if(lk && libs[lk.cat][lk.idx]){ build(libs[lk.cat][lk.idx], { streak: st.streak || 1, cat: lk.cat, slot: lk.slot }); return; }
+      const t = cardsToday(st, today), pk = pickFor(libs, cats, st, now, t.count || 0, w); if(pk) build(pk.q, { streak: st.streak || 1, cat: pk.cat, slot: 'first' }); return;
+    }
+    const t = cardsToday(st, today), d = dueSlot(now.getHours(), t.done, pr.freq); if(!d) return;
+    const pk = pickFor(libs, cats, st, now, t.count || 0, w); if(!pk) return;
+    const y = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1), streak = st.date === today ? (st.streak || 1) : (st.last === ymd(y) ? (st.streak || 0) + 1 : 1);
+    const nmap = Object.assign({}, st.n || {}); nmap[pk.cat] = pk.n + 1;
+    put(K(KEY), { last: today, date: today, streak, idx: st.idx, done: Array.from(new Set((t.done || []).concat(d.mark))), count: (t.count || 0) + 1, n: nmap, lastItem: { cat: pk.cat, idx: pk.idx, slot: d.slot } });
+    build(pk.q, { streak, cat: pk.cat, slot: d.slot });
   } finally { showing = false; }
 }
 function due(){
   if(!loggedIn() || !AGENT.token && !AGENT.phone) return false;
   const s = window.AgentApps && window.AgentApps.status && window.AgentApps.status(); if(s && s.features && s.features.dailyQuote === false) return false;
   if(new URLSearchParams(location.search).get('dq') === 'random') return !$('#dqBack');
-  return state().last !== ymd(new Date()) && !$('#dqBack');
+  const st = state(), today = ymd(new Date()), t = st.date === today ? st : { done: st.last === today ? ['first'] : [] };
+  return !!dueSlot(new Date().getHours(), t.done, prefs().freq) && !$('#dqBack') && !$('#dqSetBack');
 }
 let armed = false;
+function busy(){ if($('#atPanel') || $('#helpPanel') || $('#acctSheet') || $('#acctEdit') || $('#fbSheet')) return true; const a = document.activeElement; return !!(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); }
 function maybe(){
   if(armed || !due()) return; armed = true;
-  setTimeout(async () => { try{ if(window.AgentApps && !window.AgentApps.status()) await Promise.race([window.AgentApps.loadStatus(false), new Promise(r => setTimeout(r, 2500))]); }catch(e){} armed = false; if(!due()) return; if($('#atPanel') || ($('#gateScreen') && $('#gateScreen').style.display !== 'none')) return; showToday(false); }, 900);
+  setTimeout(async () => { try{ if(window.AgentApps && !window.AgentApps.status()) await Promise.race([window.AgentApps.loadStatus(false), new Promise(r => setTimeout(r, 2500))]); }catch(e){} armed = false; if(!due()) return; if($('#atPanel') || ($('#gateScreen') && $('#gateScreen').style.display !== 'none')) return; const st = state(); if(st.date === ymd(new Date()) && busy()) return; showToday(false); }, 900);
 }
 function homeTile(){
   const grid = $('#atHome'); if(!grid || $('#dqTile')) return;
@@ -152,6 +244,8 @@ if(typeof render === 'function'){
   const _r = render;
   render = function(){ const r = _r.apply(this, arguments); try{ if(loggedIn()){ maybe(); if(state && document.body) homeTile(); } }catch(e){ console.error('daily-quote', e); } return r; };
 }
-window.DailyQuote = { pickIndex, permutation, showToday, dayNumber, state };
+window.DailyQuote = { pickIndex, permutation, showToday, dayNumber, state, openSettings, prefs, dueSlot, CATS };
 setTimeout(maybe, 2600);
+setInterval(maybe, 60000);
+document.addEventListener('visibilitychange', () => { if(!document.hidden) setTimeout(maybe, 1200); });
 })();

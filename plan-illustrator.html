@@ -3418,7 +3418,7 @@ function renderSSStep5(){
    for a fully offline/standalone device install.
    ============================================================ */
 const urlParams = new URLSearchParams(location.search);
-const APP_VERSION = '2026.10.32';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
+const APP_VERSION = '2026.10.34';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
 // Bump this whenever the Terms text changes in substance: every device then shows the gate again so the
 // new wording is actually accepted, instead of silently carrying the old acceptance forward.
 const TERMS_VERSION = '3';
@@ -4129,11 +4129,13 @@ function openAccount(){
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><h2 style="margin:0;font-family:var(--font-display);color:var(--brand-dark);font-size:20px;">My account</h2><button id="acClose" aria-label="Close" style="border:0;background:transparent;font-size:26px;line-height:1;cursor:pointer;color:var(--muted);">&times;</button></div>
     ${row('Name',AGENT.name)}${row('Agency code',AGENT.agencyCode)}${row('Phone',AGENT.phone)}${row('Email',AGENT.email)}
     <button id="acEdit" style="${BTN_CSS}background:#fff;color:var(--brand);border:1.5px solid var(--brand);">Edit my details</button>
+    ${(()=>{ try{ const st = window.AgentApps && window.AgentApps.status && window.AgentApps.status(); if(!window.DailyQuote || (st && st.features && st.features.dailyQuote===false)) return ''; }catch(e){ return ''; } return `<button id="acInspire" style="${BTN_CSS}background:#fff;color:var(--brand);border:1.5px solid var(--brand);">Daily inspiration</button>`; })()}
     <button id="acOut" style="${BTN_CSS}background:var(--brand);color:#fff;">Sign out</button>
     <div id="acConfirm"></div>
     <p style="margin:14px 0 0;font-size:12.5px;color:var(--muted);text-align:center;">Sign out whenever someone else needs to use this device. Version ${APP_VERSION}.</p>`, true);
   wrap.querySelector('#acClose').addEventListener('click', ()=>wrap.remove());
   wrap.querySelector('#acEdit').addEventListener('click', ()=>{ wrap.remove(); openAccountEditor(false); });
+  const insp = wrap.querySelector('#acInspire'); if(insp) insp.addEventListener('click', ()=>{ wrap.remove(); window.DailyQuote.openSettings(); });
   wrap.querySelector('#acOut').addEventListener('click', ()=>{
     wrap.querySelector('#acConfirm').innerHTML = `<div style="margin-top:12px;padding:12px;border-radius:12px;background:var(--brand-light,#f4e6e8);font-size:14px;">Sign out of <strong>${opsEscape(AGENT.name)}</strong>? Any illustration in progress will be cleared and the next person will have to sign in.
       <div style="display:flex;gap:10px;"><button id="acNo" style="${BTN_CSS}flex:1;background:#fff;color:var(--ink);border:1.5px solid var(--line);">Cancel</button><button id="acYes" style="${BTN_CSS}flex:1;background:var(--danger,#b3261e);color:#fff;">Sign out</button></div></div>`;
