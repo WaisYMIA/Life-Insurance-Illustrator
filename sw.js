@@ -15,7 +15,7 @@
  */
 'use strict';
 
-const CACHE_VERSION = 'plan-illustrator-2026.10.35';
+const CACHE_VERSION = 'plan-illustrator-2026.11.1';
 // Paths are relative to this file's own location (self.location), so the
 // same list works whether sw.js is served from a domain root (an Express
 // deployment) or from a GitHub Pages project subpath — both keep sw.js,
@@ -27,6 +27,7 @@ const APP_SHELL = [
   'help-content.js',
   'agent-tools.js',
   'agent-apps.js',
+  'agent-growth.js',
   'daily-quote.js',
   'daily-quotes.js',
   'daily-library.js',

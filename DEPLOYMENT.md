@@ -125,3 +125,13 @@ On the first open each day an agent sees a greeting card ("Good morning, Walter"
 
 - `calculator.js`: floating calculator button (bottom-right, all screens except sign-in), non-modal panel, keyboard support, percent logic (200000 + 10% = 220000), memory keys, copy result / copy calculation, history (last 8, on the device), commas toggle. Install and update bars step aside while it is open.
 - Covered by `test/calculator-test.js` (arithmetic) and the browser tests.
+
+## 16. Business tools for agents (v2026.11.1)
+
+- `agent-growth.js` (loaded after agent-apps.js; listed in sw.js APP_SHELL and the backend static allowlist): **My business** (today list, monthly goals, pipeline by stage), client birthday alerts (date of birth added to the client form), ready-made EN/Kiswahili follow-up messages (WhatsApp, SMS, copy), **Cover needed** quick calculator, glossary **Practice quiz**, **Backup & restore** (JSON, Excel-readable CSV), optional **App lock (PIN)**, 5 more objection cards and 4 more practice clients.
+- Backup/restore and App lock are buttons in My account, registered through `window.AccountExtras`.
+- All data stays on the agent's device (per-agent localStorage keys). Nothing new is sent to the backend, so no server changes are needed beyond serving the new file.
+- The PIN is a screen lock, not encryption: it is stored as a salted PBKDF2 hash, covers the app with an overlay and makes the page behind it inert, but localStorage can still be read with device tools. Forgot PIN means sign out (which also clears the PIN).
+- Help chip rows (A-Z and categories) wrap on phones instead of scrolling sideways; PC layout is unchanged.
+- Tests: `node test/agent-growth-test.js` (birthdays, goals, needs arithmetic, quiz building, CSV, backup parsing and merge) plus browser tests.
+- Already existing before this release and not rebuilt: compare tray, what-if, pitch/objection cards, practice clients (training mode), WhatsApp/PDF sharing, follow-ups, needs-gap chart, offline upload queue, admin leaderboard and targets.

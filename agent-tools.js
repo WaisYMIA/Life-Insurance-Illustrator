@@ -263,18 +263,19 @@ function openClient(id, then){
     body.innerHTML = `<label>${esc(L('Name', 'Jina'))}</label><input id="cName" value="${esc(c.name)}" maxlength="120">
       <label>${esc(L('Phone', 'Simu'))}</label><input id="cPhone" type="tel" value="${esc(c.phone)}" maxlength="20">
       <label>Email</label><input id="cEmail" type="email" value="${esc(c.email)}" maxlength="160">
+      <label for="cDob">${esc(L('Date of birth (optional, for birthday reminders)', 'Tarehe ya kuzaliwa (si lazima, kwa vikumbusho vya siku ya kuzaliwa)'))}</label><input id="cDob" type="date" value="${esc(c.dob || '')}">
       <label>${esc(L('Status', 'Hali'))}</label><select id="cStatus">${STATUSES.map(s => `<option value="${s[0]}" ${c.status === s[0] ? 'selected' : ''}>${esc(L(s[1], s[2]))}</option>`).join('')}</select>
       <label>${esc(L('Follow-up date', 'Tarehe ya kufuatilia'))}</label><input id="cFollow" type="date" value="${esc(c.followUp)}">
       <label>${esc(L('Follow-up note', 'Maelezo ya ufuatiliaji'))}</label><input id="cFollowNote" value="${esc(c.followNote || '')}" maxlength="160" placeholder="${esc(L('e.g. Call after salary day', 'mfano: Piga simu baada ya siku ya mshahara'))}">
       <label>${esc(L('Notes', 'Maelezo'))}</label><textarea id="cNotes" rows="3" maxlength="800">${esc(c.notes || '')}</textarea>
       <div class="at-row"><button class="at-btn pri" id="cSave">${esc(L('Save', 'Hifadhi'))}</button>${isNew ? '' : `<button class="at-btn" id="cCall">${esc(L('Call', 'Piga simu'))}</button><button class="at-btn" id="cWa">WhatsApp</button><button class="at-btn" id="cLead">${esc(L('Hand to sales team', 'Mkabidhi timu ya mauzo'))}</button>`}</div><div id="cMsg" style="margin-top:8px;font-size:13px;"></div>
       <div id="cQuotes"></div>${isNew ? '' : `<div class="at-row"><button class="at-btn danger sm" id="cDel">${esc(L('Delete client', 'Futa mteja'))}</button></div>`}`;
-    const read = () => { c.name = $('#cName', body).value.trim(); c.phone = $('#cPhone', body).value.trim(); c.email = $('#cEmail', body).value.trim(); c.status = $('#cStatus', body).value; c.followUp = $('#cFollow', body).value; c.followNote = $('#cFollowNote', body).value.trim(); c.notes = $('#cNotes', body).value.trim(); c.updatedAt = Date.now(); };
+    const read = () => { c.name = $('#cName', body).value.trim(); c.phone = $('#cPhone', body).value.trim(); c.email = $('#cEmail', body).value.trim(); c.status = $('#cStatus', body).value; c.dob = $('#cDob', body).value; if(c.status === 'won' && !c.wonAt) c.wonAt = Date.now(); if(c.status !== 'won') delete c.wonAt; c.followUp = $('#cFollow', body).value; c.followNote = $('#cFollowNote', body).value.trim(); c.notes = $('#cNotes', body).value.trim(); c.updatedAt = Date.now(); };
     const persist = () => { const a = clients(); const i = a.findIndex(x => x.id === c.id); if(i >= 0) a[i] = c; else a.unshift(c); saveClients(a); };
     $('#cSave', body).addEventListener('click', () => { read(); if(!c.name){ $('#cMsg', body).textContent = L('Enter the client\'s name.', 'Weka jina la mteja.'); return; } persist(); if(then) then(c); backPanel(); });
     if(!isNew){
       $('#cCall', body).addEventListener('click', () => { if(c.phone) location.href = 'tel:' + c.phone.replace(/\s/g, ''); });
-      $('#cWa', body).addEventListener('click', () => { const n = waNumber(c.phone); if(n) window.open('https://wa.me/' + n, '_blank'); });
+      $('#cWa', body).addEventListener('click', () => { read(); persist(); if(window.AgentGrowth) return window.AgentGrowth.openMessage(c); const n = waNumber(c.phone); if(n) window.open('https://wa.me/' + n, '_blank'); });
       $('#cLead', body).addEventListener('click', () => { read(); persist(); openLeadForm(c); });
       $('#cDel', body).addEventListener('click', () => { if(confirmBox(L('Delete this client and their saved quotes from this phone?', 'Futa mteja huyu na nukuu zake kwenye simu hii?'))){ saveClients(clients().filter(x => x.id !== c.id)); backPanel(); } });
       const qs = $('#cQuotes', body); const sel = new Set();
@@ -660,7 +661,7 @@ if(typeof trackedPrint === 'function'){
   trackedPrint = function(){ try{ recordQuote('print', state.mode === 'diagnose' ? diagSnapshot() : scrapeIllustration()); }catch(e){} return _tp.apply(this, arguments); };
 }
 // expose a few helpers for the account sheet and tests
-window.AgentTools = { showPanel, backPanel, closePanel, L, esc, toast, $, $$, get, put, K, uid, today, online, loggedIn, num, clients, saveClients, waNumber, injectCss, openClients, openPitch, openScenarios, shareSheet, snapNow, buildPdf, summaryText, whatIfSpec, setTraining, training, lang, setLang, dueCount, SCENARIOS, PITCH, syncRates, flushQuotes, loadStanding };
+window.AgentTools = { openClient, STATUSES, statusLabel, dueState, showPanel, backPanel, closePanel, L, esc, toast, $, $$, get, put, K, uid, today, online, loggedIn, num, clients, saveClients, waNumber, injectCss, openClients, openPitch, openScenarios, shareSheet, snapNow, buildPdf, summaryText, whatIfSpec, setTraining, training, lang, setLang, dueCount, SCENARIOS, PITCH, syncRates, flushQuotes, loadStanding };
 injectCss(); setTraining(training());
 window.addEventListener('online', () => { flushQuotes(); syncRates(); loadStanding(); });
 setTimeout(() => { syncRates(); loadStanding(); flushQuotes(); try{ render(); }catch(e){} }, 1500);
