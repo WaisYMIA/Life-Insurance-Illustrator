@@ -120,3 +120,8 @@ On the first open each day an agent sees a greeting card ("Good morning, Walter"
 - Agents choose categories (at least one) and frequency (1-3 a day: first open, from 12:00, from 17:00) under My account > Daily inspiration. Stored per agent on the device (not asked at sign-up). Default: Motivation, once a day.
 - Admin can still switch the whole feature off (Settings > What agents can use > daily quote).
 - Verses were typed from the King James Version and history/Stoic/proverb entries from published sources; have a reviewer proofread before wide release.
+
+## 15. Calculator (v2026.10.35)
+
+- `calculator.js`: floating calculator button (bottom-right, all screens except sign-in), non-modal panel, keyboard support, percent logic (200000 + 10% = 220000), memory keys, copy result / copy calculation, history (last 8, on the device), commas toggle. Install and update bars step aside while it is open.
+- Covered by `test/calculator-test.js` (arithmetic) and the browser tests.
