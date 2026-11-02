@@ -98,7 +98,9 @@
   #acctBtn:active{transform:scale(.95);}
   #helpBtn{position:absolute;top:12px;right:60px;width:38px;height:38px;border-radius:50%;border:2px solid var(--brand);background:#fff;color:var(--brand);font:700 19px system-ui,sans-serif;cursor:pointer;align-items:center;justify-content:center;padding:0;}
   #helpBtn:active{transform:scale(.95);}
-  @media print{#acctBtn,#helpBtn{display:none!important;}}
+  #homeBtn{position:absolute;top:12px;right:106px;width:38px;height:38px;border-radius:50%;border:2px solid var(--brand);background:#fff;color:var(--brand);cursor:pointer;align-items:center;justify-content:center;padding:0;}
+  #homeBtn:active{transform:scale(.95);} #homeBtn:focus-visible{outline:3px solid #1a5fb4;outline-offset:2px;}
+  @media print{#acctBtn,#helpBtn,#homeBtn{display:none!important;}}
   header.top .brand, header.top h1{padding-right:96px;}
   header.top .brand{display:flex;align-items:center;gap:9px;}
   header.top .brand-logo{height:30px;width:auto;flex:none;}
@@ -211,6 +213,11 @@
   }
   .mode-card.sel{border-color:var(--brand);background:var(--brand-light);}
   .mode-card .mtitle{font-weight:700;font-size:15px;margin-bottom:3px;}
+  .mode-card.mode-first{background:var(--brand);border-color:var(--brand);border-top-color:var(--brand-dark,#4c1520);box-shadow:0 4px 14px rgba(76,21,32,.28);}
+  .mode-card.mode-first .mtitle,.mode-card.mode-first .mdesc{color:#fff;}
+  .mode-card.mode-first .mdesc{opacity:.92;}
+  .mode-card.mode-first .mode-tag{display:inline-block;background:#fff;color:var(--brand-dark,#4c1520);font:700 10.5px system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;border-radius:999px;padding:2px 9px;margin-bottom:6px;}
+  .mode-card.mode-first:focus-visible{outline:3px solid #1a5fb4;outline-offset:2px;}
   .mode-card .mdesc{font-size:12.5px;color:var(--muted);line-height:1.4;}
   .chip-group{display:flex;flex-wrap:wrap;gap:10px;}
   .chip{
@@ -477,7 +484,7 @@
     main{max-width:760px;padding:26px 28px 16px;}
     header.top{padding:18px 28px 14px;}
     header.top .brand, header.top h1{padding-right:110px;}
-    #acctBtn{right:28px;} #helpBtn{right:74px;}
+    #acctBtn{right:28px;} #helpBtn{right:74px;} #homeBtn{right:120px;}
     #gateScreen .gate-body{max-width:640px;}
     .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
     .mode-card{padding:18px;}
@@ -492,11 +499,11 @@
     main{max-width:960px;padding:30px 36px 20px;}
     header.top{padding:18px max(36px,calc((100vw - 960px)/2 + 36px)) 14px;}
     header.top .brand, header.top h1{padding-right:120px;}
-    #acctBtn{right:max(36px,calc((100vw - 960px)/2 + 36px));} #helpBtn{right:calc(max(36px,calc((100vw - 960px)/2 + 36px)) + 46px);}
+    #acctBtn{right:max(36px,calc((100vw - 960px)/2 + 36px));} #helpBtn{right:calc(max(36px,calc((100vw - 960px)/2 + 36px)) + 46px);} #homeBtn{right:calc(max(36px,calc((100vw - 960px)/2 + 36px)) + 92px);}
     .mode-grid{grid-template-columns:1fr 1fr;}
   }
   @media (min-width:1500px){ main{max-width:1040px;} }
-  @media (hover:hover) and (pointer:fine){ .mode-card:hover{border-color:var(--brand);box-shadow:0 2px 10px rgba(76,21,32,.1);} }
+  @media (hover:hover) and (pointer:fine){ .mode-card:hover{border-color:var(--brand);box-shadow:0 2px 10px rgba(76,21,32,.1);} .mode-card.mode-first:hover{background:var(--brand-dark,#4c1520);box-shadow:0 6px 18px rgba(76,21,32,.35);} }
   @media print{ .app-row{display:none!important;} }
 </style>
 </head>
@@ -575,6 +582,7 @@
 </div>
 
 <header class="top">
+  <button type="button" id="homeBtn" aria-label="Home: back to the start screen" title="Home" style="display:none;"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 3 2 12h3v8h5v-5h4v5h5v-8h3z"/></svg></button>
   <button type="button" id="helpBtn" aria-label="Help and handbook" style="display:none;">?</button>
   <button type="button" id="acctBtn" aria-label="Account: edit profile or sign out" style="display:none;"><span id="acctInit">?</span></button>
   <div class="brand"><img class="brand-logo" src="icons/logo.png" alt="" width="20" height="32"><span>Insurance Life Plan Illustrator</span></div>
@@ -1398,13 +1406,13 @@ function renderHome(){
     <div class="step-label">Start here</div>
     <h2 class="step-title">How would you like to begin?</h2>
     <div class="mode-grid">
+      <div class="mode-card card--accent mode-first" id="homeIllustrate" role="button" tabindex="0" style="cursor:pointer;">
+        <span class="mode-tag">First tool</span><div class="mtitle">Go straight to the Illustrator</div>
+        <div class="mdesc">Already know which plan the client wants? Skip the diagnosis and build the illustration directly.</div>
+      </div>
       <div class="mode-card card--accent" id="homeDiagnose" style="cursor:pointer;">
         <div class="mtitle">Client Needs Diagnosis</div>
         <div class="mdesc">Answer a short set of questions about the client's goals, dependants, cover and savings habits. We'll identify their needs and suggest which company products are the strongest fit, with an illustration ready at the end.</div>
-      </div>
-      <div class="mode-card card--accent" id="homeIllustrate" style="cursor:pointer;">
-        <div class="mtitle">Go straight to the Illustrator</div>
-        <div class="mdesc">Already know which plan the client wants? Skip the diagnosis and build the illustration directly.</div>
       </div>
     </div>
     <div class="note" style="margin-top:8px;">The diagnosis is a guide for further advisor assessment — it does not replace full fact-finding, affordability checks, or the official product illustration.</div>
@@ -1429,10 +1437,13 @@ function renderHome(){
     state.diag = defaultState().diag;
     goDiagnose(1);
   });
-  document.getElementById('homeIllustrate').addEventListener('click', ()=>{
+  const goIllustrate = ()=>{
     state.mode = 'illustrate';
     go(1);
-  });
+  };
+  const hi = document.getElementById('homeIllustrate');
+  hi.addEventListener('click', goIllustrate);
+  hi.addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); goIllustrate(); } });
 }
 
 /* ============================================================
@@ -3418,7 +3429,7 @@ function renderSSStep5(){
    for a fully offline/standalone device install.
    ============================================================ */
 const urlParams = new URLSearchParams(location.search);
-const APP_VERSION = '2026.11.1';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
+const APP_VERSION = '2026.11.2';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
 // Bump this whenever the Terms text changes in substance: every device then shows the gate again so the
 // new wording is actually accepted, instead of silently carrying the old acceptance forward.
 const TERMS_VERSION = '3';
@@ -4422,6 +4433,8 @@ function openHelp(startQuery){
 function syncOpsUi(){
   const hb = document.getElementById('helpBtn');
   if(hb){ hb.style.display = AGENT ? 'flex' : 'none'; if(!hb._wired){ hb._wired = true; hb.addEventListener('click', ()=>openHelp()); } }
+  const hm = document.getElementById('homeBtn');
+  if(hm){ hm.style.display = (AGENT && typeof state !== 'undefined' && state.mode !== 'home') ? 'flex' : 'none'; if(!hm._wired){ hm._wired = true; hm.addEventListener('click', ()=>{ try{ if(window.AgentTools && document.getElementById('atPanel')) window.AgentTools.closePanel(); }catch(e){} goHome(); }); } }
   const ab = document.getElementById('acctBtn');
   if(ab){ ab.style.display = AGENT ? 'flex' : 'none'; if(AGENT){ document.getElementById('acctInit').textContent = agentInitials(); if(!ab._wired){ ab._wired = true; ab.addEventListener('click', openAccount); } } }
   pushPendingProfile();

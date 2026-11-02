@@ -135,3 +135,8 @@ On the first open each day an agent sees a greeting card ("Good morning, Walter"
 - Help chip rows (A-Z and categories) wrap on phones instead of scrolling sideways; PC layout is unchanged.
 - Tests: `node test/agent-growth-test.js` (birthdays, goals, needs arithmetic, quiz building, CSV, backup parsing and merge) plus browser tests.
 - Already existing before this release and not rebuilt: compare tray, what-if, pitch/objection cards, practice clients (training mode), WhatsApp/PDF sharing, follow-ups, needs-gap chart, offline upload queue, admin leaderboard and targets.
+
+## 17. Home button and start screen order (v2026.11.2)
+
+- Header now has a Home button (house icon, left of "?") on every screen except the start screen. It closes any open agent window and returns to the start screen; unfinished work is kept as a draft and offered as Resume.
+- Start screen order: "Go straight to the Illustrator" is first and highlighted (filled brand colour, "First tool" tag), then Client Needs Diagnosis. The app still opens at Step 1 of the illustrator.
