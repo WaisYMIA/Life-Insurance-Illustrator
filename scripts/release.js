@@ -11,7 +11,7 @@ const root = path.join(__dirname, '..'), args = process.argv.slice(2);
 if(!args[0]){ console.error('Usage: node scripts/release.js <version> [--min <version>]'); process.exit(1); }
 const steps = [
   ['Signed-illustration regression', 'test/regression-suite.js'], ['Calculator parity (page vs engines)', 'test/engine-parity-test.js'],
-  ['Needs scoring', 'test/needs-scoring-test.js'], ['Help content', 'test/help-content-test.js'], ['Backend integration', 'backend/test-integration.js'], ['Install / update flow', 'test/update-flow-test.js']
+  ['Needs scoring', 'test/needs-scoring-test.js'], ['Help content', 'test/help-content-test.js'], ['Backend integration', 'backend/test-integration.js'], ['Install / update flow', 'test/update-flow-test.js'], ['Offline use', 'test/offline-flow-test.js']
 ];
 for(const [name, file] of steps){
   process.stdout.write(`• ${name} … `);

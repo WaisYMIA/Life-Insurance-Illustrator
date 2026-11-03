@@ -140,3 +140,12 @@ On the first open each day an agent sees a greeting card ("Good morning, Walter"
 
 - Header now has a Home button (house icon, left of "?") on every screen except the start screen. It closes any open agent window and returns to the start screen; unfinished work is kept as a draft and offered as Resume.
 - Start screen order: "Go straight to the Illustrator" is first and highlighted (filled brand colour, "First tool" tag), then Client Needs Diagnosis. The app still opens at Step 1 of the illustrator.
+
+## 18. Offline use (v2026.11.3)
+
+Problem fixed: with no internet the app could fail to open ("Offline and not cached yet" from the site root, index.html or any address with a query string), could be locked by a pending required update, forced a fresh sign-in 24 hours after login, and hung when the connection was "up" but not answering.
+
+- `sw.js`: installs file by file (only plan-illustrator.html, manifest.json and app-config.js are essential, so one missing file on the server no longer stops offline install); the app page opens from the stored copy for `/`, `index.html`, `plan-illustrator.html`, `/app`, with or without a query string; refreshes in the background only when online; every network wait has a time limit (3 s for app-config.js, 8 s for version.json, 15 s for other files). Update-now now restores the offline store (PRECACHE message) before reloading.
+- `plan-illustrator.html`: agents stay signed in until they sign out (the old 24-hour local expiry is gone; the server still rejects an invalid token when online). A known pending update no longer blocks the app when the device is offline or the update server cannot be reached; it blocks as soon as a check succeeds. The administrator's "connect at least every N days" limit (default 30) and the access-lease limit (strict mode) still apply. No update checks are attempted while offline, and after a failed check the next automatic attempt waits 30 minutes (launch, reconnect and the Check button always try).
+- Trade-off to note: an agent with no connection can keep using an older version until they next connect or until the N-day limit. Lower "maximum days without checking in" in the admin console if you want it tighter.
+- Tests: `test/offline-flow-test.js` (added to the release gate) and the updated `test/update-flow-test.js`.

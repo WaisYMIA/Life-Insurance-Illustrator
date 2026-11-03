@@ -3429,7 +3429,7 @@ function renderSSStep5(){
    for a fully offline/standalone device install.
    ============================================================ */
 const urlParams = new URLSearchParams(location.search);
-const APP_VERSION = '2026.11.2';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
+const APP_VERSION = '2026.11.3';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
 // Bump this whenever the Terms text changes in substance: every device then shows the gate again so the
 // new wording is actually accepted, instead of silently carrying the old acceptance forward.
 const TERMS_VERSION = '3';
@@ -3527,7 +3527,7 @@ async function leasePayload(lease){
 async function refreshLease(){
   if(!STRICT || !AGENT || !AGENT.token) return {ok:true, skipped:true};
   try{
-    const res = await fetch(`${BACKEND_API}/api/companies/${BACKEND_COMPANY_ID}/agents/lease`, {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer '+AGENT.token}, body:'{}'});
+    const res = await fetchWithTimeout(`${BACKEND_API}/api/companies/${BACKEND_COMPANY_ID}/agents/lease`, {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer '+AGENT.token}, body:'{}'}, 10000);
     if(res.status===401){ return {ok:false, reason:'session'}; }
     if(!res.ok) return {ok:false, reason:'rejected'};
     const j = await res.json();
@@ -3539,7 +3539,8 @@ async function refreshLease(){
   }catch(e){ return {ok:false, reason:'offline'}; }
 }
 // Applies the SIGNED policy inside a lease. Returns true if the app must stay blocked.
-function leaseBlocks(payload){
+function leaseBlocks(payload, fresh){
+  if(fresh === false) return false;   // the lease was not renewed just now (no real connection): an update cannot be installed, so keep working
   if(payload.min && cmpVersion(APP_VERSION, payload.min) < 0){ showRequiredBlock(null, payload.latest); return true; }
   if(payload.req && payload.latest && cmpVersion(APP_VERSION, payload.latest) < 0){ showRequiredBlock(null, payload.latest); return true; }
   return false;
@@ -3569,9 +3570,10 @@ async function checkAccess(){
   else if(payload && now < hw - CLOCK_SKEW_MS) { payload = null; why = 'clock'; }
   if(why==='tampered'){ try{ localStorage.removeItem(LEASE_KEY); }catch(e){} }
   // Online: renew now (this is also what picks up a disabled agent or a new mandatory version).
+  let fresh = false;
   if(navigator.onLine){
     const r = await refreshLease();
-    if(r.ok && r.payload){ payload = r.payload; why = ''; }
+    if(r.ok && r.payload){ payload = r.payload; why = ''; fresh = true; }
     else if(r.reason==='clock'){ showAccessBlock('Check your phone’s date and time', 'Your phone’s clock is more than a few minutes away from the correct time. Set it to automatic date and time, then try again.', 'Try again', ()=>location.reload()); return false; }
     else if(r.reason==='session'){ clearLocalAccess(); AGENT = null; location.reload(); return false; }
   }
@@ -3583,27 +3585,19 @@ async function checkAccess(){
   hideAccessBlock();
   lsSet(HW_KEY, Math.max(hw, now));
   leaseWarn(payload);
-  return !leaseBlocks(payload);
+  return !leaseBlocks(payload, fresh);
 }
 
 const AGENT_STORAGE_KEY = 'illustrator_agent_v1';
-// Remembered name/phone/acceptance are only trusted for 24 hours from the
-// last login on this device. Past that the record is dropped and the agent
-// has to go through the gate (and re-verify by OTP, when enabled) again —
-// this keeps a shared/left-open device from silently staying "logged in"
-// indefinitely.
-const AGENT_SESSION_TTL_MS = 24 * 60 * 60 * 1000;
 function loadAgent(){
   try{
     const raw = localStorage.getItem(AGENT_STORAGE_KEY);
     if(!raw) return null;
     const record = JSON.parse(raw);
     if(!record || record.termsVersion !== TERMS_VERSION){ localStorage.removeItem(AGENT_STORAGE_KEY); return null; }
-    const loggedInAt = Date.parse(record && record.acceptedAt);
-    if(!loggedInAt || (Date.now() - loggedInAt) > AGENT_SESSION_TTL_MS){
-      localStorage.removeItem(AGENT_STORAGE_KEY);
-      return null;
-    }
+    // Agents stay signed in until they sign out, so the app opens with no internet at all. A withdrawn account
+    // or an expired server session is still caught: the server refuses the token whenever the app is online.
+    if(!record.acceptedAt || isNaN(Date.parse(record.acceptedAt))) record.acceptedAt = new Date().toISOString();
     return record;
   }catch(e){ return null; }
 }
@@ -3911,16 +3905,22 @@ function offlineExpired(){
   const last = st.lastOk || st.firstRun;
   return !!(s.maxOfflineDays && last && Date.now() - last > s.maxOfflineDays * 86400000);
 }
+// A fetch that gives up after a few seconds, so a connection that is "up" but not answering never leaves the app waiting.
+function fetchWithTimeout(url, opts, ms){
+  if(typeof AbortController !== 'function') return fetch(url, opts);
+  const ctl = new AbortController(), timer = setTimeout(()=>ctl.abort(), ms || 8000);
+  return fetch(url, Object.assign({}, opts || {}, {signal: ctl.signal})).finally(()=>clearTimeout(timer));
+}
 async function fetchRemotePolicy(){
   const pol = {latest:null, min:null, intervalDays:null, maxOfflineDays:null, notice:null, require:true};
   let ok = false;
   try{
-    const r = await fetch('version.json?t='+Date.now(), {cache:'no-store'});
+    const r = await fetchWithTimeout('version.json?t='+Date.now(), {cache:'no-store'}, 8000);
     if(r.ok){ const j = await r.json(); ok = true; pol.latest = j.version||null; if(j.requireUpdate===false) pol.require = false; pol.min = j.minVersion||null; pol.intervalDays = j.checkIntervalDays||null; pol.maxOfflineDays = (j.maxOfflineDays===undefined?null:j.maxOfflineDays); pol.notice = j.notice||null; }
   }catch(e){}
   if(BACKEND_API && BACKEND_COMPANY_ID){
     try{
-      const r = await fetch(`${BACKEND_API}/api/public/companies/${BACKEND_COMPANY_ID}/app-control`, {cache:'no-store'});
+      const r = await fetchWithTimeout(`${BACKEND_API}/api/public/companies/${BACKEND_COMPANY_ID}/app-control`, {cache:'no-store'}, 8000);
       if(r.ok){
         const c = await r.json(); ok = true;
         // Whichever source asks for the newer release wins, so neither channel can quietly weaken the other.
@@ -3964,15 +3964,29 @@ async function applyUpdate(btn){
   // Refresh the browser's own copy first, then drop the app's stored copies so the reload fetches the new files.
   try{ await Promise.all([fetch(location.pathname, {cache:'reload'}), fetch('version.json?t='+Date.now(), {cache:'reload'})]); }catch(e){}
   try{ const keys = await caches.keys(); await Promise.all(keys.map(k=>caches.delete(k))); }catch(e){}
+  // Put the fresh files back into the offline store before reloading, so the app still opens with no internet afterwards.
+  try{ const ctl = navigator.serviceWorker && navigator.serviceWorker.controller; if(ctl){ await new Promise(res=>{ const ch = new MessageChannel(); const t = setTimeout(res, 12000); ch.port1.onmessage = ()=>{ clearTimeout(t); res(); }; ctl.postMessage({type:'PRECACHE'}, [ch.port2]); }); } }catch(e){}
   location.reload();
 }
 function enforceStoredPolicy(){
   const st = updState();
   const behind = !!(st.latest && cmpVersion(APP_VERSION, st.latest) < 0);
-  if(st.min && cmpVersion(APP_VERSION, st.min) < 0) return showRequiredBlock(st.notice, st.latest);
-  if(behind && st.requireUpdate!==false) return showRequiredBlock(st.notice, st.latest);   // a known newer release must be installed before the app opens
+  const mustUpdate = (st.min && cmpVersion(APP_VERSION, st.min) < 0) || (behind && st.requireUpdate!==false);
+  // An update can only be installed online, so with no connection the app keeps working and the update waits.
+  // The "connect at least every N days" limit set by the administrator (offlineExpired) still applies. As soon as
+  // the device is online again the update becomes mandatory (the 'online' handler calls this function again).
+  // (Shown straight away when the device reports a connection, and released again by releaseUnreachableBlock if the
+  // server turns out to be unreachable, e.g. no data bundle: a connected-looking phone that cannot reach anything.)
+  if(mustUpdate && navigator.onLine !== false) return showRequiredBlock(st.notice, st.latest);
   if(offlineExpired()) return showOfflineBlock();
   if(behind) showUpdateBanner(st.latest, st.notice);
+}
+// The device looked online but the update server could not be reached, so the update cannot be installed now:
+// take the "Update required" screen away and leave a reminder banner. It returns the moment a check succeeds.
+function releaseUnreachableBlock(){
+  if(!document.getElementById('updBlock') || offlineExpired()) return;
+  const st = updState(); hideUpdateUi();
+  if(st.latest && cmpVersion(APP_VERSION, st.latest) < 0) showUpdateBanner(st.latest, st.notice);
 }
 function showRequiredBlock(notice, version){
   const st = updState(), tried = st.applyAttempt && st.applyAttempt.from===APP_VERSION && Date.now()-st.applyAttempt.at < 15*60*1000;
@@ -3994,10 +4008,10 @@ async function runUpdateCheck(){
   if(checking) return null;
   checking = true;
   try{
-    try{ const reg = await navigator.serviceWorker.getRegistration(); if(reg) await reg.update(); }catch(e){}
+    try{ const reg = await navigator.serviceWorker.getRegistration(); if(reg) await Promise.race([reg.update(), new Promise(res=>setTimeout(res, 8000))]); }catch(e){}
     const pol = await fetchRemotePolicy();
-    if(!pol){ updSave({lastTry:Date.now()}); track('update_check', {result:'error'}); return {ok:false}; }
-    updSave({lastOk:Date.now(), lastTry:Date.now(), latest:pol.latest, min:pol.min, notice:pol.notice||'', requireUpdate:pol.require,
+    if(!pol){ updSave({lastTry:Date.now(), lastFail:Date.now()}); track('update_check', {result:'error'}); return {ok:false}; }
+    updSave({lastOk:Date.now(), lastTry:Date.now(), lastFail:0, latest:pol.latest, min:pol.min, notice:pol.notice||'', requireUpdate:pol.require,
              checkIntervalDays: pol.intervalDays||undefined, maxOfflineDays: pol.maxOfflineDays===null?undefined:pol.maxOfflineDays});
     const required = !!(pol.min && cmpVersion(APP_VERSION, pol.min) < 0);
     const available = !!(pol.latest && cmpVersion(APP_VERSION, pol.latest) < 0);
@@ -4019,16 +4033,21 @@ async function registerPeriodicSync(){
 }
 function updateTick(force){
   const st = updState();
+  // No connection: nothing to check. Do not even try (every failed attempt is wasted battery and data); the
+  // 'online' event brings the check back the moment the device reconnects.
+  if(navigator.onLine === false){ if(offlineExpired()) showOfflineBlock(); return; }
   const stale = Date.now() - (st.lastTry || 0) > 6*3600*1000;   // also catches a release shortly after it is published
+  const recentFail = st.lastFail && Date.now() - st.lastFail < 30*60*1000;   // after a failed attempt, wait before trying again
+  if(recentFail && force !== 'now' && !offlineExpired()) return;
   if(force || stale || updateDue() || offlineExpired()){
-    runUpdateCheck().then(r=>{ if(r && !r.ok && offlineExpired()) showOfflineBlock(); });
+    runUpdateCheck().then(r=>{ if(r && !r.ok){ if(offlineExpired()) showOfflineBlock(); else releaseUnreachableBlock(); } });
   }
 }
 function startOpsRoutines(){
   if(!updState().firstRun) updSave({firstRun:Date.now()});
   if(STRICT && AGENT && AGENT.token){ showAccessBlock('Checking your access…', 'One moment.', null); checkAccess(); }   // covered until the signed lease is verified
   enforceStoredPolicy();
-  updateTick(true);                          // every launch while online: an installed app never runs on an unchecked version
+  updateTick('now');                         // every launch while online: an installed app never runs on an unchecked version
   setInterval(updateTick, 60*60*1000);       // an app left open all week still checks when due
   let hiddenAt = 0;
   document.addEventListener('visibilitychange', ()=>{
@@ -4039,7 +4058,7 @@ function startOpsRoutines(){
       flushTelemetry();
     }
   });
-  window.addEventListener('online', ()=>{ updateTick(); flushTelemetry(); });
+  window.addEventListener('online', ()=>{ updateTick('now'); enforceStoredPolicy(); flushTelemetry(); });
   registerPeriodicSync();
   if(AGENT) flushTelemetry();
 }

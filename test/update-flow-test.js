@@ -30,11 +30,17 @@ let bad = 0; const ck = (l, c, d) => { console.log((c ? 'PASS ' : 'FAIL ') + l +
   ck('After "Install update" the app reopens on the new version', now === nv, now);
   ck('Overlay is gone after updating', !(await p.$('#updBlock')));
   await p.waitForTimeout(3000);
-  // The phone already knows (from an earlier check) that a newer release exists but could not fetch it; reopened with no signal it must still refuse to open.
+  // The phone already knows (from an earlier check) that a newer release exists but could not fetch it. With no signal
+  // it cannot install anything, so the app must keep working (offline use is the point) and show only a reminder.
+  // The moment the server is reachable again the update becomes mandatory.
   await p.evaluate(() => { const st = JSON.parse(localStorage.getItem('illustrator_update_v1') || '{}'); st.latest = '2999.01.01'; st.requireUpdate = true; localStorage.setItem('illustrator_update_v1', JSON.stringify(st)); });
-  server.closeAllConnections(); await new Promise(r => server.close(r)); await p.reload().catch(() => {}); await p.waitForTimeout(2500);   // server really gone = phone with no signal
-  ck('Offline relaunch is still blocked while a known update is not installed', !!(await p.$('#updBlock')), 'offline relaunch not blocked');
+  server.closeAllConnections(); await new Promise(r => server.close(r)); await p.reload().catch(() => {}); await p.waitForTimeout(10000);   // server really gone = phone with no signal
+  ck('Offline relaunch with a pending update: app stays usable (no blocking screen)', !(await p.$('#updBlock')), 'offline relaunch blocked');
+  ck('...and the agent still sees a reminder that an update is waiting', !!(await p.$('#updBanner')), 'no reminder banner');
   await new Promise(r => server.listen(3057, r));
+  { const vj0 = JSON.parse(fs.readFileSync(DIR + '/version.json')); vj0.version = '2999.01.01'; vj0.requireUpdate = true; fs.writeFileSync(DIR + '/version.json', JSON.stringify(vj0)); }
+  await p.reload(); await p.waitForTimeout(3000);
+  ck('Back online: the required update blocks again', !!(await p.$('#updBlock')), 'not blocked after reconnect');
   // optional mode: version.json requireUpdate=false -> only a banner
   const nv2 = '2099.04.01'; cp.execSync(`cd ${DIR} && node scripts/bump-version.js ${nv2}`);
   const vj = JSON.parse(fs.readFileSync(DIR + '/version.json')); vj.requireUpdate = false; fs.writeFileSync(DIR + '/version.json', JSON.stringify(vj));
