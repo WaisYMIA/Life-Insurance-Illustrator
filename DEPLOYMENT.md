@@ -149,3 +149,12 @@ Problem fixed: with no internet the app could fail to open ("Offline and not cac
 - `plan-illustrator.html`: agents stay signed in until they sign out (the old 24-hour local expiry is gone; the server still rejects an invalid token when online). A known pending update no longer blocks the app when the device is offline or the update server cannot be reached; it blocks as soon as a check succeeds. The administrator's "connect at least every N days" limit (default 30) and the access-lease limit (strict mode) still apply. No update checks are attempted while offline, and after a failed check the next automatic attempt waits 30 minutes (launch, reconnect and the Check button always try).
 - Trade-off to note: an agent with no connection can keep using an older version until they next connect or until the N-day limit. Lower "maximum days without checking in" in the admin console if you want it tighter.
 - Tests: `test/offline-flow-test.js` (added to the release gate) and the updated `test/update-flow-test.js`.
+
+## 19. Help > Products layout (v2026.11.4)
+
+- Smart Save, Smart Scholar, Faida Elimu, Faida Maisha and Faida Elite each have their own entry (searchable by name) with a label/detail table: entry age, term, minimum premium by frequency, riders, tax relief and what is specific to that product. Figures are read from the calculator data, so they cannot disagree with the app. The Fanaka-family table is unchanged.
+- On phones the wide Fanaka table scrolls sideways again instead of squeezing its words (the squeeze came from the v2026.11.1 phone rule, now removed); the new per-product tables are narrow enough to fit without scrolling. The A-Z and category chip rows still wrap.
+- Fixed: the old combined Smart text printed "Minimum sum assured: KES NaN" because the Smart products have no configured minimum; it is now left out unless one is set.
+
+## 20. Timed practice quiz (v2026.11.5)
+The Practice quiz has an optional per-question countdown (`#qzTime`: off / standard / relaxed, remembered in `illustrator_quiz_pace_v1`). Seconds come from `AgentGrowth.secondsFor(q, pace)`: reading time for the definition and options, plus extra for technical categories and numbers, rounded to 5s, clamped 15–60. Timeout counts as a miss and reveals the answer; timer pauses while the page is hidden. The company licence quiz from the backend is not timed.

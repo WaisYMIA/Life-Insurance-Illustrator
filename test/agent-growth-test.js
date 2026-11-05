@@ -75,4 +75,14 @@ ok('backup: oversized backups are refused', () => {
   const big = { format: 'plan-illustrator-backup', clients: Array.from({ length: 3001 }, (_, i) => ({ name: 'n' + i })) };
   assert.strictEqual(G.parseBackup(JSON.stringify(big)).ok, false);
 });
+ok('quiz timer: seconds follow the nature of the question', () => {
+  const short = { def: 'Money paid to keep a policy in force.', opts: ['Premium', 'Claim', 'Lapse', 'Rider'], cat: 'Benefits & values' };
+  const long = { def: 'A contract in which one insurer transfers part of the risk it has written to another insurer in return for a share of the premium, so that no single loss can threaten its solvency or its ability to pay.', opts: ['Reinsurance treaty', 'Facultative placement', 'Coinsurance clause', 'Subrogation right'], cat: 'Reinsurance & finance' };
+  const figs = { def: 'The yearly limit of 60,000 on which 15% tax relief is calculated.', opts: ['Tax relief cap', 'Surrender', 'Bonus', 'Lien'], cat: 'Benefits & values' };
+  const a = G.secondsFor(short), b = G.secondsFor(long), c = G.secondsFor(figs);
+  assert.ok(a >= 15 && a <= 25, 'short ' + a); assert.ok(b > a + 10, 'long ' + b + ' vs ' + a); assert.ok(c >= a, 'figures ' + c);
+  assert.ok(G.secondsFor(long, 1.5) > b || G.secondsFor(long, 1.5) === 60); assert.ok(G.secondsFor({ def: 'x', opts: [], cat: '' }) === 15);
+  assert.ok(G.secondsFor({ def: 'word '.repeat(400), opts: ['a'], cat: 'Underwriting & claims' }) === 60);
+  [a, b, c].forEach(v => assert.strictEqual(v % 5, 0));
+});
 console.log(process.exitCode ? 'agent-growth: FAILED' : 'agent-growth OK (' + n + ' checks)');

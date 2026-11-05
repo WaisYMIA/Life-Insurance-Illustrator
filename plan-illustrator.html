@@ -3429,7 +3429,7 @@ function renderSSStep5(){
    for a fully offline/standalone device install.
    ============================================================ */
 const urlParams = new URLSearchParams(location.search);
-const APP_VERSION = '2026.11.3';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
+const APP_VERSION = '2026.11.5';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
 // Bump this whenever the Terms text changes in substance: every device then shows the gate again so the
 // new wording is actually accepted, instead of silently carrying the old acceptance forward.
 const TERMS_VERSION = '3';
@@ -4276,17 +4276,17 @@ const HELP_CSS = `
 #helpPanel th{background:#f2f2f2;}
 #helpPanel .hp-tw{overflow-x:auto;}
 #helpPanel .hp-tw table{min-width:620px;}
+#helpPanel .hp-kv table{min-width:0;}
+#helpPanel .hp-kv th{width:34%;background:#f7f2ea;font-size:12.5px;}
+#helpPanel .hp-kv td{font-size:13.5px;line-height:1.45;}
 #helpPanel .hp-empty{text-align:center;padding:26px 10px;color:var(--muted);}
 #helpPanel .hp-primary{border:0;border-radius:12px;padding:12px 16px;background:var(--brand);color:#fff;font:600 14.5px system-ui,sans-serif;cursor:pointer;margin-top:10px;}
-/* phone: chip rows wrap onto several lines instead of scrolling sideways; wide tables reflow */
+/* phone: chip rows wrap onto several lines instead of scrolling sideways (wide tables still scroll sideways) */
 @media (max-width:767px){
 #helpPanel .hp-strip{flex-wrap:wrap;overflow-x:visible;gap:6px;padding:2px 0 6px;}
 #helpPanel .hp-letters{gap:5px;}
 #helpPanel .hp-chip{white-space:normal;text-align:center;}
 #helpPanel .hp-letters .hp-chip{width:34px;min-height:34px;}
-#helpPanel .hp-tw{overflow-x:visible;}
-#helpPanel .hp-tw table{min-width:0;table-layout:auto;}
-#helpPanel .hp-tw th,#helpPanel .hp-tw td{padding:5px 5px;font-size:12px;word-break:break-word;overflow-wrap:anywhere;}
 }
 @media print{#helpPanel,#helpBtn{display:none!important;}}
 `;
@@ -4303,20 +4303,58 @@ function hpProductGuide(){
       return `<tr><td><b>${opsEscape(p.name)}</b></td><td>up to ${p.maxAge}</td><td>${unlimited?'whole of life':p.minTerm+'–'+p.maxTerm+' yrs'+(p.termStep>1?' (steps of '+p.termStep+')':'')}</td><td>${p.maxMatAge}</td><td>${hpKES(p.minSA)}</td><td>${opsEscape(tag(p.par?'With profits':'Without profits', p.singlePremium?'Single premium available':'', p.wholeLife?'Whole of life':'', p.terminalBonus?'Terminal bonus':''))}</td><td>${riders.length?opsEscape(riders.join(', ')):'None'}</td></tr>`;
     }).join('');
     const ff = DATA.freqFactor ? Object.keys(DATA.freqFactor) : [];
-    out.push({t:'Traditional & Endowment plans (Fanaka family)', k:'fanaka career life anticipated endowment maxlife triplex jubilant mortgage term assurance whole assurance joint', h:`<p>Entry age, term, maturity-age and minimum sum assured limits for each plan, and the riders each plan accepts. Premium frequencies: ${opsEscape(ff.join(', '))}. Tax relief (15% of premium) is capped per payment at: ${Object.entries(DATA.taxReliefCap||{}).map(([k,v])=>opsEscape(k)+' '+hpKES(v)).join(', ')}.</p><div class="hp-tw"><table><thead><tr><th>Plan</th><th>Entry age</th><th>Term</th><th>Max age at maturity</th><th>Min sum assured</th><th>Features</th><th>Riders</th></tr></thead><tbody>${rows}</tbody></table></div>`});
+    out.push({t:'Traditional & Endowment plans (Fanaka family)', k:'fanaka career life anticipated endowment maxlife triplex jubilant mortgage term assurance whole assurance joint', h:`<p>Entry age, term, maturity-age and minimum sum assured limits for each plan, and the riders each plan accepts. Premium frequencies: ${opsEscape(ff.join(', '))}. Tax relief (15% of premium) is capped per payment at: ${Object.entries(DATA.taxReliefCap||{}).map(([k,v])=>opsEscape(k)+' '+hpKES(v)).join(', ')}.</p><div class="hp-tw" tabindex="0" role="region" aria-label="Table (scroll sideways to see all columns)"><table><thead><tr><th>Plan</th><th>Entry age</th><th>Term</th><th>Max age at maturity</th><th>Min sum assured</th><th>Features</th><th>Riders</th></tr></thead><tbody>${rows}</tbody></table></div>`});
   }catch(e){}
+  // One entry per product, laid out as a label / detail table (the same facts the Fanaka table gives for each plan).
+  const kv = rows => `<div class="hp-tw hp-kv" role="group"><table><tbody>${rows.filter(r=>r && r[1]).map(r=>`<tr><th scope="row">${opsEscape(r[0])}</th><td>${r[1]}</td></tr>`).join('')}</tbody></table></div>`;
   try{
     const rn = SMARTSAVE.riderNames || {};
-    const mins = (SMARTSAVE.freq||[]).map(f=>`${opsEscape(f[0])}: ${hpKES(hpNum(f[3]))}`).join(' · ');
-    const cards = Object.entries(SMARTSAVE.productConfig).map(([name,c])=>`<tr><td><b>${opsEscape(name)}</b></td><td>${c.ageMin}–${c.ageMax}</td><td>${c.termMin}–${c.termMax} yrs</td><td>${opsEscape((c.riders||[]).map(r=>rn[r]||r).join(', '))}</td></tr>`).join('');
-    out.push({t:'Smart Save & Smart Scholar', k:'smart save scholar education savings child school', h:`<p>Smart Save builds savings for any goal; Smart Scholar is aimed at funding children’s education. Minimum sum assured: ${hpKES(SMARTSAVE.minSumAssured)}. Minimum premium by payment frequency — ${mins}. Tax relief for taxpaying clients is 15% of annual premium, capped at ${hpKES(SMARTSAVE.taxReliefCap)} a year.</p><div class="hp-tw"><table><thead><tr><th>Product</th><th>Entry age</th><th>Term</th><th>Riders available</th></tr></thead><tbody>${cards}</tbody></table></div>`});
+    const mins = (SMARTSAVE.freq||[]).map(f=>`${opsEscape(f[0])}: ${hpKES(hpNum(f[3]))}`).join('<br>');
+    const cap = hpKES(SMARTSAVE.taxReliefCap);
+    const one = (name, purpose, extra) => {
+      const c = (SMARTSAVE.productConfig||{})[name]; if(!c) return;
+      out.push({t:name, k:name.toLowerCase()+' smart '+(name==='Smart Scholar'?'education school fees child scholar':'savings goal save')+' riders entry age term', h:`<p>${purpose}</p>`+kv([
+        ['Entry age', c.ageMin+' – '+c.ageMax+' (age next birthday)'],
+        ['Policy term', c.termMin+' – '+c.termMax+' years'],
+        ['Minimum premium', mins],
+        ['Minimum sum assured', SMARTSAVE.minSumAssured ? hpKES(SMARTSAVE.minSumAssured) : ''],
+        ['Riders available', opsEscape((c.riders||[]).map(r=>rn[r]||r).join(', '))],
+        ['Tax relief', `For taxpaying clients: 15% of the annual premium, up to ${cap} a year.`],
+        ['Good to know', extra]
+      ])});
+    };
+    one('Smart Save', 'Builds savings towards any goal over a fixed term, with optional protection riders.', 'Surrender values are shown on the illustration; stopping early can return less than was paid.');
+    one('Smart Scholar', 'Aimed at funding a child’s education, with riders that also protect the child.', 'Includes child-specific riders (Child Accident Hospitalization and a Last Expense for a beneficiary child). Surrender values are shown on the illustration.');
   }catch(e){}
   try{
-    const ages = (FAIDA.ageLimits||[]).map(r=>r[0]), maxTerms = (FAIDA.ageLimits||[]).map(r=>r[1]);
+    const al = FAIDA.ageLimits||[], ages = al.map(r=>r[0]), maxTerms = al.map(r=>r[1]);
     const terms = (FAIDA.wop && FAIDA.wop.terms) || [];
-    const mins = (FAIDA.freq||[]).map(f=>`${opsEscape(f[0])}: ${hpKES(hpNum(f[3]))}`).join(' · ');
+    const fq = FAIDA.freq||[];
+    const mins = fq.map(f=>`${opsEscape(f[0])}: ${hpKES(hpNum(f[3]))}`).join('<br>');
     const sc = (FAIDA.returnRates||[]).map(r=>`${opsEscape(r[0])} ${(r[1]*100).toFixed(0)}%`).join(', ');
-    out.push({t:'Faida Elimu, Maisha & Elite', k:'faida elimu maisha elite investment fund whole life cover last expense waiver of premium', h:`<ul><li><b>Entry age:</b> ${Math.min.apply(null,ages)}–${Math.max.apply(null,ages)} (age next birthday). The maximum term is ${Math.max.apply(null,maxTerms)} years and shortens for the oldest ages; the maximum age at maturity is capped (see the illustration).</li><li><b>Terms offered in the rate tables:</b> ${terms.length?Math.min.apply(null,terms)+'–'+Math.max.apply(null,terms)+' years':'see calculator'}.</li><li><b>Minimum premium by frequency:</b> ${mins}.</li><li><b>Growth scenarios shown:</b> ${sc} a year — projections, not guarantees.</li><li><b>Faida Maisha</b> carries a Last Expense rider and an optional Whole Life Cover rider (sum assured ${hpKES(MAISHA_WLC_MIN_SA)} to ${hpKES(MAISHA_WLC_MAX_SA)}).</li><li><b>Faida Elimu</b> carries a Last Expense rider and a Waiver of Premium rider (for regular-premium policies).</li><li><b>Faida Elite</b> is the investment-focused version; rider and fund charges are shown on its illustration.</li></ul>`});
+    const taxCap = Object.entries(FAIDA.taxReliefCap||{}).map(([k,v])=>opsEscape(k)+' '+hpKES(v)).join(', ');
+    const common = [
+      ['Entry age', `${Math.min.apply(null,ages)} – ${Math.max.apply(null,ages)} (age next birthday)`],
+      ['Policy term', `${terms.length?Math.min.apply(null,terms)+' – '+Math.max.apply(null,terms):'see calculator'} years in the rate tables; the longest term is ${Math.max.apply(null,maxTerms)} years and gets shorter for the oldest ages (the maximum age at maturity is capped)`],
+      ['Minimum premium', mins],
+      ['Growth scenarios shown', sc ? sc+' a year (projections, not guarantees)' : ''],
+      ['Tax relief', taxCap ? 'For taxpaying clients: 15% of the premium, capped per payment at '+taxCap+'.' : '']
+    ];
+    const one = (name, purpose, own, kw) => out.push({t:name, k:name.toLowerCase()+' faida '+kw+' unit-linked fund entry age term riders', h:`<p>${purpose}</p>`+kv(own.concat(common))});
+    one('Faida Elimu', 'A unit-linked education savings plan.', [
+      ['Life cover', 'No separate life-cover sum assured. It pays a Waiver of Premium benefit (future premiums are covered on disability).'],
+      ['Riders', 'Last Expense and Waiver of Premium (Waiver of Premium applies to regular-premium policies).'],
+      ['Fund', 'The illustrated fund value is driven by the premium paid; rider costs are billed on top and are not taken from the fund.']
+    ], 'education school fees child waiver of premium last expense');
+    one('Faida Maisha', 'A unit-linked whole life plan: lifelong cover is funded by a separate upfront premium.', [
+      ['Life cover', `Whole Life Cover amount from ${hpKES(MAISHA_WLC_MIN_SA)} to ${hpKES(MAISHA_WLC_MAX_SA)}, chosen separately from the amount invested.`],
+      ['Riders', 'Last Expense and Whole Life Cover.'],
+      ['Fund', 'The illustrated fund value is driven by the premium paid; rider costs are billed on top and are not taken from the fund.']
+    ], 'whole life cover last expense protection legacy');
+    one('Faida Elite', 'An investment-focused unit-linked plan where life cover is funded by monthly deductions from the fund.', [
+      ['Life cover', 'A life cover amount set independently of how much is invested.'],
+      ['Charges', 'The cost of cover and fund charges are deducted from the fund and shown on the illustration.']
+    ], 'investment flexible wealth growth');
   }catch(e){}
   out.push({t:'Reminder: always confirm with official documents', k:'disclaimer prevail official', h:'<p class="help-note">These tables are read directly from the calculator’s own data, so they match what the app will accept. They are a quick reference for agents — the company’s product brochures, policy terms and official illustrations always prevail.</p>'});
   return out;

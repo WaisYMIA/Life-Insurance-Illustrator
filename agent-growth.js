@@ -90,6 +90,17 @@ function buildQuiz(glossary, line, n, rnd){
   return qs;
 }
 
+/** Seconds allowed for one question, from its nature: time to read the definition, scan the four choices and think.
+ *  Technical topics and questions with figures get extra thinking time. Rounded to 5 s, between 15 and 60 s. pace: 1 = standard, 1.5 = relaxed. */
+const TECHNICAL = ['Regulation & compliance', 'Reinsurance & finance', 'Marine, engineering & specialist', 'Underwriting & claims', 'Health financing (Kenya)'];
+const wordCount = t => String(t || '').trim().split(/\s+/).filter(Boolean).length;
+function secondsFor(q, pace){
+  const read = wordCount(q.def) / 3;                                    // about 180 words a minute: comfortable for a second-language reader
+  const opts = (q.opts || []).reduce((n, o) => n + 0.8 + wordCount(o) * 0.35, 0);   // scanning the choices
+  const think = 5 + (TECHNICAL.indexOf(q.cat) >= 0 ? 4 : 0) + (/\d/.test(q.def || '') ? 3 : 0);
+  const raw = (read + opts + think) * (pace || 1);
+  return Math.max(15, Math.min(60, Math.round(raw / 5) * 5));
+}
 const CSV_COLS = ['name', 'phone', 'email', 'dob', 'status', 'followUp', 'followNote', 'notes'];
 function csvCell(v){ let s = v == null ? '' : String(v).replace(/\r?\n/g, ' '); if(/^[=+\-@\t]/.test(s)) s = "'" + s; return /[",]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
 function clientsToCsv(clients){
@@ -129,7 +140,7 @@ function mergeClients(local, incoming){
   });
   return { clients: out, added, updated, kept };
 }
-const PURE = { nextBirthday, birthdayList, goalProgress, computeNeeds, maskTerm, quizPool, buildQuiz, clientsToCsv, csvCell, parseBackup, mergeClients, cleanClient, shuffle };
+const PURE = { secondsFor, nextBirthday, birthdayList, goalProgress, computeNeeds, maskTerm, quizPool, buildQuiz, clientsToCsv, csvCell, parseBackup, mergeClients, cleanClient, shuffle };
 if(typeof module !== 'undefined' && module.exports) module.exports = PURE;
 if(!root || !root.AgentTools || root.__agentGrowth) return; root.__agentGrowth = true;
 
@@ -146,6 +157,7 @@ const CSS = `
 .ag-opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line,#e6dcdc);background:#fff;color:inherit;border-radius:12px;padding:12px 14px;margin:8px 0;font:600 15px system-ui,sans-serif;cursor:pointer;min-height:46px;}
 .ag-opt:disabled{cursor:default;opacity:1;} .ag-opt.ok{background:#e3f2e8;border-color:#1f6b3a;color:#14532d;} .ag-opt.bad{background:#fde8e6;border-color:#b3261e;color:#7a1710;}
 .ag-def{font-size:16px;line-height:1.5;margin:6px 0 10px;}
+.ag-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
 .ag-meta{font-size:12.5px;color:var(--muted,#6b5b5b);}
 .ag-grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .ag-fine{font-size:12.5px;color:var(--muted,#6b5b5b);line-height:1.45;margin:10px 0;}
@@ -262,31 +274,54 @@ function openPractice(){
     const G = (root.HELP_CONTENT && root.HELP_CONTENT.GLOSSARY) || [];
     const st = get(K(QZ_KEY), { played: 0, best: 0, streak: 0, lastDate: '', right: 0, asked: 0 });
     const LINES = [['all', L('All insurance', 'Bima zote')], ['life', L('Life', 'Maisha')], ['medical', L('Medical', 'Matibabu')], ['motor', L('Motor', 'Magari')], ['general', L('Other general', 'Bima nyingine za jumla')]];
+    let pace = get(K('illustrator_quiz_pace_v1'), 'off');
     const menu = () => {
       body.innerHTML = `<p style="font-size:14px;margin-top:0;">${esc(L('Read a definition and pick the term it describes. Ten questions, drawn from the Help glossary. Nothing here is recorded or sent anywhere.', 'Soma maelezo kisha uchague neno linaloelezwa. Maswali kumi kutoka kwenye faharasa ya Msaada. Hakuna kinachorekodiwa wala kutumwa.'))}</p>
         <label for="qzLine">${esc(L('Topic', 'Mada'))}</label><select id="qzLine">${LINES.map(l => `<option value="${l[0]}">${esc(l[1])}</option>`).join('')}</select>
+        <label for="qzTime">${esc(L('Time limit', 'Kikomo cha muda'))}</label><select id="qzTime">${[['off', L('No timer', 'Bila kipima muda')], ['1', L('Timed: standard', 'Kwa muda: kawaida')], ['1.5', L('Timed: relaxed (50% more time)', 'Kwa muda: kwa utulivu (muda zaidi kwa 50%)')]].map(o => `<option value="${o[0]}" ${String(pace) === o[0] ? 'selected' : ''}>${esc(o[1])}</option>`).join('')}</select>
+        <p class="ag-fine" style="margin-top:0;">${esc(L('Timed: each question has its own countdown, longer for long or technical questions (15 to 60 seconds). Running out of time counts as a miss and shows the answer.', 'Kwa muda: kila swali lina kipima muda chake, kirefu kwa maswali marefu au ya kitaalamu (sekunde 15 hadi 60). Muda ukiisha inahesabiwa kama kosa na jibu linaonyeshwa.'))}</p>
         <div class="at-row"><button class="at-btn pri" id="qzGo">${esc(L('Start', 'Anza'))}</button></div>
         <div class="at-card" style="margin-top:14px;"><h3>${esc(L('My practice record', 'Rekodi yangu ya mazoezi'))}</h3><div class="ag-meta">${esc(L('Quizzes played', 'Majaribio'))}: <b>${st.played}</b> · ${esc(L('Best score', 'Alama bora'))}: <b>${st.best}%</b> · ${esc(L('Day streak', 'Siku mfululizo'))}: <b>${st.streak}</b>${st.asked ? ' · ' + esc(L('Overall', 'Jumla')) + ': <b>' + Math.round(st.right / st.asked * 100) + '%</b>' : ''}</div></div>`;
-      $('#qzGo', body).addEventListener('click', () => { const qs = buildQuiz(G, $('#qzLine', body).value, 10); if(qs.length < 5){ toast(L('Not enough terms for this topic. Try All insurance.', 'Maneno hayatoshi kwa mada hii. Jaribu Bima zote.')); return; } run(qs); });
+      $('#qzGo', body).addEventListener('click', () => { const qs = buildQuiz(G, $('#qzLine', body).value, 10); if(qs.length < 5){ toast(L('Not enough terms for this topic. Try All insurance.', 'Maneno hayatoshi kwa mada hii. Jaribu Bima zote.')); return; } pace = $('#qzTime', body).value; put(K('illustrator_quiz_pace_v1'), pace); run(qs, pace === 'off' ? 0 : +pace); });
     };
-    const run = qs => {
-      let i = 0, score = 0; const missed = [];
+    const run = (qs, paceN) => {
+      let i = 0, score = 0, timeouts = 0; const missed = []; let tick = null;
+      const stopTimer = () => { if(tick){ clearInterval(tick); tick = null; } };
       const ask = () => {
-        const q = qs[i];
+        stopTimer(); const q = qs[i]; const secs = paceN ? secondsFor(q, paceN) : 0;
         body.innerHTML = `<div class="ag-meta">${esc(L('Question', 'Swali'))} ${i + 1} / ${qs.length} · ${esc(L('Score', 'Alama'))} ${score}</div><div class="at-bar"><i style="width:${Math.round(i / qs.length * 100)}%"></i></div>
+          ${secs ? `<div class="ag-timer" role="timer" aria-label="${esc(L('Time left', 'Muda uliobaki'))}"><div class="ag-meta" style="display:flex;justify-content:space-between;"><span>${esc(L('Time left', 'Muda uliobaki'))}</span><b id="qzSecs">${secs}s</b></div><div class="at-bar" style="height:10px;"><i id="qzTBar" style="width:100%;background:#1f6b3a;"></i></div><span class="ag-sr" id="qzSr" aria-live="polite"></span></div>` : ''}
           <p class="ag-def">${esc(q.def)}</p><div class="ag-meta">${esc(L('Which term is this?', 'Hili ni neno gani?'))}</div><div id="qzOpts">${q.opts.map((o, n) => `<button class="ag-opt" data-n="${n}">${esc(o)}</button>`).join('')}</div><div id="qzFb"></div>`;
-        $$('.ag-opt', body).forEach(b => b.addEventListener('click', () => {
-          const n = +b.dataset.n, right = n === q.answer; if(right) score++; else missed.push(q);
+        let answered = false;
+        const answer = (n, b) => {
+          if(answered) return; answered = true; stopTimer();
+          const right = n === q.answer, late = n < 0; if(right) score++; else { missed.push(q); if(late) timeouts++; }
           $$('.ag-opt', body).forEach(x => { x.disabled = true; if(+x.dataset.n === q.answer) x.classList.add('ok'); else if(x === b) x.classList.add('bad'); });
-          $('#qzFb', body).innerHTML = `<div class="at-card" style="margin-top:8px;"><b>${esc(right ? L('Correct.', 'Sahihi.') : L('Not quite. The answer is ', 'Si sahihi. Jibu ni ') + q.term + '.')}</b><div style="font-size:14px;margin-top:6px;line-height:1.5;">${esc(q.full)}</div>${q.ex ? `<div class="ag-meta" style="margin-top:6px;">${esc(L('Example: ', 'Mfano: ') + q.ex)}</div>` : ''}</div><div class="at-row"><button class="at-btn pri" id="qzNext">${esc(i + 1 < qs.length ? L('Next', 'Endelea') : L('See my score', 'Ona alama yangu'))}</button></div>`;
+          $('#qzFb', body).innerHTML = `<div class="at-card" style="margin-top:8px;"><b>${esc(right ? L('Correct.', 'Sahihi.') : late ? L('Time is up. The answer is ', 'Muda umeisha. Jibu ni ') + q.term + '.' : L('Not quite. The answer is ', 'Si sahihi. Jibu ni ') + q.term + '.')}</b><div style="font-size:14px;margin-top:6px;line-height:1.5;">${esc(q.full)}</div>${q.ex ? `<div class="ag-meta" style="margin-top:6px;">${esc(L('Example: ', 'Mfano: ') + q.ex)}</div>` : ''}</div><div class="at-row"><button class="at-btn pri" id="qzNext">${esc(i + 1 < qs.length ? L('Next', 'Endelea') : L('See my score', 'Ona alama yangu'))}</button></div>`;
           $('#qzNext', body).addEventListener('click', () => { i++; if(i < qs.length) ask(); else finish(); });
           $('#qzNext', body).focus();
-        }));
+        };
+        $$('.ag-opt', body).forEach(b => b.addEventListener('click', () => answer(+b.dataset.n, b)));
+        if(secs){
+          // The countdown pauses while the app is in the background, so switching to a call does not cost the agent the question.
+          let deadline = Date.now() + secs * 1000, pausedAt = 0, said10 = false, said5 = false;
+          tick = setInterval(() => {
+            if(!body.isConnected){ stopTimer(); return; }
+            if(document.hidden){ if(!pausedAt) pausedAt = Date.now(); return; }
+            if(pausedAt){ deadline += Date.now() - pausedAt; pausedAt = 0; }
+            const left = Math.max(0, deadline - Date.now()), sec = Math.ceil(left / 1000);
+            const bar = $('#qzTBar', body), lab = $('#qzSecs', body); if(!bar || !lab) return;
+            bar.style.width = Math.round(left / (secs * 1000) * 100) + '%'; bar.style.background = sec <= 5 ? '#b3261e' : sec <= 10 ? '#c27a00' : '#1f6b3a'; lab.textContent = sec + 's';
+            const sr = $('#qzSr', body); if(sr && sec <= 10 && !said10){ said10 = true; sr.textContent = L('10 seconds left', 'Sekunde 10 zimebaki'); } if(sr && sec <= 5 && !said5){ said5 = true; sr.textContent = L('5 seconds left', 'Sekunde 5 zimebaki'); }
+            if(left <= 0) answer(-1, null);
+          }, 200);
+        }
       };
       const finish = () => {
         const pct = Math.round(score / qs.length * 100), t = today(), y = new Date(Date.now() - DAY), yd = ymd(y);
+        stopTimer(); if(paceN){ st.timedPlayed = (st.timedPlayed || 0) + 1; st.timedOut = (st.timedOut || 0) + timeouts; }
         st.played++; st.right += score; st.asked += qs.length; st.best = Math.max(st.best, pct); st.streak = st.lastDate === t ? st.streak : st.lastDate === yd ? st.streak + 1 : 1; st.lastDate = t; put(K(QZ_KEY), st);
-        body.innerHTML = `<div class="at-card"><div class="ag-big">${score} / ${qs.length}</div><div>${esc(pct >= 80 ? L('Strong result.', 'Matokeo mazuri.') : pct >= 50 ? L('Good start. Review the ones you missed.', 'Mwanzo mzuri. Pitia ulizokosea.') : L('Keep practising. The Help glossary explains every term.', 'Endelea kufanya mazoezi. Faharasa ya Msaada inaeleza kila neno.'))}</div><div class="ag-meta" style="margin-top:6px;">${esc(L('Best score', 'Alama bora'))}: ${st.best}% · ${esc(L('Day streak', 'Siku mfululizo'))}: ${st.streak}</div></div>` +
+        body.innerHTML = `<div class="at-card"><div class="ag-big">${score} / ${qs.length}</div><div>${esc(pct >= 80 ? L('Strong result.', 'Matokeo mazuri.') : pct >= 50 ? L('Good start. Review the ones you missed.', 'Mwanzo mzuri. Pitia ulizokosea.') : L('Keep practising. The Help glossary explains every term.', 'Endelea kufanya mazoezi. Faharasa ya Msaada inaeleza kila neno.'))}</div><div class="ag-meta" style="margin-top:6px;">${esc(L('Best score', 'Alama bora'))}: ${st.best}% · ${esc(L('Day streak', 'Siku mfululizo'))}: ${st.streak}</div>${paceN && timeouts ? `<div class="ag-meta">${esc(L('Ran out of time on ' + timeouts + ' question(s).', 'Muda uliisha kwenye maswali ' + timeouts + '.'))}</div>` : ''}</div>` +
           (missed.length ? `<h3 class="ag-sec">${esc(L('To review', 'Za kupitia'))}</h3>` + missed.map(q => `<div class="at-card"><h3>${esc(q.term)}</h3><div style="font-size:14px;line-height:1.5;">${esc(q.full)}</div></div>`).join('') : '') +
           `<div class="at-row"><button class="at-btn pri" id="qzAgain">${esc(L('Play again', 'Cheza tena'))}</button></div>`;
         $('#qzAgain', body).addEventListener('click', menu);
