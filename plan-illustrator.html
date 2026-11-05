@@ -1414,6 +1414,10 @@ function renderHome(){
         <div class="mtitle">Client Needs Diagnosis</div>
         <div class="mdesc">Answer a short set of questions about the client's goals, dependants, cover and savings habits. We'll identify their needs and suggest which company products are the strongest fit, with an illustration ready at the end.</div>
       </div>
+      <div class="mode-card card--accent" id="homeMarket" role="button" tabindex="0" style="cursor:pointer;">
+        <div class="mtitle">Market comparison</div>
+        <div class="mdesc">See how life products from Kenyan insurers compare: features, selling advantages, pros and cons, side by side.</div>
+      </div>
     </div>
     <div class="note" style="margin-top:8px;">The diagnosis is a guide for further advisor assessment — it does not replace full fact-finding, affordability checks, or the official product illustration.</div>
     <div class="app-row" role="group" aria-label="App">
@@ -1441,6 +1445,10 @@ function renderHome(){
     state.mode = 'illustrate';
     go(1);
   };
+  const hm2 = document.getElementById('homeMarket');
+  const openMkt = ()=>{ if(window.MarketCompare) window.MarketCompare.open(); };
+  hm2.addEventListener('click', openMkt);
+  hm2.addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openMkt(); } });
   const hi = document.getElementById('homeIllustrate');
   hi.addEventListener('click', goIllustrate);
   hi.addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); goIllustrate(); } });
@@ -3429,7 +3437,7 @@ function renderSSStep5(){
    for a fully offline/standalone device install.
    ============================================================ */
 const urlParams = new URLSearchParams(location.search);
-const APP_VERSION = '2026.11.5';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
+const APP_VERSION = '2026.11.6';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
 // Bump this whenever the Terms text changes in substance: every device then shows the gate again so the
 // new wording is actually accepted, instead of silently carrying the old acceptance forward.
 const TERMS_VERSION = '3';
@@ -4603,6 +4611,8 @@ if('serviceWorker' in navigator){
 <script src="agent-tools.js"></script>
 <script src="agent-apps.js"></script>
 <script src="agent-growth.js"></script>
+<script src="market-data.js"></script>
+<script src="market-compare.js"></script>
 <script src="daily-quote.js"></script>
 <script src="calculator.js"></script>
 </body>
