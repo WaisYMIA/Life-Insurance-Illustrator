@@ -1,0 +1,207 @@
+{
+ "insurer": "Prudential Life Assurance Kenya",
+ "insurer_note": "Prudential's own Kenya website could not be fetched (not on the session allowlist; the plak.pages.dev mirror returned unrelated content), so most detail is from secondary sources and Standard Chartered Kenya bancassurance pages (SC distributes Prudential products and names Prudential Life Assurance Kenya as underwriter). Pru Dahari-Dumu, Pru Select and PruMemorial come from a third-party blog (victormatara.com), unverified against the insurer. Most numeric terms are not published in what was fetched.",
+ "checked": "2026-11-05",
+ "products": [
+  {
+   "name": "LivLife",
+   "category": "whole-life",
+   "summary": "Large-value, needs-based whole-life cover for affluent clients, sold through Standard Chartered; critical illness and disability benefits, legacy planning; cover up to Sh500 million (press).",
+   "target_client": "Affluent individuals; wealth transfer and legacy planning",
+   "how_it_works": "Whole-life style policy; critical illness benefit pays 50% of sum assured (up to KES 15m) with future premiums waived and cover continuing for life.",
+   "key_features": [
+    "Health Protection Benefit: 50% of sum assured up to KES 15m on critical illness diagnosis before 66",
+    "Ability Support Plan: 100% of sum assured on permanent disability, premiums waived",
+    "Legacy Assurance Plan",
+    "Cover up to Sh500m per Capital FM"
+   ],
+   "benefits": [
+    "Tax relief certificates for terms of 10 years or more"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Minimum 10 years for tax relief; otherwise not stated",
+   "min_premium_or_sum_assured": "Not stated",
+   "payment_options": "Not stated",
+   "waiting_periods_or_exclusions": "Not stated",
+   "channels_or_distinct_points": [
+    "Distributed by Standard Chartered Bancassurance Intermediary; underwritten by Prudential Life Assurance Kenya",
+    "Six-month pilot reportedly sold Sh2.6bn sum assured (Capital FM, July 2025)"
+   ],
+   "analysis_selling_points": [
+    "High-cover needs-based proposition for wealth clients",
+    "Living benefits (CI, disability) with premium waiver",
+    "Bank channel access to affluent base"
+   ],
+   "analysis_watch_outs": [
+    "Minimum premium, entry age and exclusions not published",
+    "Bank-distributed; high-net-worth focus limits mass-market relevance"
+   ],
+   "source_url": "https://www.sc.com/ke/insurance/livlife-insurance/",
+   "source_note": "SC Kenya page fetched; Capital FM article (https://www.capitalfm.co.ke/business/2025/07/prudential-eyes-affluent-individuals-with-up-to-sh500mn-cover/) fetched for cover limit and pilot."
+  },
+  {
+   "name": "Future Ready Plan",
+   "category": "endowment-savings",
+   "summary": "Savings-oriented plan with life, accidental death, critical illness and disability benefits and staged maturity payouts, sold through Standard Chartered.",
+   "target_client": "Middle to upper-income earners funding children's education, retirement or financial stability",
+   "how_it_works": "Maturity benefits paid in four stages (stages not described); 15-year, KES 2m, age-35 male illustration given on page.",
+   "key_features": [
+    "Unexpected death: double the sum assured",
+    "Accidental death: double the sum assured up to KES 150m, premiums waived and maturity benefit paid",
+    "Critical illness: 50% of sum assured (page cites both KES 30m and KES 15m caps)",
+    "Permanent total disability: 100% of sum assured"
+   ],
+   "benefits": [
+    "Tax relief certificates for terms of 10 years or more",
+    "30-day free look with full refund"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Minimum 10 years for tax relief; example 15 years",
+   "min_premium_or_sum_assured": "Not stated",
+   "payment_options": "Quarterly, semi-annual or annual; discounts 4% / 6% / 8%",
+   "waiting_periods_or_exclusions": "Medical exam mandatory for covers above KES 15m; exclusions not stated",
+   "channels_or_distinct_points": [
+    "Distributed by Standard Chartered Bancassurance Intermediary; underwritten by Prudential Life Assurance Kenya"
+   ],
+   "analysis_selling_points": [
+    "Rich bundled protection (double death benefit, CI, TPD)",
+    "Payment-frequency discounts",
+    "Premium waiver on claims"
+   ],
+   "analysis_watch_outs": [
+    "Page's critical illness cap is inconsistent (KES 30m vs 15m)",
+    "Entry age, minimums, exclusions not published; no monthly option mentioned"
+   ],
+   "source_url": "https://www.sc.com/ke/insurance/future-ready-plan/",
+   "source_note": "Fetched SC Kenya page."
+  },
+  {
+   "name": "Pru Dahari-Dumu",
+   "category": "endowment-savings",
+   "summary": "Combined savings and life protection plan; billed as Kenya's first product with a 'Never Lapse Guarantee' (policies beyond six months do not lapse).",
+   "target_client": "Not stated",
+   "how_it_works": "Savings plus protection; after six months of premiums a premium holiday is possible.",
+   "key_features": [
+    "Never Lapse Guarantee after first six months",
+    "Premium holiday after six months"
+   ],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Never-lapse feature addresses the biggest persistency fear",
+    "Savings plus protection in one"
+   ],
+   "analysis_watch_outs": [
+    "Details (entry age, premium, cover) not published in sources",
+    "Source for features is secondary (2018 Standard article and a blog)"
+   ],
+   "source_url": "https://www.standardmedia.co.ke/business/article/2001299273/company-launches-insurance-policy-that-never-lapses",
+   "source_note": "Standard (Oct 2018) article fetched; short summary also from victormatara.com. Not verified on Prudential's own site."
+  },
+  {
+   "name": "Pru Select",
+   "category": "education",
+   "summary": "Savings plan for goals such as school fees with life protection, a guaranteed savings target and cash payouts in the final years.",
+   "target_client": "People saving for school fees and similar goals",
+   "how_it_works": "Set savings target and term, choose number of cash payouts in final years; pay monthly, quarterly, semi-annually or annually (discount for less frequent).",
+   "key_features": [
+    "Guaranteed savings target",
+    "Annual discretionary investment bonuses"
+   ],
+   "benefits": [
+    "Death: 100% of insured amount; 200% for accidental death, with remaining payments continued",
+    "Optional critical illness cover 50% of insured amount and permanent disability cover, with payments continued"
+   ],
+   "riders_options": [
+    "Critical illness",
+    "Permanent disability"
+   ],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": "Monthly, quarterly, semi-annual or annual",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Guaranteed target with continued payments after death or disability",
+    "Optional living benefits"
+   ],
+   "analysis_watch_outs": [
+    "Source is a third-party blog; confirm with Prudential",
+    "Entry age, premium, exclusions not available"
+   ],
+   "source_url": "https://victormatara.com/prudential-life-assurance-products-and-branches-in-kenya/",
+   "source_note": "Blog page fetched; not verified on insurer site."
+  },
+  {
+   "name": "PruMemorial Family Cover",
+   "category": "funeral-family-protection",
+   "summary": "Family cover helping with costs after a death, with funeral, accidental death and disability benefits, plus a lifetime plan with critical illness and TPD.",
+   "target_client": "Families",
+   "how_it_works": "Claims within 48 hours; 50% of annual premium returned every 5 years as a loyalty benefit; lifetime variant includes optional spousal cover.",
+   "key_features": [
+    "Funeral, accidental death and accidental disability benefits",
+    "Claims paid within 48 hours",
+    "Loyalty benefit 50% of annual premium every 5 years",
+    "No medical exam for sums up to KES 5m (lifetime plan)"
+   ],
+   "benefits": [
+    "Tax relief 15% of premium up to KES 60,000 a year",
+    "Doubled accidental death or disability cover (lifetime plan)"
+   ],
+   "riders_options": [
+    "Optional spousal cover"
+   ],
+   "entry_age": null,
+   "term_or_duration": "Flexible premium terms",
+   "min_premium_or_sum_assured": "Not stated",
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Premium-back loyalty benefit is a distinctive hook",
+    "No medicals to KES 5m"
+   ],
+   "analysis_watch_outs": [
+    "Source is a third-party blog; confirm figures",
+    "Premiums and exclusions not available"
+   ],
+   "source_url": "https://victormatara.com/prudential-life-assurance-products-and-branches-in-kenya/",
+   "source_note": "Blog page fetched; not verified on insurer site."
+  },
+  {
+   "name": "Group Last Expense (Funeral) Cover",
+   "category": "group",
+   "summary": "Group funeral cover paying KES 50,000 to 500,000 per member within 48 hours of documents.",
+   "target_client": "Organisations, SACCOs not needing a full group life package",
+   "how_it_works": null,
+   "key_features": [
+    "Claims paid within 48 hours"
+   ],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": "KES 50,000 to 500,000 per member",
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Simple group funeral option for SACCOs"
+   ],
+   "analysis_watch_outs": [
+    "Third-party source; premiums and exclusions not available"
+   ],
+   "source_url": "https://victormatara.com/prudential-life-assurance-products-and-branches-in-kenya/",
+   "source_note": "Blog page fetched; not verified on insurer site."
+  }
+ ]
+}

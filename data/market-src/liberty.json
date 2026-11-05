@@ -1,0 +1,292 @@
+{
+ "insurer": "Liberty Life Assurance Kenya",
+ "insurer_note": "Liberty's own site (liberty.co.ke) was not on the fetch allowlist; libertykenya.co.ke only gave category names (Life Protection, Retirement, Savings & Investment, Education). Product details come from a third-party listing and a Standard news article, so verify against Liberty before use. Premiums and most terms unpublished.",
+ "checked": "2026-11-05",
+ "products": [
+  {
+   "name": "Silver Lining Plan",
+   "category": "term-life",
+   "summary": "Term cover paying sum assured on death within the period.",
+   "target_client": null,
+   "how_it_works": "Pay for term; sum assured on death in term.",
+   "key_features": [
+    "No cash value"
+   ],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "5 or 10 years",
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Distinct product in Liberty range"
+   ],
+   "analysis_watch_outs": [
+    "Premium, entry age and exclusions largely not published on source"
+   ],
+   "source_url": "https://victormatara.com/liberty-life-assurance-products-and-branches-in-kenya/",
+   "source_note": "Third-party page (victormatara.com) listing Liberty products; not verified against Liberty's own site."
+  },
+  {
+   "name": "Convertible Level Term",
+   "category": "term-life",
+   "summary": "Term cover paying full amount on accidental or natural death.",
+   "target_client": null,
+   "how_it_works": "Level term cover.",
+   "key_features": [
+    "Convertible (per name)"
+   ],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": "16 to 60",
+   "term_or_duration": "5, 10, 15 or 20 years",
+   "min_premium_or_sum_assured": "Minimum cover KES 1,000,000",
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Distinct product in Liberty range"
+   ],
+   "analysis_watch_outs": [
+    "Premium, entry age and exclusions largely not published on source"
+   ],
+   "source_url": "https://victormatara.com/liberty-life-assurance-products-and-branches-in-kenya/",
+   "source_note": "Third-party page (victormatara.com) listing Liberty products; not verified against Liberty's own site."
+  },
+  {
+   "name": "Whole Life Plan",
+   "category": "whole-life",
+   "summary": "Lifelong protection that builds cash value after two years.",
+   "target_client": null,
+   "how_it_works": "Lifelong cover with borrowable cash value.",
+   "key_features": [
+    "Cash value after 2 years, can borrow against"
+   ],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Lifelong",
+   "min_premium_or_sum_assured": "Minimum cover KES 200,000",
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Distinct product in Liberty range"
+   ],
+   "analysis_watch_outs": [
+    "Premium, entry age and exclusions largely not published on source"
+   ],
+   "source_url": "https://victormatara.com/liberty-life-assurance-products-and-branches-in-kenya/",
+   "source_note": "Third-party page (victormatara.com) listing Liberty products; not verified against Liberty's own site."
+  },
+  {
+   "name": "Income Builder",
+   "category": "endowment-savings",
+   "summary": "Endowment with initial life cover adapting to needs.",
+   "target_client": null,
+   "how_it_works": "Guaranteed death payouts in first 7 years; from year 8 premiums and cash values are invested and earn interest.",
+   "key_features": [
+    "Withdraw up to 25% once a year from year 8"
+   ],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Distinct product in Liberty range"
+   ],
+   "analysis_watch_outs": [
+    "Premium, entry age and exclusions largely not published on source"
+   ],
+   "source_url": "https://victormatara.com/liberty-life-assurance-products-and-branches-in-kenya/",
+   "source_note": "Third-party page (victormatara.com) listing Liberty products; not verified against Liberty's own site."
+  },
+  {
+   "name": "Triple Payment Diamond",
+   "category": "endowment-savings",
+   "summary": "Endowment paying sum assured in three instalments.",
+   "target_client": null,
+   "how_it_works": "25% after one third of term, 25% after two thirds, 50% plus bonuses at maturity; full cover throughout.",
+   "key_features": [
+    "Staged payouts"
+   ],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "15, 18, 21 or 24 years",
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Distinct product in Liberty range"
+   ],
+   "analysis_watch_outs": [
+    "Premium, entry age and exclusions largely not published on source"
+   ],
+   "source_url": "https://victormatara.com/liberty-life-assurance-products-and-branches-in-kenya/",
+   "source_note": "Third-party page (victormatara.com) listing Liberty products; not verified against Liberty's own site."
+  },
+  {
+   "name": "Mortgage Cover",
+   "category": "credit-mortgage",
+   "summary": "Covers outstanding mortgage if the insured dies before it is repaid.",
+   "target_client": null,
+   "how_it_works": "Cover aligned to mortgage.",
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "5, 10, 15 or 20 years",
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Distinct product in Liberty range"
+   ],
+   "analysis_watch_outs": [
+    "Premium, entry age and exclusions largely not published on source"
+   ],
+   "source_url": "https://victormatara.com/liberty-life-assurance-products-and-branches-in-kenya/",
+   "source_note": "Third-party page (victormatara.com) listing Liberty products; not verified against Liberty's own site."
+  },
+  {
+   "name": "Legacy Plan",
+   "category": "funeral-family-protection",
+   "summary": "Funeral plan giving funds for urgent expenses after death, individual or family package.",
+   "target_client": null,
+   "how_it_works": "Individual covers main member only; family covers main member, one spouse and up to six children.",
+   "key_features": [
+    "Individual from KES 400 per month",
+    "Spouse gets same benefits as main member"
+   ],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": "Main member and spouse under 65 at joining; children under 18",
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": "KES 400 per month (individual, as listed)",
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Distinct product in Liberty range"
+   ],
+   "analysis_watch_outs": [
+    "Premium, entry age and exclusions largely not published on source"
+   ],
+   "source_url": "https://victormatara.com/liberty-life-assurance-products-and-branches-in-kenya/",
+   "source_note": "Third-party page (victormatara.com) listing Liberty products; not verified against Liberty's own site."
+  },
+  {
+   "name": "Karo Plus Plan",
+   "category": "education",
+   "summary": "Secures child's education if parent dies or is physically impaired.",
+   "target_client": null,
+   "how_it_works": "Lump sum to a trust or nominated beneficiary pays annual school fees until school completion.",
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Until school completion",
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Distinct product in Liberty range"
+   ],
+   "analysis_watch_outs": [
+    "Premium, entry age and exclusions largely not published on source"
+   ],
+   "source_url": "https://victormatara.com/liberty-life-assurance-products-and-branches-in-kenya/",
+   "source_note": "Third-party page (victormatara.com) listing Liberty products; not verified against Liberty's own site."
+  },
+  {
+   "name": "Educator Plan",
+   "category": "education",
+   "summary": "Combined savings and protection plan for a child's education.",
+   "target_client": null,
+   "how_it_works": "Four pre-maturity payments of 14% each plus 50% of sum assured at end of term.",
+   "key_features": [
+    "Staged education payouts"
+   ],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "10 to 20 years",
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Distinct product in Liberty range"
+   ],
+   "analysis_watch_outs": [
+    "Premium, entry age and exclusions largely not published on source"
+   ],
+   "source_url": "https://victormatara.com/liberty-life-assurance-products-and-branches-in-kenya/",
+   "source_note": "Third-party page (victormatara.com) listing Liberty products; not verified against Liberty's own site."
+  },
+  {
+   "name": "Scholar Plan",
+   "category": "education",
+   "summary": "Life cover for a child's life that builds cash value.",
+   "target_client": null,
+   "how_it_works": "Cash value first 7 years; from year 8 an investment protection account earns interest, withdraw up to 25% once a year.",
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": "From 3 months old (child)",
+   "term_or_duration": "15 years or more",
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Distinct product in Liberty range"
+   ],
+   "analysis_watch_outs": [
+    "Premium, entry age and exclusions largely not published on source"
+   ],
+   "source_url": "https://victormatara.com/liberty-life-assurance-products-and-branches-in-kenya/",
+   "source_note": "Third-party page (victormatara.com) listing Liberty products; not verified against Liberty's own site."
+  },
+  {
+   "name": "Secure Plan",
+   "category": "endowment-savings",
+   "summary": "Savings plus life assurance with guaranteed maturity benefit (launched Sept 2026 per press).",
+   "target_client": null,
+   "how_it_works": "Premiums adjustable with sum assured adjusting accordingly.",
+   "key_features": [
+    "Critical illness cover",
+    "Permanent total disability cover",
+    "Double accident benefit",
+    "Six-month premium waiver after retrenchment",
+    "Joint-life available"
+   ],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": "Adults 18+; children from birth to 18",
+   "term_or_duration": "5 to 20 years",
+   "min_premium_or_sum_assured": "Sum assured KES 250,000 to 100 million; minimum premium not stated",
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Distinct product in Liberty range"
+   ],
+   "analysis_watch_outs": [
+    "Premium, entry age and exclusions largely not published on source"
+   ],
+   "source_url": "https://www.standardmedia.co.ke/business/article/2001556814/saving-liberty-life-launches-savings-plan-targeting-kenyans-long-term-goals",
+   "source_note": "The Standard news article, 3 Sept 2026; not Liberty's own page."
+  }
+ ]
+}

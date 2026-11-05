@@ -1,0 +1,534 @@
+{
+ "insurer": "Britam Kenya",
+ "insurer_note": "Britam Life, ke.britam.com. No standalone term product page found beyond Tegemeo (family protection plan); no standalone 'savings' or 'funeral' beyond products listed. Platinum Drawdown, Group products and Family Funeral page (returned Fariji content) not recorded separately. Many pages omit exclusions, entry ages and premium schedules; brochures not opened.",
+ "checked": "2026-11-05",
+ "products": [
+  {
+   "name": "Britam Whole Life Insurance Plan",
+   "category": "whole-life",
+   "summary": "Permanent lifetime cover (launched April 2026) with a death benefit that rises 3% a year, aimed at wealth preservation, estate planning and succession liquidity.",
+   "target_client": "Individuals and families focused on legacy, wealth transfer and estate planning (inferred; page names no explicit segment)",
+   "how_it_works": "Cover lasts for life with fixed premiums; the guaranteed tax-free death benefit increases 3% per year. Beneficiaries named directly or Britam Trust named as beneficiary to administer payouts under set conditions.",
+   "key_features": [
+    "Lifetime cover",
+    "Guaranteed death benefit rising 3% p.a.",
+    "Fixed premiums",
+    "Optional Britam trust services for estate planning",
+    "Medical exam only for cover above KES 15 million"
+   ],
+   "benefits": [
+    "Death, disability and critical illness payouts are tax-free",
+    "Liquidity for succession-related costs"
+   ],
+   "riders_options": [
+    "Permanent Total Disability",
+    "Critical Illness",
+    "Funeral Expense (last-expense benefit up to KES 500,000)"
+   ],
+   "entry_age": null,
+   "term_or_duration": "Lifetime; premium term 10, 15 or 20 years, or single premium",
+   "min_premium_or_sum_assured": "Monthly premiums from KES 3,000; minimum sum assured not published",
+   "payment_options": "Monthly premium over 10, 15 or 20 years, or single one-off premium",
+   "waiting_periods_or_exclusions": "Waiting periods and exclusions not published on fetched pages (brochure exists)",
+   "channels_or_distinct_points": [
+    "Britam Financial Advisor",
+    "Callback request via website",
+    "WhatsApp assistant Bella (254705100100)",
+    "MyBritam app"
+   ],
+   "analysis_selling_points": [
+    "Rare in the Kenyan retail market: permanent cover with built-in 3% escalation",
+    "Trust integration suits succession and high-net-worth conversations",
+    "Low KES 3,000 monthly entry point; no medical up to KES 15m"
+   ],
+   "analysis_watch_outs": [
+    "Entry age, minimum sum assured, exclusions and surrender terms not published; need the brochure or a quote",
+    "Premium term of 10-20 years means a heavy fixed commitment for a plan covering the whole life"
+   ],
+   "source_url": "https://ke.britam.com/home/personal/protect-who-you-love/family-protection-plans/whole-life",
+   "source_note": "Product page plus launch newsletter page (ke.britam.com/newsroom/britam-whole-life-insurance-plan-launch); both fetched. A brochure PDF exists but was not opened."
+  },
+  {
+   "name": "Tegemeo Protection Plan",
+   "category": "term-life",
+   "summary": "Term life plan that pays the sum assured to the family if the policyholder dies during the term.",
+   "target_client": "Individuals who want to protect dependants financially",
+   "how_it_works": "Lump sum on death. With a medical exam, full cover applies from day one; without one, a 12-month waiting period applies and premiums are refunded without interest if death or disability occurs in that time. 30-day grace period, after which the policy lapses.",
+   "key_features": [
+    "Terms of 5, 10, 15 or 20 years",
+    "Optional medical underwriting",
+    "Optional covers from KES 50 per month (not named)"
+   ],
+   "benefits": [
+    "Affordable cover: example KES 3,000/month for KES 3,000,000 death cover on a 5-year policy"
+   ],
+   "riders_options": [
+    "Optional covers from KES 50/month (unspecified on page)"
+   ],
+   "entry_age": "18 to 65",
+   "term_or_duration": "5, 10, 15 or 20 years",
+   "min_premium_or_sum_assured": "From KES 3,000/month (page example for KES 3m cover, 5-year term); minimum sum assured not stated",
+   "payment_options": "Monthly referenced; other options not listed",
+   "waiting_periods_or_exclusions": "12-month waiting period if no medical exam (premium refund without interest). Exclusions not listed on page.",
+   "channels_or_distinct_points": [
+    "Britam Financial Advisor",
+    "Callback request via website",
+    "WhatsApp assistant Bella (254705100100)",
+    "MyBritam app"
+   ],
+   "analysis_selling_points": [
+    "Clear price anchor: KES 3m cover for KES 3,000/month",
+    "No-medical route speeds up sales",
+    "Entry up to 65 is wide for term cover"
+   ],
+   "analysis_watch_outs": [
+    "Example premium is for the 5-year term only; longer terms or older ages will cost more",
+    "Exclusions and rider list not published"
+   ],
+   "source_url": "https://ke.britam.com/home/personal/protect-who-you-love/family-protection-plans/tegemeo",
+   "source_note": "Product page fetched."
+  },
+  {
+   "name": "Family Income Protection Plan",
+   "category": "term-life",
+   "summary": "Term-type plan paying the family a monthly income after the policyholder's death, rising 10% a year.",
+   "target_client": "People wanting to replace household income for their family",
+   "how_it_works": "Family receives a monthly income after death. Medical exam optional: without it a 12-month waiting period applies and non-accidental death in that period returns premiums paid without interest. 30-day grace period.",
+   "key_features": [
+    "Monthly income rising 10% each year",
+    "Terms of 5, 10, 15 or 20 years",
+    "Cover can stay active until age 70"
+   ],
+   "benefits": [
+    "Ongoing household income for the family",
+    "Inflation offset through annual escalation"
+   ],
+   "riders_options": [],
+   "entry_age": "18 to 65",
+   "term_or_duration": "5, 10, 15 or 20 years; cover to age 70",
+   "min_premium_or_sum_assured": "Page says from 'as little as 3,000 monthly'; unclear whether premium or income",
+   "payment_options": "Not stated",
+   "waiting_periods_or_exclusions": "12-month waiting period if no medical exam; exclusions not stated",
+   "channels_or_distinct_points": [
+    "Britam Financial Advisor",
+    "Callback request via website",
+    "WhatsApp assistant Bella (254705100100)",
+    "MyBritam app"
+   ],
+   "analysis_selling_points": [
+    "Income-replacement framing suits salaried families better than a lump sum",
+    "Built-in 10% annual escalation"
+   ],
+   "analysis_watch_outs": [
+    "Page ambiguous on what the KES 3,000 figure refers to",
+    "No riders, payment modes or exclusions published"
+   ],
+   "source_url": "https://ke.britam.com/home/personal/protect-who-you-love/family-protection-plans/family-income",
+   "source_note": "Product page fetched."
+  },
+  {
+   "name": "CarePlus+ Protection Plan",
+   "category": "other",
+   "summary": "Critical illness plan paying a benefit on diagnosis of a listed illness to cover medical costs and lifestyle changes.",
+   "target_client": "Individuals and families wanting protection against critical illness costs",
+   "how_it_works": "Benefit paid on diagnosis of a listed illness. With medical tests, full sum assured from the start; without, a 12-month waiting period applies (premiums refunded without interest if diagnosis occurs within it). 30-day grace period.",
+   "key_features": [
+    "Terms of 5, 10, 15 or 20 years",
+    "Cover to age 65",
+    "Optional medical underwriting"
+   ],
+   "benefits": [
+    "Lump sum on diagnosis of a listed illness"
+   ],
+   "riders_options": [],
+   "entry_age": "18 to 60",
+   "term_or_duration": "5, 10, 15 or 20 years; cover to age 65",
+   "min_premium_or_sum_assured": "Premiums 'as low as KES 3,000 per month'; minimum sum assured not stated",
+   "payment_options": "Monthly examples only",
+   "waiting_periods_or_exclusions": "12-month waiting period if no medical tests; list of illnesses and exclusions not on page",
+   "channels_or_distinct_points": [
+    "Britam Financial Advisor",
+    "Callback request via website",
+    "WhatsApp assistant Bella (254705100100)",
+    "MyBritam app"
+   ],
+   "analysis_selling_points": [
+    "Standalone critical illness cover at a KES 3,000 entry premium",
+    "Cover continues to 65"
+   ],
+   "analysis_watch_outs": [
+    "Covered illnesses and exclusions not published",
+    "Entry age cap of 60 is lower than other family plans"
+   ],
+   "source_url": "https://ke.britam.com/home/personal/protect-who-you-love/family-protection-plans/careplus-protection-plan",
+   "source_note": "Product page fetched."
+  },
+  {
+   "name": "Fariji Funeral Cover",
+   "category": "funeral-family-protection",
+   "summary": "Protection-only funeral cover paying a cash benefit of KES 100,000 to 500,000 per covered family member.",
+   "target_client": "Anyone meeting Britam eligibility; family members all covered with no limit on number",
+   "how_it_works": "Premiums paid through the insured's life. 50% of the benefit is paid within 72 hours with a burial permit, the rest on submission of the death certificate. Beneficiary decides use.",
+   "key_features": [
+    "No medical examinations",
+    "No limit on number of family members covered",
+    "Benefit and premium guaranteed to the insured's 75th birthday"
+   ],
+   "benefits": [
+    "Fast liquidity: half the benefit within 72 hours"
+   ],
+   "riders_options": [],
+   "entry_age": "Maximum insured age 82 (page metadata says 'no age limit'; confirm); minimum not stated",
+   "term_or_duration": "Lifetime premiums; guarantee to age 75",
+   "min_premium_or_sum_assured": "Not stated; sum assured KES 100,000 to 500,000",
+   "payment_options": "Not stated",
+   "waiting_periods_or_exclusions": "Not stated; waiting periods and exclusions not on page",
+   "channels_or_distinct_points": [
+    "Application form download",
+    "Callback request"
+   ],
+   "analysis_selling_points": [
+    "No-medical, unlimited-family-members design is simple to sell",
+    "Quick 72-hour partial payout addresses the funeral cash-flow problem"
+   ],
+   "analysis_watch_outs": [
+    "Premium rates, waiting periods and exclusions not published",
+    "What happens to premiums and benefit after age 75 is unclear",
+    "Page conflict on age limit (82 vs 'no age limit')"
+   ],
+   "source_url": "https://ke.britam.com/home/personal/protect-who-you-love/funeral-covers/fariji",
+   "source_note": "Fariji page fetched. The 'Family Funeral' page linked from the funeral covers listing returned the same Fariji content, so it is not recorded as a separate product."
+  },
+  {
+   "name": "Msingi Poa Education Plan",
+   "category": "education",
+   "summary": "Education plan providing four guaranteed annual cash payouts in the last four years, with life protection.",
+   "target_client": "Parents/guardians funding school fees",
+   "how_it_works": "Pay premiums for the term, with no premiums in the last three years. Four guaranteed payouts each equal to 100% of sum assured in the last four years; lump sum of 100% of sum assured on death. If the policy owner dies, premiums stop and payouts continue.",
+   "key_features": [
+    "Four guaranteed payouts of 100% of sum assured",
+    "Premium-free last three years",
+    "Premium waiver on death of owner"
+   ],
+   "benefits": [
+    "100% sum assured lump sum on death",
+    "Eligible for personal income tax relief"
+   ],
+   "riders_options": [],
+   "entry_age": "18 to 55",
+   "term_or_duration": "8 to 22 years",
+   "min_premium_or_sum_assured": "Not stated",
+   "payment_options": "Not stated",
+   "waiting_periods_or_exclusions": "Not stated; exclusions not published",
+   "channels_or_distinct_points": [
+    "Product brochure (March 2025) and application form PDFs",
+    "Callback request"
+   ],
+   "analysis_selling_points": [
+    "Guaranteed payouts of 400% of sum assured in total give strong fee-planning story",
+    "Premium-free final three years"
+   ],
+   "analysis_watch_outs": [
+    "Premiums, payment modes, riders and exclusions not published",
+    "Payout multiple is stated as per-year 100% of sum assured; confirm total cost vs benefit via quote"
+   ],
+   "source_url": "https://ke.britam.com/save-and-invest/personal/education-plans",
+   "source_note": "Details from the education plans listing page (Msingi Poa section); the individual plan page was not fetched."
+  },
+  {
+   "name": "Boresha Education Plan",
+   "category": "education",
+   "summary": "Savings and investment education plan with payouts at key stages aligned to the 2-6-3-3-3 curriculum.",
+   "target_client": "Parents or guardians saving for a child's education",
+   "how_it_works": "Premiums paid monthly, quarterly, semi-annually or annually for 6 to 18 years, none in the final two years. Guaranteed lump sums equal to principal sum paid in the last three years.",
+   "key_features": [
+    "Guaranteed lump sums in last three years",
+    "Guaranteed maturity benefit if life assured dies or is totally permanently disabled",
+    "Medical or non-medical underwriting",
+    "Late entry up to age 60"
+   ],
+   "benefits": [
+    "Child's future protected on parent's death"
+   ],
+   "riders_options": [],
+   "entry_age": "Late entry up to 60; minimum not stated",
+   "term_or_duration": "Premium period 6 to 18 years; total term not stated",
+   "min_premium_or_sum_assured": "Not stated",
+   "payment_options": "Monthly, quarterly, semi-annual or annual",
+   "waiting_periods_or_exclusions": "Not stated; exclusions not published",
+   "channels_or_distinct_points": [
+    "Product brochure (March 2025)"
+   ],
+   "analysis_selling_points": [
+    "Payouts timed to curriculum stages",
+    "Entry up to 60 is higher than most Britam education plans (55)",
+    "Choice of non-medical underwriting"
+   ],
+   "analysis_watch_outs": [
+    "Minimum premium, sum assured, riders and exclusions not published"
+   ],
+   "source_url": "https://ke.britam.com/save-and-invest/personal/education-plans/boresha-plan",
+   "source_note": "Product page fetched."
+  },
+  {
+   "name": "Super E Education Plan (Super E and Super E Plus)",
+   "category": "education",
+   "summary": "Education savings plan with guaranteed bonuses of 130% of sum assured over the last six years; Plus adds a maturity lump sum, loans and protection benefits.",
+   "target_client": "Parents or guardians saving for a child's education (inferred)",
+   "how_it_works": "Each premium builds savings; guaranteed bonuses are paid in cash over the last 6 years. Plus adds a 100% sum assured maturity lump sum, loans up to 80% of policy value and life cover equal to sum assured.",
+   "key_features": [
+    "Guaranteed bonuses 130% of sum assured",
+    "Premium discounts for payments of KES 5,000 or more",
+    "60-day window for arrears",
+    "Plus: loans up to 80% of policy value"
+   ],
+   "benefits": [
+    "Tax relief up to 15% of premiums for policies over 10 years; maturity payout tax free",
+    "Plus: 50% of sum assured on critical illness with premium waiver; 100% on accidental death; premiums paid if unable to pay through disability or illness"
+   ],
+   "riders_options": [
+    "Protection benefits are built into Super E Plus; no separate riders listed"
+   ],
+   "entry_age": "Not stated",
+   "term_or_duration": "Over 10 years implied; bonuses in final 6 years",
+   "min_premium_or_sum_assured": "KES 5,000 premium discount threshold only; minimum not stated",
+   "payment_options": "Not stated",
+   "waiting_periods_or_exclusions": "Not stated; exclusions not published",
+   "channels_or_distinct_points": [
+    "Brochure and application form linked on page"
+   ],
+   "analysis_selling_points": [
+    "Very high guaranteed bonus multiple stated",
+    "Plus bundles critical illness, accident and loan features"
+   ],
+   "analysis_watch_outs": [
+    "Entry age, term, payment modes and exclusions not published",
+    "Page calls plan 'risk free', which needs careful handling in advice"
+   ],
+   "source_url": "https://ke.britam.com/save-and-invest/personal/education-plans/super-e-education-plan",
+   "source_note": "Product page fetched."
+  },
+  {
+   "name": "Soma Sure Premium Education Plan",
+   "category": "investment-linked",
+   "summary": "Investment-linked 2-in-1 education and savings plan with a 5% minimum guaranteed return and staged payouts.",
+   "target_client": "Parents or guardians saving for a child's education",
+   "how_it_works": "Regular premiums plus optional extra contributions go into a fund. Payouts: 35% two years before end, 50% one year before, balance at maturity. No premiums in last three years. On death premiums continue to be paid so payouts proceed.",
+   "key_features": [
+    "Minimum guaranteed return 5% p.a.",
+    "Full or partial withdrawals after 25 months with no charge",
+    "Extra contributions of any amount"
+   ],
+   "benefits": [
+    "Tax relief 15% of contributions, capped at KES 60,000 a year, for 10+ year terms"
+   ],
+   "riders_options": [
+    "Premium waiver on retrenchment (6 months)",
+    "Premium waiver on PTD",
+    "PTD lump sum",
+    "Critical illness lump sum",
+    "Family income benefit",
+    "Death lump sum",
+    "Funeral expense lump sum"
+   ],
+   "entry_age": "18 to 60",
+   "term_or_duration": "Not stated; 10+ years for tax relief",
+   "min_premium_or_sum_assured": "Start from KES 20,000 (as stated on page; basis of that amount not specified)",
+   "payment_options": "Regular premiums and extra contributions; modes not listed",
+   "waiting_periods_or_exclusions": "Not stated; exclusions not published",
+   "channels_or_distinct_points": [
+    "Brochure dated July 2026",
+    "Medical check-up with panel doctor recommended, paid by Britam"
+   ],
+   "analysis_selling_points": [
+    "Rich rider menu including retrenchment waiver",
+    "Withdrawals possible from month 25"
+   ],
+   "analysis_watch_outs": [
+    "KES 20,000 entry is much higher than other Britam education plans",
+    "Term, sum assured and exclusions not published"
+   ],
+   "source_url": "https://ke.britam.com/save-and-invest/personal/education-plans/soma-sure-education-plan",
+   "source_note": "Soma Sure page fetched (Premium section)."
+  },
+  {
+   "name": "Soma Sure Lite Education Plan",
+   "category": "investment-linked",
+   "summary": "Lower-entry version of the Soma Sure investment-linked education plan.",
+   "target_client": "Parents or guardians saving for a child's education",
+   "how_it_works": "Regular premiums plus optional extra contributions go into an investment fund; if the parent dies, Britam continues paying outstanding premiums to keep payouts on track.",
+   "key_features": [
+    "Flexible additional contributions",
+    "Withdrawals 30 days after policy start",
+    "Fund-based growth"
+   ],
+   "benefits": [
+    "Tax relief 15% of contributions, capped at KES 60,000 a year, for 10+ year policies"
+   ],
+   "riders_options": [
+    "Permanent and Total Disability lump sum",
+    "Critical Illness lump sum",
+    "Family Income",
+    "Funeral Expense"
+   ],
+   "entry_age": "18 to 60",
+   "term_or_duration": "Not stated; 10+ years for tax relief",
+   "min_premium_or_sum_assured": "Starts from KES 1,000; sum assured not given",
+   "payment_options": "Regular plus additional contributions; modes not listed",
+   "waiting_periods_or_exclusions": "Not stated; exclusions not published",
+   "channels_or_distinct_points": [
+    "Medical check-up with panel doctor recommended, paid by Britam"
+   ],
+   "analysis_selling_points": [
+    "KES 1,000 entry is highly accessible",
+    "Earlier access to withdrawals (30 days) than Premium"
+   ],
+   "analysis_watch_outs": [
+    "Guaranteed return not stated on this page",
+    "Term and exclusions not published"
+   ],
+   "source_url": "https://ke.britam.com/save-and-invest/personal/education-plans/soma-sure-education-plan/soma-sure-lite-education-plan",
+   "source_note": "Lite page fetched."
+  },
+  {
+   "name": "Dhamana Savings Plan",
+   "category": "endowment-savings",
+   "summary": "Savings plan with guaranteed 5% return and life cover over a fixed 15-year term.",
+   "target_client": "Individuals saving for the future who want life cover",
+   "how_it_works": "Regular premiums are invested over 15 years; death benefit paid to beneficiaries if the policyholder dies.",
+   "key_features": [
+    "Guaranteed 5% return for continuing policies",
+    "Policy loans after 3 years",
+    "Premium holidays and extra payments allowed",
+    "No maximum premium"
+   ],
+   "benefits": [
+    "Guaranteed growth plus life cover",
+    "Access to funds via loans"
+   ],
+   "riders_options": [],
+   "entry_age": "18 to 60; maximum age on cover 75",
+   "term_or_duration": "15 years fixed",
+   "min_premium_or_sum_assured": "Minimum premium KES 1,000/month; sum assured not stated",
+   "payment_options": "Flexible premiums",
+   "waiting_periods_or_exclusions": "Not stated; exclusions not published",
+   "channels_or_distinct_points": [
+    "WhatsApp link and callback form on page"
+   ],
+   "analysis_selling_points": [
+    "Guaranteed 5% and flexible premiums with premium holidays suit variable incomes",
+    "KES 1,000 entry"
+   ],
+   "analysis_watch_outs": [
+    "Fixed 15-year term only",
+    "Death benefit amount and exclusions not published"
+   ],
+   "source_url": "https://ke.britam.com/save-and-invest/personal/insurance-savings-plans/dhamana",
+   "source_note": "Product page fetched."
+  },
+  {
+   "name": "Imarika Plus Insurance Savings Plan",
+   "category": "investment-linked",
+   "summary": "Lump-sum investment-linked plan with targeted 8-12% p.a. returns, 5% guaranteed minimum at maturity and free funeral cover.",
+   "target_client": "People investing a lump sum who want a safety net",
+   "how_it_works": "Single lump-sum deposit with no regular deposits needed; top-ups of KES 100,000 allowed. At maturity, higher of fund value or deposits at 5% guaranteed minimum.",
+   "key_features": [
+    "Target returns 8-12% p.a. (not guaranteed)",
+    "Withdrawals after year 2 with no charge",
+    "Monthly email statements"
+   ],
+   "benefits": [
+    "Tax relief of 15% of contributions for 10+ year terms, capped at KES 60,000 a year",
+    "Free funeral cover of KES 100,000 paid within 48 hours if fund value is KES 200,000 or more"
+   ],
+   "riders_options": [],
+   "entry_age": "18 to 85",
+   "term_or_duration": "Minimum 5 years; maximum not stated",
+   "min_premium_or_sum_assured": "Initial deposit KES 200,000; top-ups KES 100,000",
+   "payment_options": "Lump sum deposits",
+   "waiting_periods_or_exclusions": "Not stated; withdrawal charges 5% year 1, 3% year 2",
+   "channels_or_distinct_points": [
+    "Page headed Imarika Plus; the link name Imarika Investment Plan was assumed to be the same product"
+   ],
+   "analysis_selling_points": [
+    "Principal safety net via 5% floor",
+    "Entry to age 85 is unusually wide"
+   ],
+   "analysis_watch_outs": [
+    "High KES 200,000 minimum",
+    "Fund fees and exclusions not published; 8-12% is a target only"
+   ],
+   "source_url": "https://ke.britam.com/save-and-invest/personal/invest/investment-linked",
+   "source_note": "Product page fetched."
+  },
+  {
+   "name": "Britam Individual Retirement Plan",
+   "category": "pension-retirement",
+   "summary": "Individual pension or provident plan with a guaranteed minimum 5% compounded return.",
+   "target_client": "Individuals saving for retirement",
+   "how_it_works": "Contributions invested with 5% minimum guaranteed rate. Pension option: up to one-third lump sum and two-thirds buys annuity; provident option: full lump sum at retirement.",
+   "key_features": [
+    "Flexible contributions, monthly to annual",
+    "Portable between jobs",
+    "Pension-backed mortgage up to 60% of fund",
+    "Capital guaranteed"
+   ],
+   "benefits": [
+    "Contributions tax-deductible up to KES 20,000 a month or one-third of income",
+    "Interest tax-exempt",
+    "Death before retirement: accumulated amount to beneficiaries"
+   ],
+   "riders_options": [],
+   "entry_age": "Not stated",
+   "term_or_duration": "To chosen retirement age",
+   "min_premium_or_sum_assured": "Minimum KES 500 (terms) vs KES 2,000 (feature section); page inconsistent",
+   "payment_options": "Monthly, quarterly, semi-annual or annual",
+   "waiting_periods_or_exclusions": "Not stated",
+   "channels_or_distinct_points": [
+    "Related pages: Pension Annuity, Platinum Drawdown"
+   ],
+   "analysis_selling_points": [
+    "Low contribution threshold",
+    "Mortgage-access feature is distinctive"
+   ],
+   "analysis_watch_outs": [
+    "Page inconsistent on minimum contribution",
+    "Entry age and charges not published"
+   ],
+   "source_url": "https://ke.britam.com/pension",
+   "source_note": "Pension page fetched."
+  },
+  {
+   "name": "Britam Pension Annuity",
+   "category": "pension-retirement",
+   "summary": "Annuity converting a pension lump sum into guaranteed income for life or a fixed period.",
+   "target_client": "Retirees wanting predictable income, alone or with a spouse",
+   "how_it_works": "Buy with a pension lump sum; paid monthly, quarterly, semi-annually or annually in arrears. Joint option passes to surviving spouse.",
+   "key_features": [
+    "Guaranteed period",
+    "Single or joint life",
+    "Escalation of 3% or 5% a year option"
+   ],
+   "benefits": [
+    "Guaranteed income",
+    "No tax from age 65; monthly payments above KES 25,000 taxed at PAYE rates"
+   ],
+   "riders_options": [],
+   "entry_age": "55 to 75",
+   "term_or_duration": "Life or fixed period",
+   "min_premium_or_sum_assured": "Minimum purchase KES 600,000",
+   "payment_options": "Monthly, quarterly, semi-annual or annual",
+   "waiting_periods_or_exclusions": "Not stated",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Escalation options help against inflation"
+   ],
+   "analysis_watch_outs": [
+    "High KES 600,000 minimum",
+    "Annuity rates not published"
+   ],
+   "source_url": "https://ke.britam.com/pension/personal/enjoy-your-retirement/the-pension-annuity-fund",
+   "source_note": "Product page fetched."
+  }
+ ]
+}

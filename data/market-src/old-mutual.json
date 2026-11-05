@@ -1,0 +1,373 @@
+{
+ "insurer": "Old Mutual Kenya",
+ "insurer_note": "Old Mutual life business in Kenya (formerly UAP Old Mutual; life merger with Old Mutual Assurance Company reported by Capital FM/The EastAfrican). Ownership detail not verified from a page I opened.",
+ "checked": "2026-11-04",
+ "products": [
+  {
+   "name": "Elimika Education Plan",
+   "category": "education",
+   "summary": "Regular-premium school-fee plan: save over an accumulation period, then receive guaranteed education payouts, with a guaranteed death benefit during the term.",
+   "target_client": "Parents/guardians funding a child's school fees",
+   "how_it_works": "Accumulation period then payout period; payouts monthly, quarterly, half-yearly or annually.",
+   "key_features": [
+    "Guaranteed education payouts",
+    "Guaranteed death benefit in term",
+    "Flexible payout frequency"
+   ],
+   "benefits": [
+    "Certainty for fee planning",
+    "Child protected if parent dies in term"
+   ],
+   "riders_options": [
+    "Additional life cover",
+    "Waiver of premium"
+   ],
+   "entry_age": null,
+   "term_or_duration": "Accumulation 5-15 years; payout 1-4 years",
+   "min_premium_or_sum_assured": "KES 3,000 per month",
+   "payment_options": "M-Pesa, Airtel Money, direct debit, check-off, standing order, cheque, bank deposit",
+   "waiting_periods_or_exclusions": "No death benefit for death from war/terrorism, radioactivity/nuclear explosion, intentional drug/alcohol intake, or violation of criminal law by the life assured",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Guaranteed payouts (per page) suit fee-timing needs",
+    "Low KES 3,000 entry premium",
+    "Waiver rider protects the plan if payer dies"
+   ],
+   "analysis_watch_outs": [
+    "Entry age and sum assured not published; get from quote",
+    "Confirm what 'guaranteed' covers and surrender terms"
+   ],
+   "source_url": "https://www.oldmutual.co.ke/personal/save-and-invest/elimika-education-plan",
+   "source_note": "Fetched Old Mutual product page."
+  },
+  {
+   "name": "Lengo Savings Plan",
+   "category": "endowment-savings",
+   "summary": "Monthly-premium savings plan with life cover, up to 20 years, with a premiums-back guarantee at maturity (per Sept 2026 coverage) and partial access to savings.",
+   "target_client": "People saving for a home, business, wedding or long-term security who also want dependants covered",
+   "how_it_works": "Monthly premiums, optional lump sums, term chosen up to 20 years; automatic premium holiday up to six months.",
+   "key_features": [
+    "Term up to 20 years",
+    "No upper premium limit",
+    "Lump-sum top-ups",
+    "Partial access to savings",
+    "Premium holiday up to 6 months"
+   ],
+   "benefits": [
+    "Guarantee of at least premiums paid if held to maturity",
+    "Death benefit during cover period"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Up to 20 years; no minimum stated",
+   "min_premium_or_sum_assured": "KES 7,000 per month",
+   "payment_options": "M-Pesa, Airtel Money, direct debit, check-off, standing order, cheque, bank deposit",
+   "waiting_periods_or_exclusions": "No death benefit for death from war/terrorism, radioactivity/nuclear explosion, intentional drug/alcohol intake, or violation of criminal law by the life assured",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Premiums-back floor at maturity addresses fear of losing capital",
+    "Flexibility via top-ups and premium holiday",
+    "Digital buy or adviser-assisted"
+   ],
+   "analysis_watch_outs": [
+    "Early surrender can return little or nothing per secondary article; show surrender values",
+    "Charges and new surrender terms not published; entry age not stated"
+   ],
+   "source_url": "https://www.oldmutual.co.ke/personal/save-and-invest/lengo-savings-plan",
+   "source_note": "Old Mutual product page; the 2026-09-25 tech-ish.com article (secondary) for the premiums-back guarantee and recent term change."
+  },
+  {
+   "name": "Lengo Education Plan",
+   "category": "education",
+   "summary": "Long-term savings plan for a child's education with life cover equal to future gross premiums (free cover limit KES 1.2m) and annual benefits in the last 4 years.",
+   "target_client": "Parents/guardians with insurable interest in the nominated child",
+   "how_it_works": "Fund value payable at maturity; in last 4 years take 20% of fund value at each anniversary; 15% of savings accessible from a Short Term Pocket.",
+   "key_features": [
+    "20% annual benefits in last 4 years",
+    "Short Term Pocket 15% access",
+    "Usable as loan collateral"
+   ],
+   "benefits": [
+    "15% tax relief on premiums",
+    "Life cover = sum of future gross premiums, free cover limit KES 1,200,000"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": "KES 7,000 per month",
+   "payment_options": null,
+   "waiting_periods_or_exclusions": "Not listed; underwriting and age limits apply",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Staged payouts match fee cycles",
+    "Emergency pocket adds liquidity",
+    "Tax relief and collateral use"
+   ],
+   "analysis_watch_outs": [
+    "Entry age/term not published",
+    "Higher minimum premium than Elimika"
+   ],
+   "source_url": "https://www.oldmutual.co.ke/personal/save-and-invest/lengo-education-plan",
+   "source_note": "Fetched Old Mutual product page."
+  },
+  {
+   "name": "Lengo Digital Savings Plan",
+   "category": "endowment-savings",
+   "summary": "All-digital savings plan with regular or lump-sum contributions, a two-year lock-in and life cover of 30% of fund value capped at KES 500,000.",
+   "target_client": "Individuals saving for personal goals; can be opened for children with ID and guardianship proof",
+   "how_it_works": "Start online; pause, adjust or stop contributions; money invested with 2-year lock-in.",
+   "key_features": [
+    "Fully digital",
+    "Flexible contributions",
+    "Life cover 30% of fund, max KES 500,000"
+   ],
+   "benefits": [
+    "30-day free-look refund of contributions"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Two-year lock-in; term not stated",
+   "min_premium_or_sum_assured": "KES 3,000 per month or KES 300,000 one-time",
+   "payment_options": "Monthly or one-time lump sum",
+   "waiting_periods_or_exclusions": "Cover pays immediately for accidental death, after 3 months for non-accidental; suicide excluded in first 2 years; also war, nuclear, criminal activity, drugs/alcohol, fraud",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Low KES 3,000 entry",
+    "Quick online onboarding",
+    "Built-in cover with no medicals stated"
+   ],
+   "analysis_watch_outs": [
+    "Lock-in of two years",
+    "Cover scales with fund so is small early on"
+   ],
+   "source_url": "https://www.oldmutual.co.ke/personal/digital-savings-plan/",
+   "source_note": "Fetched Old Mutual product page."
+  },
+  {
+   "name": "Hakika Savings Plan",
+   "category": "endowment-savings",
+   "summary": "Regular-premium endowment-style savings paid as a lump sum at term end, with guaranteed death benefit and premium waiver.",
+   "target_client": "People saving for long-term goals",
+   "how_it_works": "Premiums monthly, quarterly, annually or single; accumulated savings paid at maturity.",
+   "key_features": [],
+   "benefits": [
+    "15% tax relief on premiums",
+    "Guaranteed death benefit",
+    "Premium waiver on death or disability"
+   ],
+   "riders_options": [
+    "Optional life cover equal to 10% of face value"
+   ],
+   "entry_age": "18 to 55",
+   "term_or_duration": "5 to 43 years depending on age",
+   "min_premium_or_sum_assured": "KES 2,500 per month",
+   "payment_options": "M-Pesa, Airtel Money, direct debit, check-off, standing order, cheque, bank deposit",
+   "waiting_periods_or_exclusions": "No death benefit for death from war/terrorism, radioactivity/nuclear explosion, intentional drug/alcohol intake, or violation of criminal law by the life assured",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Lowest minimum among Old Mutual endowments seen",
+    "Wide term range",
+    "Waiver benefit"
+   ],
+   "analysis_watch_outs": [
+    "Check surrender values; returns not published"
+   ],
+   "source_url": "https://www.oldmutual.co.ke/personal/save-and-invest/hakika-savings-plan",
+   "source_note": "Fetched Old Mutual product page."
+  },
+  {
+   "name": "Rafiki Halisi Investment Plan",
+   "category": "investment-linked",
+   "summary": "Unit-linked plan combining investment and term life cover; maturity depends on market performance.",
+   "target_client": "Individuals aged 18-55",
+   "how_it_works": "Units accumulate; life cover is 10 times monthly contributions.",
+   "key_features": [
+    "Premium holiday up to 6 months per 5 years",
+    "Change premium frequency/amount",
+    "Cash value after 3 years"
+   ],
+   "benefits": [
+    "Full unit fund at maturity less charges",
+    "15% tax relief capped at KES 5,000 per month"
+   ],
+   "riders_options": [],
+   "entry_age": "18 to 55",
+   "term_or_duration": "10 to 20 years",
+   "min_premium_or_sum_assured": "KES 1,000 to KES 6,500 per month",
+   "payment_options": "Monthly, quarterly, annually or single",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Very low entry premium",
+    "Market-linked upside"
+   ],
+   "analysis_watch_outs": [
+    "Maturity not guaranteed",
+    "Premium cap of KES 6,500 limits large savers"
+   ],
+   "source_url": "https://www.oldmutual.co.ke/personal/insure/rafiki-halisi-life-plan/",
+   "source_note": "Fetched Old Mutual product page."
+  },
+  {
+   "name": "Whole Life Cover (Greenlight Whole Life Assurance)",
+   "category": "whole-life",
+   "summary": "Pays the sum assured on death from natural causes or accident; minimum cover KES 1m with premiums payable to age 80.",
+   "target_client": "People wanting loved ones protected",
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [
+    "Premium waiver on payer's disability/death",
+    "15% tax relief"
+   ],
+   "riders_options": [],
+   "entry_age": "18 to 65",
+   "term_or_duration": "Premiums payable until age 80",
+   "min_premium_or_sum_assured": "Minimum cover KES 1m, no maximum; premium by cover",
+   "payment_options": "Monthly mentioned",
+   "waiting_periods_or_exclusions": "Suicide and violation of criminal law",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Lifetime cover",
+    "Open-ended maximum cover"
+   ],
+   "analysis_watch_outs": [
+    "Premium and cash-value details not published",
+    "Exclusions refer to contract"
+   ],
+   "source_url": "https://www.oldmutual.co.ke/personal/insure/whole-life",
+   "source_note": "Fetched Old Mutual product page."
+  },
+  {
+   "name": "Life Term Cover",
+   "category": "term-life",
+   "summary": "Lump sum to beneficiaries if the life assured dies within the term; minimum cover KES 1m.",
+   "target_client": "Eligible lives subject to underwriting",
+   "how_it_works": null,
+   "key_features": [
+    "Old Mutual pays required medicals"
+   ],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Minimum 10 years, up to age 80",
+   "min_premium_or_sum_assured": "Minimum sum assured KES 1m",
+   "payment_options": null,
+   "waiting_periods_or_exclusions": "No death benefit for death from war/terrorism, radioactivity/nuclear explosion, intentional drug/alcohol intake, or violation of criminal law by the life assured",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Medicals paid by insurer",
+    "Long terms to 80"
+   ],
+   "analysis_watch_outs": [
+    "Entry age and rates not published"
+   ],
+   "source_url": "https://www.oldmutual.co.ke/personal/insure/term-cover/",
+   "source_note": "Fetched Old Mutual product page."
+  },
+  {
+   "name": "Last Expense Cover",
+   "category": "funeral-family-protection",
+   "summary": "Family funeral cover with cash paid within 48 hours; single or multiple claim options; sum assured KES 50,000-500,000.",
+   "target_client": "Principal, spouse, up to 4 children (5 for single parents); extras can be added",
+   "how_it_works": "Single claim cover lapses after first claim; multiple claim up to 3 per year; annual renewal.",
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": "Principal, spouse, parents up to 75; children to 18 (24 if in school)",
+   "term_or_duration": "Whole of life with annual renewal",
+   "min_premium_or_sum_assured": "KES 50,000 to 500,000 sum assured",
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [
+    "Self-service portal"
+   ],
+   "analysis_selling_points": [
+    "Fast payout",
+    "Covers extended family"
+   ],
+   "analysis_watch_outs": [
+    "Premiums and exclusions not published",
+    "Annual renewal needed"
+   ],
+   "source_url": "https://www.oldmutual.co.ke/personal/insure/last-expense/",
+   "source_note": "Fetched Old Mutual product page."
+  },
+  {
+   "name": "Diaspora Last Expense",
+   "category": "funeral-family-protection",
+   "summary": "USD-denominated funeral cover for diaspora members covering family in Kenya, including repatriation costs.",
+   "target_client": "Kenyans abroad",
+   "how_it_works": "Nuclear or Extended Family options; USD payout.",
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": "Principal/spouse to 60 (ends 75); parents to 75 (ends 85); children 3 months-18 (24 in school)",
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": "Accidental none; natural 3 months; suicide 2 years",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Currency protection",
+    "Covers repatriation"
+   ],
+   "analysis_watch_outs": [
+    "Premiums and sums not published"
+   ],
+   "source_url": "https://www.oldmutual.co.ke/personal/insure/diaspora-last-expense/",
+   "source_note": "Fetched Old Mutual product page."
+  },
+  {
+   "name": "Personal Pension Plan (Old Mutual Individual Retirement Benefits Scheme)",
+   "category": "pension-retirement",
+   "summary": "RBA-regulated individual pension with variable contributions, 1.25% annual fee and no withdrawal penalties.",
+   "target_client": "Individuals incl. those not employed; can consolidate old benefits",
+   "how_it_works": null,
+   "key_features": [
+    "Guaranteed or segregated options",
+    "Post-retirement medical fund",
+    "NSSF Tier II option",
+    "Up to 60% as mortgage collateral"
+   ],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": "18 and above",
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": "Minimum not stated; tax-deductible up to 30% of pay or KES 20,000 per month",
+   "payment_options": "M-Pesa paybill, bank transfer, cash deposit",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Tax-exempt",
+    "Flexible contributions",
+    "Home purchase use"
+   ],
+   "analysis_watch_outs": [
+    "Fee 1.25% of funds",
+    "Returns not published here"
+   ],
+   "source_url": "https://www.oldmutual.co.ke/personal/save-and-invest/personal-pension-plan/",
+   "source_note": "Fetched Old Mutual product page."
+  },
+  {
+   "name": "Group Last Expense Cover",
+   "category": "group",
+   "summary": "Employer-sponsored funeral cover paying a lump sum within 48 hours, with free cover limit and wellness clinics.",
+   "target_client": "Employers",
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": "Excludes war, riots, suicide, alcohol/drugs, hazardous sports, racing",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [],
+   "source_url": "https://www.oldmutual.co.ke/business/group-last-expense/",
+   "source_note": "Fetched Old Mutual business page."
+  }
+ ]
+}

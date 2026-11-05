@@ -1,0 +1,282 @@
+{
+ "insurer": "Madison Life (Madison Insurance Kenya)",
+ "insurer_note": "Product pages from madison.co.ke (Madison Group / Madison Life Assurance Kenya). Homepage lists six savings/investment plans under 'Protect Your Future' plus a Personal Pension Plan; Madison funds (money market, fixed income, wealth special) were shown only as a yield banner and are not covered. No standalone term or whole-life product was found. Personal Accident was not covered (likely general). Entry ages and most minimum premiums are not published.",
+ "checked": "2026-11-05",
+ "products": [
+  {
+   "name": "Uniplan",
+   "category": "education",
+   "summary": "Investment policy for parents/guardians saving for a child's university education, with life cover, 5% minimum guaranteed return and premium waiver.",
+   "target_client": "Parents and guardians planning higher education",
+   "how_it_works": "Set the expected university cost early (based on course) and save with flexible contributions over 5 to 15 years; policy can be revised if course costs rise.",
+   "key_features": [
+    "Term 5 to 15 years",
+    "Flexible contributions",
+    "Minimum guaranteed return 5% p.a.",
+    "2% management fee"
+   ],
+   "benefits": [
+    "Life cover on policyholder's death",
+    "Death or disability: premiums waived and child's education funded",
+    "If child dies: keep to maturity, nominate another child or take fund value",
+    "If child skips university: full fund value paid at maturity"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "5 to 15 years",
+   "min_premium_or_sum_assured": "Minimum premium 5,000 (currency not stated on page)",
+   "payment_options": "Flexible contributions; details not stated",
+   "waiting_periods_or_exclusions": "Not stated",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Premium waiver plus funded education on parent's death or disability",
+    "5% guaranteed minimum return",
+    "Flexible if child does not attend university"
+   ],
+   "analysis_watch_outs": [
+    "2% management fee reduces returns",
+    "Entry age, payment options, exclusions not published",
+    "Minimum premium currency unspecified"
+   ],
+   "source_url": "https://www.madison.co.ke/protect-your-future/uniplan/",
+   "source_note": "Fetched Madison product page."
+  },
+  {
+   "name": "Bima Ya Karo",
+   "category": "education",
+   "summary": "Child education savings policy creating guaranteed funds for the child whether the parent is alive, disabled or deceased.",
+   "target_client": "Parents and guardians saving for a child's education",
+   "how_it_works": "Cash benefits payable in the last 5 years before maturity; policy term 10 to 18 years; cash value after 3 years with premiums fully paid, borrowable against.",
+   "key_features": [
+    "Cash benefits in last 5 years before maturity",
+    "Term 10 to 18 years",
+    "Premium waiver on parent's death or permanent disability",
+    "Loans against cash value after 3 years"
+   ],
+   "benefits": [
+    "Guaranteed education funds",
+    "Premium waiver protection",
+    "If named child dies: nominate another child or refund of premiums paid less extra benefits paid"
+   ],
+   "riders_options": [
+    "Death benefit: 50% of cover for child's upkeep",
+    "Critical illness: 25% of policy amount (heart attack, stroke, cancer, renal failure, paraplegia, coronary artery disease, blindness, major organ failure)",
+    "Funeral cash: KES 100,000 adult, KES 50,000 child"
+   ],
+   "entry_age": null,
+   "term_or_duration": "10 to 18 years",
+   "min_premium_or_sum_assured": "Not stated",
+   "payment_options": "Not stated",
+   "waiting_periods_or_exclusions": "Not stated; check policy terms",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Guaranteed staged payouts in last 5 years match school cycles",
+    "Menu of optional riders",
+    "Borrowing against cash value"
+   ],
+   "analysis_watch_outs": [
+    "Premium, entry age and exclusions not published",
+    "Riders cost additional premium",
+    "Cash value only after 3 years"
+   ],
+   "source_url": "https://www.madison.co.ke/protect-your-future/bima-ya-karo/",
+   "source_note": "Fetched Madison product page."
+  },
+  {
+   "name": "Hekima Policy",
+   "category": "endowment-savings",
+   "summary": "Life policy paying on death while earning bonuses (minimum 2.5% p.a. of cover) with staged partial maturities and total payout of 160% of the initial amount covered.",
+   "target_client": "Not stated",
+   "how_it_works": "Option 1 pays 25% at 1/3 of term, 35% at 2/3 and 100% at end; Option 2 pays 25% at 1/2 term, 35% at 3/4 and 100% at end. Term 12 to 24 years.",
+   "key_features": [
+    "Annual bonuses, minimum guaranteed 2.5% of main cover",
+    "Two partial maturity schedules",
+    "Total payout 160% of initial amount covered",
+    "Surrender value after 3 years with premiums paid; loans against it"
+   ],
+   "benefits": [
+    "On death, sum payable plus all bonuses to beneficiaries without deducting partial maturities paid"
+   ],
+   "riders_options": [
+    "Funeral cash: KES 100,000 policyholder, 100,000 spouse, 50,000 per child",
+    "Permanent and total disability equal to basic sum assured",
+    "Waiver of premium on TPD",
+    "Additional accidental death 200% of initial amount plus bonuses",
+    "Weekly accident compensation"
+   ],
+   "entry_age": null,
+   "term_or_duration": "12 to 24 years",
+   "min_premium_or_sum_assured": "Not stated",
+   "payment_options": "Not stated",
+   "waiting_periods_or_exclusions": "Not stated",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Cash back at intervals provides liquidity within the term",
+    "Bonuses plus death benefit retained after partial maturities",
+    "Wide rider menu"
+   ],
+   "analysis_watch_outs": [
+    "Only 2.5% guaranteed bonus rate",
+    "Entry age, minimum premium, exclusions not published",
+    "Long 12 to 24 year commitment; surrender value only after 3 years"
+   ],
+   "source_url": "https://www.madison.co.ke/protect-your-future/hekima-policy/",
+   "source_note": "Fetched Madison product page."
+  },
+  {
+   "name": "Money Max Plus",
+   "category": "investment-linked",
+   "summary": "Combined life and investment policy: 60% of premium to life cover and 40% to investment, 5% p.a. guaranteed investment return.",
+   "target_client": "Not explicitly stated (tagline: For the ones that own their future)",
+   "how_it_works": "Premiums invested by Madison fund managers; premiums can be varied within terms; 2% additional management fee; term 8 to 15 years.",
+   "key_features": [
+    "Premium split 60% life cover / 40% investment",
+    "Guaranteed return 5% p.a.",
+    "Variable contributions",
+    "2% additional management fee"
+   ],
+   "benefits": [
+    "Option 1: 100% sum assured plus fund value at maturity",
+    "Option 2: 20% of sum assured in each of last four years, then 100% sum assured plus fund value at maturity",
+    "Demise: full sum assured plus KSh 20,000 funeral cover",
+    "TPD: full cover amount"
+   ],
+   "riders_options": [
+    "TPD benefit (optional, extra cost)",
+    "Additional funeral cover (at inception)"
+   ],
+   "entry_age": null,
+   "term_or_duration": "8 to 15 years",
+   "min_premium_or_sum_assured": "Not stated",
+   "payment_options": "Not stated",
+   "waiting_periods_or_exclusions": "Not stated",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Life cover plus guaranteed 5% return in one product",
+    "Partial-maturity option gives cash in last four years",
+    "Variable premiums"
+   ],
+   "analysis_watch_outs": [
+    "Only 40% of premium is invested",
+    "2% fee; entry age, minimum premium, exclusions not published"
+   ],
+   "source_url": "https://www.madison.co.ke/protect-your-future/money-max-plus/",
+   "source_note": "Fetched Madison product page."
+  },
+  {
+   "name": "Lala Salama (funeral cover)",
+   "category": "funeral-family-protection",
+   "summary": "Funeral package paying lump-sum cash and funeral services through Montezuma Monalisa Funeral Home, for groups, individuals and families.",
+   "target_client": "Groups such as employers; individuals and families (spouse, children, parents)",
+   "how_it_works": "Choose a sum assured (Option 1) or Option 2 with critical illness and TPD, or a funeral package (Royal/Executive/Premier); benefits paid within 48 hours of documents.",
+   "key_features": [
+    "No medical underwriting",
+    "Paid within 48 hours",
+    "Children covered to 18 (24 if students)",
+    "Flexible sum assured"
+   ],
+   "benefits": [
+    "Option 1: funeral cash 30,000 to 200,000",
+    "Option 2 adds TPD (100% of funeral cash) and critical illness (50% of funeral cash)",
+    "Royal 300,000 / Executive 200,000 / Premier 100,000 packages with funeral services"
+   ],
+   "riders_options": [],
+   "entry_age": "Max entry 65; extendable to 75 with loading",
+   "term_or_duration": "Not stated",
+   "min_premium_or_sum_assured": "Option 1: 412 per year (30,000 sum assured); Option 2: 684 per year; Premier package 1,375 per year (up to age 65)",
+   "payment_options": "Annual; monthly only via check-off",
+   "waiting_periods_or_exclusions": "90-day waiting period for non-accidental death",
+   "channels_or_distinct_points": [
+    "Funeral services via Montezuma Monalisa Funeral Home"
+   ],
+   "analysis_selling_points": [
+    "Very low entry premium (412 per year)",
+    "No medicals; 48-hour payout",
+    "Services-in-kind packages plus cash"
+   ],
+   "analysis_watch_outs": [
+    "Monthly payment only via check-off",
+    "90-day wait for natural death",
+    "Currency and term not stated on page; cap on cover is 200,000 cash"
+   ],
+   "source_url": "https://www.madison.co.ke/protect-your-future/lala-salama/",
+   "source_note": "Fetched Madison product page; premiums given without currency on page (assumed KES; confirm)."
+  },
+  {
+   "name": "Madison Life Assurance Personal Pension Plan (MLAPPP)",
+   "category": "pension-retirement",
+   "summary": "Guaranteed individual retirement savings plan with 5% minimum guaranteed interest and optional annuity from Madison.",
+   "target_client": "Individuals and occupational schemes",
+   "how_it_works": "Periodic contributions into a retirement fund; interest continues if contributions stop; transfers in allowed; RBA Act governs.",
+   "key_features": [
+    "5% minimum guaranteed interest rate",
+    "Declared rates 11% (2021), 8% (2020), 10% (2019), 10% (2018), 10% (2017)",
+    "Transfer-in and consolidation",
+    "No penalty when contributions stop"
+   ],
+   "benefits": [
+    "Contributions up to KES 20,000 tax deductible",
+    "Up to 60% of accrued benefits as mortgage security",
+    "On death fund paid to beneficiaries; dependants tax exempt",
+    "100% of member and employer contributions at retirement or early retirement from 50"
+   ],
+   "riders_options": [
+    "Critical illness, last expense and life cover riders"
+   ],
+   "entry_age": null,
+   "term_or_duration": "Normal retirement 60; early from 50",
+   "min_premium_or_sum_assured": "KES 500 per month",
+   "payment_options": "Monthly, quarterly, half-yearly, annual or single; M-Pesa, cheque, bank transfer, check-off",
+   "waiting_periods_or_exclusions": "Not stated",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "KES 500 minimum is very accessible",
+    "5% floor with a visible declared-rate history",
+    "Rider options and mortgage collateral use"
+   ],
+   "analysis_watch_outs": [
+    "Declared rates shown only to 2021 on page",
+    "Entry age and fees not published",
+    "Leavers before early retirement age may withdraw only up to 50%"
+   ],
+   "source_url": "https://www.madison.co.ke/protect-yourself/personal-pension-plan/",
+   "source_note": "Fetched Madison product page."
+  },
+  {
+   "name": "Madison Income Drawdown Plan",
+   "category": "pension-retirement",
+   "summary": "Post-retirement plan paying regular income while the balance stays invested with Madison Investment Managers.",
+   "target_client": "Retirees from registered schemes; individuals 50 and above seeking an alternative to annuities",
+   "how_it_works": "Fund by transferring retirement benefits; income monthly, quarterly, semi-annually or annually within RBA drawdown guidelines.",
+   "key_features": [
+    "Direct transfers from occupational, umbrella and individual plans",
+    "Flexible withdrawals within RBA guidelines",
+    "Invested portfolio managed by Madison Investment Managers"
+   ],
+   "benefits": [
+    "Potential capital growth",
+    "Flexible alternative to annuities",
+    "Dedicated retirement benefits administration team"
+   ],
+   "riders_options": [],
+   "entry_age": "50 and above",
+   "term_or_duration": "Not stated",
+   "min_premium_or_sum_assured": "Not stated; funded by transferring retirement benefits",
+   "payment_options": "Income monthly, quarterly, semi-annual or annual",
+   "waiting_periods_or_exclusions": "Not stated",
+   "channels_or_distinct_points": [
+    "Enquiries: pensionsales@madison.co.ke"
+   ],
+   "analysis_selling_points": [
+    "Retains control and growth potential vs an annuity",
+    "Fits clients leaving employer schemes"
+   ],
+   "analysis_watch_outs": [
+    "Investment risk sits with retiree; no guarantee stated",
+    "Term, minimum, fees, exclusions not published"
+   ],
+   "source_url": "https://www.madison.co.ke/protect-your-future/income-drawdown-plan/",
+   "source_note": "Fetched Madison product page."
+  }
+ ]
+}

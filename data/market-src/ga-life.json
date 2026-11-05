@@ -1,0 +1,84 @@
+{
+ "insurer": "GA Life Assurance Kenya",
+ "insurer_note": "GA Life (GA Life Assurance Limited, subsidiary of GA Insurance, launched June 2013). The GA Life product index page lists only two individual products (Personal Pension Plan, Personal Provident Plan); the rest of the listing is group (pension, provident, group life, group credit life), which is out of scope. No individual term, whole-life, endowment or education products were found on the pages fetched. Entry age, term and minimum contribution not published on either page.",
+ "checked": "2026-11-05",
+ "products": [
+  {
+   "name": "Personal Pension Plan",
+   "category": "pension-retirement",
+   "summary": "Individual retirement scheme under an irrevocable trust (RBA/KRA registered) with 100% capital guarantee and 4% minimum guaranteed return; 1/3 cash and 2/3 monthly pension at retirement.",
+   "target_client": "Employed individuals and their employers, self-employed individuals, SMEs/groups",
+   "how_it_works": "Contributions invested under Section 50 of the Insurance Act and earn income from the day received; payroll deduction for employees, regular amounts for self-employed.",
+   "key_features": [
+    "100% capital guarantee",
+    "Guaranteed minimum return 4% on investment income",
+    "Monthly fund statement by the 10th; annual statement",
+    "Transfers in from other occupational or individual schemes"
+   ],
+   "benefits": [
+    "Employee contributions up to KShs 20,000/month not subject to PAYE",
+    "Employer contributions tax-allowable",
+    "Death: 100% of both contributions plus interest to beneficiary (less taxes)",
+    "Incapacity/ill-health retirement: full fund paid (less taxes)",
+    "At retirement 1/3 cash, 2/3 lifetime monthly pension"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Not stated; earliest retirement age 50 (set by law)",
+   "min_premium_or_sum_assured": "Not stated; PAYE exemption cap KShs 20,000/month",
+   "payment_options": "Payroll deduction (fixed % or amount); regular self-employed contributions; application form or online",
+   "waiting_periods_or_exclusions": "Not stated",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Capital guarantee plus 4% floor appeals to risk-averse savers",
+    "Tax relief up to KShs 20,000/month",
+    "Open to self-employed and SMEs, with transfers in"
+   ],
+   "analysis_watch_outs": [
+    "Entry age, minimum contribution and fees not published",
+    "Only 4% guaranteed floor; declared historical rates not shown",
+    "Employer contributions locked until age 50; 2/3 must become annuity pension"
+   ],
+   "source_url": "https://www.gainsuranceltd.com/life/insurance/personal-pension-plan/",
+   "source_note": "Fetched GA Life product page."
+  },
+  {
+   "name": "Personal Provident Plan",
+   "category": "pension-retirement",
+   "summary": "Individual provident (lump-sum) retirement scheme for self-employed and others topping up retirement benefits; 100% capital guarantee, 4% minimum return, 100% of fund as cash at retirement.",
+   "target_client": "Self-employed people and others supplementing retirement benefits; employed individuals and employers, SMEs/groups",
+   "how_it_works": "Contributions invested under Section 50 of the Insurance Act, earning income from receipt; salary deduction or regular self-chosen contributions.",
+   "key_features": [
+    "100% capital guarantee",
+    "4% guaranteed minimum return",
+    "Monthly fund statement by the 10th; annual statement",
+    "Transfers in from other schemes"
+   ],
+   "benefits": [
+    "Salary contributions up to KShs 20,000/month not subject to PAYE (page example: KShs 5,000 on KShs 50,000 salary)",
+    "Death: both contributions plus interest paid to nominee (less taxes)",
+    "Early retirement from 50 and retirement: 100% of fund as cash (less taxes)",
+    "Leaving job: own contributions plus interest paid in cash; employer portion locked to 50"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Not stated",
+   "min_premium_or_sum_assured": "Not stated",
+   "payment_options": "Salary deduction; regular self-chosen contributions; application form (ID, PIN, signature copies)",
+   "waiting_periods_or_exclusions": "Not stated",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Full lump sum at retirement, no compulsory annuity (per page)",
+    "Capital guarantee",
+    "Simple onboarding with soft copies of documents"
+   ],
+   "analysis_watch_outs": [
+    "Entry age, term, minimum contribution not published",
+    "Only 4% minimum return stated",
+    "Tax treatment of lump sum 'less taxes' not detailed"
+   ],
+   "source_url": "https://www.gainsuranceltd.com/life/insurance/personal-provident-plan/",
+   "source_note": "Fetched GA Life product page."
+  }
+ ]
+}

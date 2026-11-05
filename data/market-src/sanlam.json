@@ -1,0 +1,227 @@
+{
+ "insurer": "SanlamAllianz Kenya (Sanlam Life)",
+ "insurer_note": "Individual life site brands as SanlamAllianz Kenya; Akiba Plus is a sub-brand/domain for pensions and Flexi Future Plus. Structure (Pan Africa Life/Cannon legacy) not verified; only index page read.",
+ "checked": "2026-11-04",
+ "products": [
+  {
+   "name": "360 Student Cover",
+   "category": "other",
+   "summary": "Listed under individual life; no description on index page.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "Detail page not reviewed; obtain terms before selling"
+   ],
+   "source_url": "https://ke.sanlamallianz.com/life-insurance/individual/360-student-cover",
+   "source_note": "Name and one-line description taken only from the insurer's individual life index page; detail page NOT opened, so all other fields are null."
+  },
+  {
+   "name": "Annuity",
+   "category": "pension-retirement",
+   "summary": "Pays income for life or an agreed term for retirement.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "Detail page not reviewed; obtain terms before selling"
+   ],
+   "source_url": "https://ke.sanlamallianz.com/life-insurance/individual/FlexiAnnuity",
+   "source_note": "Name and one-line description taken only from the insurer's individual life index page; detail page NOT opened, so all other fields are null."
+  },
+  {
+   "name": "Fadhili Family Plan",
+   "category": "funeral-family-protection",
+   "summary": "Funeral cover for the whole family with cash back if no claim.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "Detail page not reviewed; obtain terms before selling"
+   ],
+   "source_url": "https://ke.sanlamallianz.com/life-insurance/individual/fadhili-family-plan",
+   "source_note": "Name and one-line description taken only from the insurer's individual life index page; detail page NOT opened, so all other fields are null."
+  },
+  {
+   "name": "Flexi Educator Plus",
+   "category": "education",
+   "summary": "Savings plan for children's education.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "Detail page not reviewed; obtain terms before selling"
+   ],
+   "source_url": "https://ke.sanlamallianz.com/life-insurance/individual/flexi-educator-plus",
+   "source_note": "Name and one-line description taken only from the insurer's individual life index page; detail page NOT opened, so all other fields are null."
+  },
+  {
+   "name": "Flexi Future Plus",
+   "category": "endowment-savings",
+   "summary": "Guarantees a lump sum at term end with flexible income options at maturity.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "Detail page not reviewed; obtain terms before selling"
+   ],
+   "source_url": "https://akibaplus.co.ke/flexi-future-plus",
+   "source_note": "Name and one-line description taken only from the insurer's individual life index page; detail page NOT opened, so all other fields are null."
+  },
+  {
+   "name": "Flexi Hela",
+   "category": "endowment-savings",
+   "summary": "Open-ended savings with life cover, access to savings, no withdrawal or surrender penalties.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "Detail page not reviewed; obtain terms before selling"
+   ],
+   "source_url": "https://ke.sanlamallianz.com/life-insurance/individual/flexi-hela",
+   "source_note": "Name and one-line description taken only from the insurer's individual life index page; detail page NOT opened, so all other fields are null."
+  },
+  {
+   "name": "FlexiSaver Plus",
+   "category": "endowment-savings",
+   "summary": "Savings with maturities every four years, 12-24 year terms, cover for critical illness, disability and death.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "Detail page not reviewed; obtain terms before selling"
+   ],
+   "source_url": "https://ke.sanlamallianz.com/life-insurance/individual/flexi-saver-plus",
+   "source_note": "Name and one-line description taken only from the insurer's individual life index page; detail page NOT opened, so all other fields are null."
+  },
+  {
+   "name": "Akiba Plus - Individual Pension Plan",
+   "category": "pension-retirement",
+   "summary": "Personal retirement savings for employed, self-employed, informal and business-owning people.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "Detail page not reviewed; obtain terms before selling"
+   ],
+   "source_url": "https://ke.sanlamallianz.com/life-insurance/individual/individual-pension-plan",
+   "source_note": "Name and one-line description taken only from the insurer's individual life index page; detail page NOT opened, so all other fields are null."
+  },
+  {
+   "name": "Akiba Plus - Post Retirement Medical Plan",
+   "category": "pension-retirement",
+   "summary": "Savings for retirement medical expenses, RBA-regulated.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "Detail page not reviewed; obtain terms before selling"
+   ],
+   "source_url": "https://ke.sanlamallianz.com/life-insurance/individual/post-retirement-medical-plan",
+   "source_note": "Name and one-line description taken only from the insurer's individual life index page; detail page NOT opened, so all other fields are null."
+  },
+  {
+   "name": "Income Draw Down",
+   "category": "pension-retirement",
+   "summary": "Listed under individual life; no description on index page.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "Detail page not reviewed; obtain terms before selling"
+   ],
+   "source_url": "https://ke.sanlamallianz.com/Income-DrawDown-Fund",
+   "source_note": "Name and one-line description taken only from the insurer's individual life index page; detail page NOT opened, so all other fields are null."
+  }
+ ]
+}

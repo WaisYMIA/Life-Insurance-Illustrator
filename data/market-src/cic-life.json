@@ -1,0 +1,183 @@
+{
+ "insurer": "CIC Life Assurance (CIC Insurance Group, Kenya)",
+ "insurer_note": "Group site cicinsurancegroup.com only links to country sites; products taken from ke.cicinsurancegroup.com individual-solutions pages. The Kenya individual pages fetched list savings, education and retirement products only; no term life or funeral product was listed there (not confirmed absent elsewhere). cic.co.ke was not fetchable. Most pages omit entry age, minimums and exclusions. Personal Accident is listed but is general insurance, so skipped.",
+ "checked": "2026-11-05",
+ "products": [
+  {
+   "name": "Academia",
+   "category": "education",
+   "summary": "Endowment policy combining protection and savings to prepare for a child's education costs, with guaranteed partial and final maturity payments.",
+   "target_client": "Parents or guardians saving for a child's education (implied)",
+   "how_it_works": "Savings built through flexible payment plans over the term; guaranteed returns paid as partial maturity and final maturity payments.",
+   "key_features": [
+    "Guaranteed partial and final maturity payments",
+    "Term 9 to 18 years",
+    "Premium waiver on parent death or permanent disability"
+   ],
+   "benefits": [
+    "On policyholder death or permanent disability CIC pays 50% of sum assured immediately plus accumulated bonuses and waives future premiums",
+    "Beneficiary still receives full anticipated and maturity benefits",
+    "If child dies, refund of premiums paid or nominate another child",
+    "Government tax relief of 15% of monthly premiums"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "9 to 18 years",
+   "min_premium_or_sum_assured": null,
+   "payment_options": "Flexible payment plans (monthly implied)",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Built-in premium waiver and 50% immediate payout on parent death/disability",
+    "Guaranteed education payments timed to fee needs",
+    "Tax relief angle"
+   ],
+   "analysis_watch_outs": [
+    "Entry age, minimum premium, exclusions not published",
+    "Child-death outcome is premium refund only"
+   ],
+   "source_url": "https://ke.cicinsurancegroup.com/individual-solutions/saving-solutions/?tab=academia",
+   "source_note": "Fetched CIC Kenya savings solutions page."
+  },
+  {
+   "name": "Haba Haba na CIC",
+   "category": "endowment-savings",
+   "summary": "Mobile-phone-based savings plan earning interest with a small built-in life cover.",
+   "target_client": "Low-income or small-ticket savers wanting convenient mobile saving (inferred from page emphasis)",
+   "how_it_works": "Client saves via mobile phone with contributions suited to their budget.",
+   "key_features": [
+    "Mobile-phone based",
+    "Earns interest (rate not stated)",
+    "KES 20,000 life cover"
+   ],
+   "benefits": [
+    "Convenient flexible contributions",
+    "Small life cover included"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "5 years",
+   "min_premium_or_sum_assured": "From as low as KES 600",
+   "payment_options": "Mobile phone; flexible",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Very low entry point of KES 600",
+    "Digital, accessible to micro-savers",
+    "Gateway product to larger CIC plans"
+   ],
+   "analysis_watch_outs": [
+    "Life cover only KES 20,000",
+    "Interest rate not published",
+    "Entry age and exclusions not published"
+   ],
+   "source_url": "https://ke.cicinsurancegroup.com/individual-solutions/saving-solutions/?tab=haba-haba",
+   "source_note": "Fetched CIC Kenya savings solutions page."
+  },
+  {
+   "name": "Smart Saver",
+   "category": "endowment-savings",
+   "summary": "Flexible savings and protection plan paying a defined sum assured at maturity or on death.",
+   "target_client": "Individuals saving for goals such as a home, holiday or car",
+   "how_it_works": "Save over a selected term at constant premiums; sum assured paid at maturity or death, including reversionary and terminal bonuses.",
+   "key_features": [
+    "Constant premiums",
+    "Guaranteed benefits from outset",
+    "Term 8 to 25 years",
+    "Optional benefits available"
+   ],
+   "benefits": [
+    "Final lump sum of 100% of sum assured including bonuses",
+    "Tax-free investment and tax relief (per page)",
+    "Life cover with optional benefits"
+   ],
+   "riders_options": [
+    "Optional benefits mentioned, not specified"
+   ],
+   "entry_age": null,
+   "term_or_duration": "8 to 25 years",
+   "min_premium_or_sum_assured": null,
+   "payment_options": "Constant premiums; frequency not stated",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Guaranteed benefits and long terms up to 25 years suit goal-based selling",
+    "Tax relief angle",
+    "Bonuses add upside"
+   ],
+   "analysis_watch_outs": [
+    "Minimum premium, entry age, exclusions not published",
+    "Optional benefits not detailed on page"
+   ],
+   "source_url": "https://ke.cicinsurancegroup.com/individual-solutions/saving-solutions/?tab=smart-saver",
+   "source_note": "Fetched CIC Kenya savings solutions page."
+  },
+  {
+   "name": "Jipange Plus",
+   "category": "pension-retirement",
+   "summary": "Pension plan where members contribute to an existing pension fund registered with IRA, KRA and RBA, so no separate scheme is needed.",
+   "target_client": "Individuals diversifying savings, and organisations wanting a staff pension without registering a new scheme",
+   "how_it_works": "Contributions go into an existing registered fund; administration, fund management, trusteeship and custody are consolidated to reduce costs.",
+   "key_features": [
+    "Minimum return of 5%",
+    "Tax-exempt contributions via KRA-registered fund",
+    "Consolidated administration"
+   ],
+   "benefits": [
+    "Lower costs through consolidation",
+    "Competitive returns (per page)"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Guaranteed 5% minimum return",
+    "No need to set up own scheme, good for SMEs"
+   ],
+   "analysis_watch_outs": [
+    "Entry age, minimum contribution, charges not published",
+    "5% floor is modest versus inflation"
+   ],
+   "source_url": "https://ke.cicinsurancegroup.com/individual-solutions/retirement-solutions/",
+   "source_note": "Fetched CIC Kenya retirement solutions page."
+  },
+  {
+   "name": "Income Draw Down",
+   "category": "pension-retirement",
+   "summary": "Retirement income product: members draw regular income from an investment fund while the balance stays invested.",
+   "target_client": "Retirees or members taking retirement benefits as regular income",
+   "how_it_works": "Withdrawals capped at 12% a year of outstanding balance; remainder invested and earns market-linked returns.",
+   "key_features": [
+    "Withdrawals capped at 12% per year",
+    "Member chooses investment, frequency, timing and amount",
+    "Minimum drawdown period 10 years"
+   ],
+   "benefits": [
+    "Flexibility plus continued market-linked growth",
+    "On death fund can pass to beneficiaries as drawdown, annuity or balance payout",
+    "After 10 years: continue, buy annuity or take cash lump sum"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Minimum drawdown period 10 years",
+   "min_premium_or_sum_assured": null,
+   "payment_options": "Flexible withdrawals up to 12% annual cap",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Flexible alternative to buying an annuity",
+    "Estate-friendly on death"
+   ],
+   "analysis_watch_outs": [
+    "Market risk on remaining balance",
+    "Minimum entry balance, fees not published"
+   ],
+   "source_url": "https://ke.cicinsurancegroup.com/individual-solutions/retirement-solutions/?tab=income-draw-down",
+   "source_note": "Fetched CIC Kenya retirement solutions page."
+  }
+ ]
+}

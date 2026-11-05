@@ -1,0 +1,161 @@
+{
+ "insurer": "APA Life Assurance (formerly Apollo Life Assurance)",
+ "insurer_note": "Rebrand from Apollo Life confirmed by a Capital FM article (capitalfm.africa/apollo-life-is-now-apa-life/, fetched; older piece). apalife.co.ke and apainsurance.org were blocked by the fetch allowlist, so the product list comes only from a third-party guide and contains names and one-line descriptions, no figures. APA Insurance (general) lists Upendo Life Plan (KES 200 monthly, KES 100,000 death benefit, per thekenyatimes.com) but that appears to be a general-insurer microproduct and is not included. HosiCare (hospital cash) skipped as medical. Apollo Balanced/Equity/Money Market funds are mentioned without details and skipped.",
+ "checked": "2026-11-05",
+ "products": [
+  {
+   "name": "Term Assurance (Life Cover)",
+   "category": "term-life",
+   "summary": "Pure life cover, often used as security for a loan.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "No features, premiums, ages or terms published in the source fetched; obtain from APA Life quote/brochure"
+   ],
+   "source_url": "https://educationnewshub.co.ke/apa-insurance-best-guide/?amp=1",
+   "source_note": "Third-party guide (educationnewshub.co.ke) listing the product by name only; no figures given. APA Life's own site was not fetchable."
+  },
+  {
+   "name": "Pumzisha Funeral Expense Cover",
+   "category": "funeral-family-protection",
+   "summary": "Funeral expense cover (per third-party guide).",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "No features, premiums, ages or terms published in the source fetched; obtain from APA Life quote/brochure"
+   ],
+   "source_url": "https://educationnewshub.co.ke/apa-insurance-best-guide/?amp=1",
+   "source_note": "Third-party guide (educationnewshub.co.ke) listing the product by name only; no figures given. APA Life's own site was not fetchable."
+  },
+  {
+   "name": "Imarika Fixed Saving Plan",
+   "category": "endowment-savings",
+   "summary": "Savings and investment plan.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "No features, premiums, ages or terms published in the source fetched; obtain from APA Life quote/brochure"
+   ],
+   "source_url": "https://educationnewshub.co.ke/apa-insurance-best-guide/?amp=1",
+   "source_note": "Third-party guide (educationnewshub.co.ke) listing the product by name only; no figures given. APA Life's own site was not fetchable."
+  },
+  {
+   "name": "Akiba Halisi Anticipated Savings",
+   "category": "endowment-savings",
+   "summary": "Anticipated savings and investment plan.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "No features, premiums, ages or terms published in the source fetched; obtain from APA Life quote/brochure"
+   ],
+   "source_url": "https://educationnewshub.co.ke/apa-insurance-best-guide/?amp=1",
+   "source_note": "Third-party guide (educationnewshub.co.ke) listing the product by name only; no figures given. APA Life's own site was not fetchable."
+  },
+  {
+   "name": "APA Elimu",
+   "category": "education",
+   "summary": "Education savings plan.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "No features, premiums, ages or terms published in the source fetched; obtain from APA Life quote/brochure"
+   ],
+   "source_url": "https://educationnewshub.co.ke/apa-insurance-best-guide/?amp=1",
+   "source_note": "Third-party guide (educationnewshub.co.ke) listing the product by name only; no figures given. APA Life's own site was not fetchable."
+  },
+  {
+   "name": "Individual Pension Plan (IPP)",
+   "category": "pension-retirement",
+   "summary": "Retirement planning plan.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "No features, premiums, ages or terms published in the source fetched; obtain from APA Life quote/brochure"
+   ],
+   "source_url": "https://educationnewshub.co.ke/apa-insurance-best-guide/?amp=1",
+   "source_note": "Third-party guide (educationnewshub.co.ke) listing the product by name only; no figures given. APA Life's own site was not fetchable."
+  },
+  {
+   "name": "Mortgage Protection",
+   "category": "credit-mortgage",
+   "summary": "Listed as a life product; no description given.",
+   "target_client": null,
+   "how_it_works": null,
+   "key_features": [],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [],
+   "analysis_watch_outs": [
+    "No features, premiums, ages or terms published in the source fetched; obtain from APA Life quote/brochure"
+   ],
+   "source_url": "https://educationnewshub.co.ke/apa-insurance-best-guide/?amp=1",
+   "source_note": "Third-party guide (educationnewshub.co.ke) listing the product by name only; no figures given. APA Life's own site was not fetchable."
+  }
+ ]
+}

@@ -1,0 +1,432 @@
+{
+ "insurer": "Jubilee Life Insurance Kenya",
+ "insurer_note": "Jubilee Life Insurance Kenya individual life pages. Direct fetch of the listing page jubileeinsurance.com/ke/life-individual/ was blocked by the session allowlist; product list was taken from the navigation links shown on the Smart Scholar page. No pure term-life, funeral or Faida (standalone) pages appeared in that list, so none are included; a 'Faida' product may exist but was not verified. Exclusions mostly not published online.",
+ "checked": "2026-11-05",
+ "products": [
+  {
+   "name": "Smart Scholar",
+   "category": "education",
+   "summary": "Education savings plan with life cover; pays Sum Assured plus bonuses at maturity and keeps the plan running if the parent dies or is permanently disabled.",
+   "target_client": "Parents and guardians (incl. single parents, young families) funding primary, secondary or university costs",
+   "how_it_works": "Choose term and premium; maturity pays 100% of Sum Assured plus annual and terminal bonuses. On death or permanent disability Jubilee pays the remaining premiums and the policy continues.",
+   "key_features": [
+    "Annual bonuses up to 4% of Sum Assured per year",
+    "Terminal bonus equal to 100% of annual bonuses",
+    "Policy loans after 2 years",
+    "50% of Sum Assured paid immediately on death"
+   ],
+   "benefits": [
+    "Maturity 100% Sum Assured plus bonuses",
+    "Premiums waived on death/permanent disability"
+   ],
+   "riders_options": [
+    "Accidental death (additional Sum Assured)",
+    "Child Accident Hospitalisation up to KES 250,000",
+    "Last Expense KES 100,000 within 48 hours (child covered KES 50,000)"
+   ],
+   "entry_age": "18 to 50",
+   "term_or_duration": "8 to 18 years",
+   "min_premium_or_sum_assured": "From KES 2,000 monthly or KES 100,000 single premium; minimum Sum Assured KES 200,000",
+   "payment_options": "Monthly, quarterly, semi-annual, annual or single premium",
+   "waiting_periods_or_exclusions": "Not stated on the page; medical tests required for Sum Assured of KES 7.5m and above (page shows a typo) and age 54+",
+   "channels_or_distinct_points": [
+    "Apply via callback request, SMS 'Smart Scholar' to 24464, or branch",
+    "Documents: ID, KRA PIN, application form"
+   ],
+   "analysis_selling_points": [
+    "Low KES 2,000 entry; bonus-based with premium continuation if parent dies",
+    "Child-focused riders (accident hospitalisation, last expense)",
+    "Single-premium option for lump sums"
+   ],
+   "analysis_watch_outs": [
+    "Bonuses are 'up to' 4% and not guaranteed",
+    "Exclusions not published; need brochure",
+    "Max entry age 50 narrower than other Jubilee savings plans"
+   ],
+   "source_url": "https://jubileeinsurance.com/ke/life-individual/smart-scholar/",
+   "source_note": "Fetched Jubilee product page."
+  },
+  {
+   "name": "Faida Elimu Insurance Plan",
+   "category": "education",
+   "summary": "Investment-linked education fund with professional management, partial withdrawals after 2 years and premium waiver on death or disability.",
+   "target_client": "Parents of children aged 0 to 18 wanting disciplined education savings with protection",
+   "how_it_works": "Build a managed education fund over 5 to 15 years; top-ups allowed; maturity pays 100% of fund value.",
+   "key_features": [
+    "Partial withdrawals after 2 years; full withdrawal possible",
+    "Top-ups at any time",
+    "Future premiums waived on death or permanent disability"
+   ],
+   "benefits": [
+    "KES 100,000 last expense within 48 hours",
+    "Maturity 100% of fund value"
+   ],
+   "riders_options": [],
+   "entry_age": "18 to 65",
+   "term_or_duration": "5 to 15 years",
+   "min_premium_or_sum_assured": "KES 5,000 monthly or KES 100,000 lump sum; sum assured not stated",
+   "payment_options": "Monthly, quarterly or yearly plus top-ups",
+   "waiting_periods_or_exclusions": "Not stated on the page (check brochure)",
+   "channels_or_distinct_points": [
+    "Callback form, SMS 'Elimu' to 24464, or branch",
+    "Documents: ID, KRA PIN",
+    "Launched around April 2026 per press coverage"
+   ],
+   "analysis_selling_points": [
+    "Fund-value based, flexible and liquid vs guaranteed-bonus plans",
+    "Wide entry age 18 to 65 suits grandparents/guardians",
+    "Premium waiver protects the plan"
+   ],
+   "analysis_watch_outs": [
+    "Returns not guaranteed (investment-linked); no return figures published",
+    "Higher KES 5,000 entry than Smart Scholar",
+    "Charges and exclusions not on page"
+   ],
+   "source_url": "https://jubileeinsurance.com/ke/life-individual/faida-elimu-insurance-plan/",
+   "source_note": "Fetched Jubilee product page; launch timing from search result headlines only."
+  },
+  {
+   "name": "Smart Save",
+   "category": "endowment-savings",
+   "summary": "Savings plan with life cover for goals such as home, education, business or car; bonuses plus Sum Assured paid at maturity or death.",
+   "target_client": "Individuals 18 to 65 wanting disciplined savings with protection",
+   "how_it_works": "Regular contributions build the fund; annual bonuses may be declared; maturity and death both pay Sum Assured plus bonuses and terminal bonus. Surrender value after 24 months.",
+   "key_features": [
+    "Annual bonus up to 4% of Sum Assured",
+    "Terminal bonus 100% of accrued bonuses",
+    "Policy loan up to 90% of surrender value",
+    "Fixed premiums"
+   ],
+   "benefits": [
+    "Death benefit 100% Sum Assured plus bonuses",
+    "Maturity benefit 100% Sum Assured plus bonuses"
+   ],
+   "riders_options": [
+    "Accidental Death",
+    "Total and Permanent Disability",
+    "Accident Hospitalization",
+    "Last Expense"
+   ],
+   "entry_age": "18 to 65 (max age at maturity 70)",
+   "term_or_duration": "5 to 20 years",
+   "min_premium_or_sum_assured": "From KES 2,000 monthly or KES 100,000 single; minimum Sum Assured KES 200,000",
+   "payment_options": "Monthly, quarterly, half-yearly, annual or single premium",
+   "waiting_periods_or_exclusions": "Not stated on the page; medical reports may be required at age 54+ or Sum Assured above KES 7.5m",
+   "channels_or_distinct_points": [
+    "Callback, SMS 'Smart Save' to 24464, or branch",
+    "Brochure published Aug 2026",
+    "Documents: ID, KRA PIN, form"
+   ],
+   "analysis_selling_points": [
+    "Low entry, flexible term, comprehensive rider menu",
+    "Death pays full Sum Assured plus bonuses",
+    "Loan access after surrender value"
+   ],
+   "analysis_watch_outs": [
+    "Bonus 'up to' 4%, not guaranteed",
+    "Surrender value only after 24 months",
+    "Exclusions not published"
+   ],
+   "source_url": "https://jubileeinsurance.com/ke/life-individual/smart-save/",
+   "source_note": "Fetched Jubilee product page."
+  },
+  {
+   "name": "Fanaka Investment Plan",
+   "category": "endowment-savings",
+   "summary": "Fixed-premium savings plan with life cover where you receive the Sum Assured plus accrued bonus at policy end.",
+   "target_client": "Individuals saving for a home, car, ceremonies or business seed capital",
+   "how_it_works": "Pay fixed premiums for a chosen 5 to 20 year term; sum assured and premiums fixed at the outset.",
+   "key_features": [
+    "Flexible investment options",
+    "Accident and disability cover",
+    "Education savings with life cover",
+    "Starting early lowers premium"
+   ],
+   "benefits": [
+    "Disciplined systematic savings",
+    "Accrued bonus at maturity"
+   ],
+   "riders_options": [],
+   "entry_age": "18 to 65 (max age at maturity 70)",
+   "term_or_duration": "5 to 20 years",
+   "min_premium_or_sum_assured": "Minimum premium not stated; minimum Sum Assured KES 350,000, no maximum",
+   "payment_options": "Not stated on this page",
+   "waiting_periods_or_exclusions": "Not stated on the page",
+   "channels_or_distinct_points": [
+    "Page links to a separate 'How to Make Payments' section"
+   ],
+   "analysis_selling_points": [
+    "Fixed terms give certainty for a dated goal",
+    "Overlaps with Smart Save for conversation about alternatives",
+    "Accident/disability cover built in"
+   ],
+   "analysis_watch_outs": [
+    "Minimum premium and payment methods not published",
+    "Higher minimum sum assured (KES 350,000) than Smart Save (KES 200,000)",
+    "Bonus basis not disclosed"
+   ],
+   "source_url": "https://jubileeinsurance.com/ke/life-individual/fanaka-investment-plan/",
+   "source_note": "Fetched Jubilee product page."
+  },
+  {
+   "name": "Faida Maisha Insurance Plan",
+   "category": "whole-life",
+   "summary": "Universal-style plan combining lifelong cover with investment-linked savings, flexible contributions and partial withdrawals.",
+   "target_client": "Business owners, professionals, parents/providers and high earners",
+   "how_it_works": "Regular or one-off contributions are invested while the policy provides life cover; on death beneficiaries get life cover, fund value and last expense benefit.",
+   "key_features": [
+    "Lifelong cover",
+    "Professionally managed funds",
+    "Flexible top-ups",
+    "Partial withdrawals after 2 years, up to 10% annually during premium term"
+   ],
+   "benefits": [
+    "Cover from KES 100,000 to KES 200 million",
+    "48-hour last expense payout",
+    "Full access to funds after maturity"
+   ],
+   "riders_options": [],
+   "entry_age": "18 to 65",
+   "term_or_duration": "Premium-paying term 5 to 15 years",
+   "min_premium_or_sum_assured": "KES 5,000 monthly or KES 100,000 lump sum; sum assured KES 100,000 to KES 200 million",
+   "payment_options": "Monthly, bi-annual, annual or one-off",
+   "waiting_periods_or_exclusions": "Not stated on the page",
+   "channels_or_distinct_points": [
+    "SMS 'Maisha' to 24464, callback or branch",
+    "Documents: ID, KRA PIN"
+   ],
+   "analysis_selling_points": [
+    "Very high sum assured ceiling suits estate/high-net-worth cases",
+    "Lifelong cover plus liquidity",
+    "Short premium-paying term"
+   ],
+   "analysis_watch_outs": [
+    "Charges and mortality costs not published",
+    "Investment-linked returns not guaranteed",
+    "Riders and exclusions not on page"
+   ],
+   "source_url": "https://jubileeinsurance.com/ke/life-individual/faida-maisha-plan/",
+   "source_note": "Fetched Jubilee product page."
+  },
+  {
+   "name": "Faida Elite Plan",
+   "category": "investment-linked",
+   "summary": "Universal life product with flexible premiums, professionally managed investment and a death benefit.",
+   "target_client": "Savers wanting growth with protection (no specific segment stated)",
+   "how_it_works": "Premiums are invested; top-ups any time; limited partial withdrawals after 2 years.",
+   "key_features": [
+    "Up to three partial withdrawals after 2 years, max 15% of fund value",
+    "Full withdrawal from year 1 subject to charges",
+    "Annual fund management fee and mortality charge"
+   ],
+   "benefits": [
+    "Liquidity",
+    "Life cover KES 100,000 to KES 1,000,000",
+    "Compounded investment growth"
+   ],
+   "riders_options": [],
+   "entry_age": "18 to 80",
+   "term_or_duration": "Not specified",
+   "min_premium_or_sum_assured": "KES 5,000 monthly or KES 100,000 single; cover KES 100,000 to 1,000,000",
+   "payment_options": "Yearly, half-yearly, quarterly, monthly or single",
+   "waiting_periods_or_exclusions": "Not stated on the page. Surrender charges (regular premium): 15% years 1-12, 10% 13-24, 5% 25-36, 0% after; single premium: 10%, 5%, 2.5%, 0%. KES 600 per partial withdrawal. Page shows overlapping year-36 boundary",
+   "channels_or_distinct_points": [
+    "Documents: ID, KRA PIN, form"
+   ],
+   "analysis_selling_points": [
+    "Entry up to age 80 is unusually wide",
+    "Transparent charges table on page",
+    "Top-up friendly"
+   ],
+   "analysis_watch_outs": [
+    "Long surrender-charge schedule penalises early exit",
+    "Cover cap of KES 1m is modest",
+    "Term not published"
+   ],
+   "source_url": "https://jubileeinsurance.com/ke/life-individual/faida-elite-plan/",
+   "source_note": "Fetched Jubilee product page."
+  },
+  {
+   "name": "Triplex",
+   "category": "endowment-savings",
+   "summary": "Life policy paying survival benefits in thirds of the term (25% at 1/3, 25% at 2/3, 50% plus bonuses at end).",
+   "target_client": "People with long-term goals (e.g. house) who may need funds earlier",
+   "how_it_works": "Fixed premiums; 25% of Sum Assured paid at one-third and two-thirds of term, remainder plus accrued bonuses at end; death pays full Sum Assured plus bonuses regardless of payouts already made.",
+   "key_features": [
+    "Loans against policy",
+    "Waiver of premium",
+    "30-day free look",
+    "Pay by stop order, direct deposit or M-PESA"
+   ],
+   "benefits": [
+    "Interim cash without surrendering",
+    "Full death cover retained"
+   ],
+   "riders_options": [
+    "Accidental death benefit"
+   ],
+   "entry_age": "18 to 58 (premium ceasing age 70)",
+   "term_or_duration": "12, 15, 18, 21 or 24 years",
+   "min_premium_or_sum_assured": "Minimum Sum Assured KES 200,000; minimum premium not stated",
+   "payment_options": "Salary stop order, direct deposit, M-PESA",
+   "waiting_periods_or_exclusions": "Not stated on the page. Surrender value after 3 full years' premiums",
+   "channels_or_distinct_points": [
+    "Long fixed term options"
+   ],
+   "analysis_selling_points": [
+    "Money-back style liquidity points suit milestone planning",
+    "Death benefit not reduced by survival payouts",
+    "Waiver of premium included"
+   ],
+   "analysis_watch_outs": [
+    "Long minimum term of 12 years",
+    "Minimum premium not published",
+    "Exclusions not published"
+   ],
+   "source_url": "https://jubileeinsurance.com/ke/life-individual/triplex/",
+   "source_note": "Fetched Jubilee product page."
+  },
+  {
+   "name": "Personal Pension Plan",
+   "category": "pension-retirement",
+   "summary": "Retirement savings plan building a fund in an interest-bearing account with a 4% guaranteed rate.",
+   "target_client": "People preparing for retirement, especially early starters",
+   "how_it_works": "Periodic contributions earn interest; statement annually; at retirement draw income up to 15% a year while balance stays invested.",
+   "key_features": [
+    "Pay via M-PESA, cheque, standing order, stop order or cash",
+    "Monthly, quarterly, bi-annual or annual",
+    "No set-up fee"
+   ],
+   "benefits": [
+    "Guaranteed capital and 4% guaranteed rate",
+    "Can be mortgage collateral",
+    "Tax relief on contributions up to KES 240,000 a year"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": "M-PESA, cheque, standing order, salary stop order, cash",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [
+    "Contact 0709949000 for missing details"
+   ],
+   "analysis_selling_points": [
+    "Guaranteed capital appeals to risk-averse savers",
+    "Tax relief",
+    "No set-up fee"
+   ],
+   "analysis_watch_outs": [
+    "Entry age, minimum and term not published",
+    "Guaranteed 4% is modest vs inflation"
+   ],
+   "source_url": "https://jubileeinsurance.com/ke/life-individual/personal-pension-plan/",
+   "source_note": "Fetched Jubilee product page."
+  },
+  {
+   "name": "Personal Provident Fund",
+   "category": "pension-retirement",
+   "summary": "Long-term retirement savings in an interest-bearing fund; interest declared yearly and compounded daily, guaranteed 4%.",
+   "target_client": "People planning retirement, especially early starters",
+   "how_it_works": "Periodic contributions; flexibility to increase, decrease or suspend.",
+   "key_features": [
+    "Contribution flexibility",
+    "Collateral for mortgage",
+    "Easy sign-up"
+   ],
+   "benefits": [
+    "Tax exemption on contributions up to KES 240,000 a year",
+    "Guaranteed capital and 4% rate"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [
+    "Contact 0709949000 for details"
+   ],
+   "analysis_selling_points": [
+    "Flexible contributions",
+    "Tax-efficient"
+   ],
+   "analysis_watch_outs": [
+    "Entry age, term, minimum and payment options not published"
+   ],
+   "source_url": "https://jubileeinsurance.com/ke/life-individual/personal-provident-plan/",
+   "source_note": "Fetched Jubilee product page."
+  },
+  {
+   "name": "Income Drawdown",
+   "category": "pension-retirement",
+   "summary": "Post-retirement fund giving flexible income with control over drawdown amounts.",
+   "target_client": "Retirees over 50 with accumulated retirement benefits",
+   "how_it_works": "Choose draw amount (taxable) monthly to annually up to 15% of balance; top-ups and reinvestment allowed; inheritance possible.",
+   "key_features": [
+    "Top-ups",
+    "Beneficiary inheritance",
+    "Minimum drawdown period 10 years (RBA)"
+   ],
+   "benefits": [
+    "Guaranteed 5% first 2 years then 4%",
+    "Yearly bonus income tied to performance",
+    "Page cites 10.5% 10-year average (past performance)"
+   ],
+   "riders_options": [],
+   "entry_age": "Over 50 following retirement",
+   "term_or_duration": "Minimum drawdown period 10 years",
+   "min_premium_or_sum_assured": "Recommended minimum KES 1,000,000",
+   "payment_options": "Not applicable (draw frequency monthly, quarterly, semi-annual, annual)",
+   "waiting_periods_or_exclusions": "Not stated on the page",
+   "channels_or_distinct_points": [
+    "Contact 0709949000"
+   ],
+   "analysis_selling_points": [
+    "Guaranteed floor with upside bonus",
+    "Allows estate to pass to heirs"
+   ],
+   "analysis_watch_outs": [
+    "Recommended KES 1m minimum",
+    "Drawdowns are taxable",
+    "Fees not published"
+   ],
+   "source_url": "https://jubileeinsurance.com/ke/life-individual/income-drawdown/",
+   "source_note": "Fetched Jubilee product page."
+  },
+  {
+   "name": "Single Premium Immediate Annuity",
+   "category": "pension-retirement",
+   "summary": "Lump sum converts into guaranteed lifetime income, fixed or variable.",
+   "target_client": "Retirees or windfall recipients wanting lifetime income",
+   "how_it_works": "After single premium, payments come at chosen frequency; fixed or variable (linked to mutual fund performance).",
+   "key_features": [
+    "Top-ups allowed",
+    "Customisable drawdown"
+   ],
+   "benefits": [
+    "Guaranteed lifetime income",
+    "Tax-free for retirees over 65 per page"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "For life",
+   "min_premium_or_sum_assured": null,
+   "payment_options": "Monthly, quarterly, biannual or annual payouts",
+   "waiting_periods_or_exclusions": "Not stated on the page",
+   "channels_or_distinct_points": [
+    "Contact 0709 949 000"
+   ],
+   "analysis_selling_points": [
+    "Longevity protection",
+    "Fixed and variable choices"
+   ],
+   "analysis_watch_outs": [
+    "Minimum premium and annuity rates not published",
+    "Page's tax claim should be verified"
+   ],
+   "source_url": "https://jubileeinsurance.com/ke/life-individual/single-premium-immediate-annuity/",
+   "source_note": "Fetched Jubilee product page."
+  }
+ ]
+}

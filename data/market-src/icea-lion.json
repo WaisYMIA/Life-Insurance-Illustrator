@@ -1,0 +1,330 @@
+{
+ "insurer": "ICEA LION Life Assurance Kenya",
+ "insurer_note": "Read from pilot.icealion.com ICEA LION Kenya pages. Many pages omit entry age, term and minimums. Unit Trust Funds, Milele Trust and Estate Planning appear on Plans For Life but are not life-assurance policies and are excluded.",
+ "checked": "2026-11-05",
+ "products": [
+  {
+   "name": "Whole of Life Plan",
+   "category": "whole-life",
+   "summary": "Permanent life cover paying a lump sum on death, with critical illness and permanent disability cover.",
+   "target_client": "Kenyan families wanting lasting protection (not explicitly defined on page)",
+   "how_it_works": "Choose a sum assured; pay premiums over 10, 15 or 20 years; cover lasts for life.",
+   "key_features": [
+    "Premium term 10, 15 or 20 years",
+    "Flexible payment frequency",
+    "No medical check-up for cover up to KES 5 million"
+   ],
+   "benefits": [
+    "Lump sum to beneficiaries on death",
+    "Critical illness lump sum (cancer, stroke, heart attack, organ transplant, paralysis, Alzheimer's)",
+    "Permanent total/partial disability lump sum",
+    "15% premium tax relief, up to KES 60,000 per year"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Lifelong cover; premiums paid 10, 15 or 20 years",
+   "min_premium_or_sum_assured": null,
+   "payment_options": "Monthly, quarterly, semi-annually, annually",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [
+    "Page pitches it as a lasting asset to leave to family"
+   ],
+   "analysis_selling_points": [
+    "Limited-pay whole life with CI and disability built in",
+    "No-medical underwriting up to KES 5M speeds sales",
+    "Tax relief angle"
+   ],
+   "analysis_watch_outs": [
+    "Entry age, minimum premium and exclusions not published",
+    "Unclear whether CI/disability are base benefits or accelerate the sum assured"
+   ],
+   "source_url": "https://pilot.icealion.com/web/icea-lion-kenya/whole-of-life",
+   "source_note": "Fetched ICEA LION whole-of-life page."
+  },
+  {
+   "name": "UsomiBora Education Insurance",
+   "category": "education",
+   "summary": "Education savings plan with life cover that pays out at maturity as lump sum or school-aligned instalments.",
+   "target_client": "Parents/guardians saving for a child's education in Kenya",
+   "how_it_works": "Choose savings amount based on future school costs; policy runs 8-17 years by education level; maturity paid as lump sum, four annual instalments or eight termly payments.",
+   "key_features": [
+    "Public or private school, CBC/8-4-4 or IGCSE planning",
+    "Premium can be reduced to as low as KES 2,000 if income is lost, increased later",
+    "Premium waiver on policyholder's death: insurer pays premiums to maturity",
+    "Sum assured guaranteed; terminal and reversionary bonuses depend on market performance"
+   ],
+   "benefits": [
+    "Sum assured plus accrued bonuses paid to the child at maturity",
+    "Maturity amount described as tax-free",
+    "15% tax relief (HR for employees, KRA for self-employed)"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "8 to 17 years",
+   "min_premium_or_sum_assured": "General minimum not stated; KES 2,000 is the lowest reduced premium",
+   "payment_options": "Monthly, quarterly, annually",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [
+    "Contact +254 719 071 999; Book a Call on page"
+   ],
+   "analysis_selling_points": [
+    "Termly payout option matches Kenyan school terms",
+    "Premium waiver on death protects the fee plan",
+    "Flexible reduce-to-KES 2,000 premium"
+   ],
+   "analysis_watch_outs": [
+    "Bonuses not guaranteed",
+    "Entry age, riders, exclusions and minimums not published"
+   ],
+   "source_url": "https://pilot.icealion.com/web/icea-lion-kenya/education-insurance-usomibora-",
+   "source_note": "Fetched ICEA LION UsomiBora page."
+  },
+  {
+   "name": "Endowment Assurance With Profits",
+   "category": "endowment-savings",
+   "summary": "Regular-premium savings plan with life cover; lump sum plus bonuses at maturity.",
+   "target_client": "People saving for a home, school fees or business who want disciplined saving with cover",
+   "how_it_works": "Regular contributions over the term; lump sum plus bonuses at maturity; beneficiaries get guaranteed sum plus bonuses on death.",
+   "key_features": [
+    "Cover from day one, no waiting periods (per page)",
+    "Reduce payment to KES 2,000 and increase later",
+    "Contribution break (re-date) without penalty",
+    "Temporarily lower premiums",
+    "Policy loans after 3 years",
+    "Automatic premium loan after 3 years"
+   ],
+   "benefits": [
+    "Maturity lump sum of savings plus bonuses, described as tax-free",
+    "Guaranteed sum plus bonuses on death"
+   ],
+   "riders_options": [
+    "Disability cover",
+    "Accidental death cover",
+    "Critical illness benefit",
+    "Funeral support"
+   ],
+   "entry_age": null,
+   "term_or_duration": "Not specified (metadata mentions 'short term endowment plan')",
+   "min_premium_or_sum_assured": "Not specified; KES 2,000 is only a reduced level",
+   "payment_options": "Monthly, quarterly, annual",
+   "waiting_periods_or_exclusions": "Page says no waiting periods; exclusions not stated",
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Flexibility features (re-date, loans, APL) address lapse risk",
+    "Low-cost optional riders"
+   ],
+   "analysis_watch_outs": [
+    "Term, entry age, bonus rates and surrender values not published",
+    "Rider waiting periods/exclusions not stated"
+   ],
+   "source_url": "https://pilot.icealion.com/web/icea-lion-kenya/endowment-assurance-with-profits",
+   "source_note": "Fetched ICEA LION endowment page."
+  },
+  {
+   "name": "Value Added Term Assurance",
+   "category": "term-life",
+   "summary": "Term cover that refunds all premiums if the policyholder survives the term.",
+   "target_client": "Kenyan families wanting cover plus premium return",
+   "how_it_works": "Death in term pays full sum assured; survival returns all premium contributions.",
+   "key_features": [
+    "Immediate cover once active; first-year payout reduced proportionally if first year's premium not fully paid",
+    "Premium can be reduced to as low as KES 2,000",
+    "Re-dating once per term, no fee",
+    "Pair with estate planning / Milele Trust"
+   ],
+   "benefits": [
+    "Full sum assured on death",
+    "Premiums returned at term end",
+    "Tax-free per page; 15% tax relief"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Not stated",
+   "min_premium_or_sum_assured": null,
+   "payment_options": "Monthly, quarterly, annual",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Return-of-premium angle: 'Keep Your Premiums'",
+    "Estate planning cross-sell"
+   ],
+   "analysis_watch_outs": [
+    "Lower sum assured than Level Term (per page)",
+    "Term, entry age, minimums, exclusions not published"
+   ],
+   "source_url": "https://pilot.icealion.com/web/icea-lion-kenya/value-added-term-assurance",
+   "source_note": "Fetched ICEA LION page."
+  },
+  {
+   "name": "Level Term Assurance",
+   "category": "term-life",
+   "summary": "Pure term cover with higher benefit and no refund if the term is outlived.",
+   "target_client": "Kenyan families (not explicitly defined)",
+   "how_it_works": "Choose premium and duration; full sum assured on death in term; payout once first premium paid and policy active.",
+   "key_features": [
+    "Premium reducible to as low as KES 2,000",
+    "Re-dating once, no fee",
+    "Policy loans after 36 months based on policy value"
+   ],
+   "benefits": [
+    "Full sum assured to nominated beneficiaries, tax-free",
+    "15% tax relief",
+    "Estate planning via Milele Trust"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Chosen by client; range not stated",
+   "min_premium_or_sum_assured": null,
+   "payment_options": "Monthly, quarterly, annually",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Cheapest pure-protection angle with higher sum assured than VAT",
+    "Loan access unusual for term"
+   ],
+   "analysis_watch_outs": [
+    "Premiums non-refundable",
+    "Entry age, term range, exclusions, underwriting not published"
+   ],
+   "source_url": "https://pilot.icealion.com/web/icea-lion-kenya/level-term-assurance",
+   "source_note": "Fetched ICEA LION page."
+  },
+  {
+   "name": "InvestSure Plan",
+   "category": "investment-linked",
+   "summary": "Flexible savings plan with automatic free life cover and optional add-ons, targeting about 10% p.a. long-term average.",
+   "target_client": "People saving for land, a car or a house deposit",
+   "how_it_works": "Contribute monthly or lump sum; returns paid at maturity; ICEA LION targets long-term average returns of 10% p.a. but returns vary.",
+   "key_features": [
+    "Automatic free life cover KES 150,000",
+    "Contributions described as safe regardless of market performance (basis not explained)",
+    "Lump sum or monthly"
+   ],
+   "benefits": [
+    "Growth on savings",
+    "Free life cover",
+    "Tax relief up to KES 60,000 per year"
+   ],
+   "riders_options": [
+    "Accidental death +KES 150,000 (total KES 300,000)",
+    "Disability KES 150,000",
+    "Funeral benefit KES 50,000 or 100,000",
+    "Surrender benefit (no detail)"
+   ],
+   "entry_age": null,
+   "term_or_duration": "Not stated (metadata hints 5-year)",
+   "min_premium_or_sum_assured": "KES 2,000 per month or lump sum from KES 50,000",
+   "payment_options": "Monthly or one-time lump sum",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [
+    "Plans For Life page also positions it for USD or KES growth"
+   ],
+   "analysis_selling_points": [
+    "Low entry point and free cover",
+    "Add-ons are cheap and modular"
+   ],
+   "analysis_watch_outs": [
+    "10% is a target, not guaranteed",
+    "Investment structure unclear (metadata mentions Bond Fund, body does not)",
+    "Fees, term, exclusions not published"
+   ],
+   "source_url": "https://pilot.icealion.com/web/icea-lion-kenya/investsure",
+   "source_note": "Fetched ICEA LION InvestSure page; Plans For Life page for USD/KES note."
+  },
+  {
+   "name": "Summit Endowment Plan",
+   "category": "endowment-savings",
+   "summary": "Goal-based endowment over 5, 6 or 7 years with life, critical illness and disability cover.",
+   "target_client": "People saving for a car, property or education who want protection",
+   "how_it_works": "Choose a target lump sum; pay regular premiums; at maturity receive guaranteed sum assured plus annual bonuses and final bonus.",
+   "key_features": [
+    "Term 5, 6 or 7 years",
+    "Critical illness for 19 illnesses, cover to age 70",
+    "Permanent disability cover to age 70"
+   ],
+   "benefits": [
+    "Full sum assured plus bonuses on death",
+    "Maturity sum assured plus bonuses"
+   ],
+   "riders_options": [
+    "Accidental death: additional full sum assured"
+   ],
+   "entry_age": null,
+   "term_or_duration": "5, 6 or 7 years",
+   "min_premium_or_sum_assured": null,
+   "payment_options": "Not stated",
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [
+    "Plans For Life page cites sum assured up to 200Mn at maturity (as published)"
+   ],
+   "analysis_selling_points": [
+    "Short-term guaranteed goal saving",
+    "CI and disability bundled"
+   ],
+   "analysis_watch_outs": [
+    "Premium minimums, frequency, bonus rates, exclusions not published",
+    "Get A Quote button was non-functional"
+   ],
+   "source_url": "https://pilot.icealion.com/web/icea-lion-kenya/summit-endowment-plan",
+   "source_note": "Fetched Summit page and Plans For Life page."
+  },
+  {
+   "name": "Personal Retirement Scheme",
+   "category": "pension-retirement",
+   "summary": "Long-term retirement savings with minimum guaranteed return of 4% a year plus bonuses.",
+   "target_client": "Kenyans building retirement savings back home; UK expats",
+   "how_it_works": "Savings plan; HMRC-approved for tax-relieved UK pension transfers.",
+   "key_features": [
+    "Minimum guaranteed return 4% p.a. plus bonuses",
+    "HMRC-approved for UK pension transfers"
+   ],
+   "benefits": [],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": null,
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [
+    "Diaspora angle"
+   ],
+   "analysis_selling_points": [
+    "Guaranteed floor and diaspora transfer niche"
+   ],
+   "analysis_watch_outs": [
+    "Only a card summary on Plans For Life page; no detail on charges, term, minimums"
+   ],
+   "source_url": "https://pilot.icealion.com/web/icea-lion-kenya/plans-for-life",
+   "source_note": "Fetched Plans For Life landing page card only."
+  },
+  {
+   "name": "Group Repatriation & Last Expense Cover",
+   "category": "funeral-family-protection",
+   "summary": "Annual life cover for Kenyans abroad in groups over 50, paying within 48 hours for repatriation and funeral costs.",
+   "target_client": "Groups (over 50) of Kenyans living away from Kenya",
+   "how_it_works": "Annual life insurance; benefit paid within 48 hours of notification.",
+   "key_features": [
+    "Groups of over 50",
+    "Payout within 48 hours"
+   ],
+   "benefits": [
+    "Covers flights, funeral, burial, accommodation"
+   ],
+   "riders_options": [],
+   "entry_age": null,
+   "term_or_duration": "Annual",
+   "min_premium_or_sum_assured": null,
+   "payment_options": null,
+   "waiting_periods_or_exclusions": null,
+   "channels_or_distinct_points": [],
+   "analysis_selling_points": [
+    "Diaspora group niche with fast payout"
+   ],
+   "analysis_watch_outs": [
+    "Group-only; no pricing or limits published"
+   ],
+   "source_url": "https://pilot.icealion.com/web/icea-lion-kenya/plans-for-life",
+   "source_note": "Fetched Plans For Life landing page card only."
+  }
+ ]
+}
