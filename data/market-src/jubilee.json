@@ -1,212 +1,239 @@
 {
  "insurer": "Jubilee Life Insurance Kenya",
- "insurer_note": "Jubilee Life Insurance Kenya individual life pages. Direct fetch of the listing page jubileeinsurance.com/ke/life-individual/ was blocked by the session allowlist; product list was taken from the navigation links shown on the Smart Scholar page. No pure term-life, funeral or Faida (standalone) pages appeared in that list, so none are included; a 'Faida' product may exist but was not verified. Exclusions mostly not published online.",
+ "insurer_note": "Jubilee Life Insurance Kenya. Smart Scholar, Smart Save, Faida Elimu, Faida Maisha and Fanaka are verified against official Jubilee brochures. Faida Elite, Triplex and the pension products are from Jubilee web pages. A pure term or funeral product was not found.",
  "checked": "2026-11-05",
  "products": [
   {
    "name": "Smart Scholar",
    "category": "education",
-   "summary": "Education savings plan with life cover; pays Sum Assured plus bonuses at maturity and keeps the plan running if the parent dies or is permanently disabled.",
+   "summary": "Education savings plan with life cover: pays 100% of Sum Assured plus bonuses at maturity, and if the parent dies pays 50% immediately, waives future premiums and still pays the maturity benefit.",
    "target_client": "Parents and guardians (incl. single parents, young families) funding primary, secondary or university costs",
-   "how_it_works": "Choose term and premium; maturity pays 100% of Sum Assured plus annual and terminal bonuses. On death or permanent disability Jubilee pays the remaining premiums and the policy continues.",
+   "how_it_works": "Fixed premiums over a chosen 8 to 18 year term. Maturity: 100% Sum Assured + annual simple reversionary bonuses (up to 4% of Sum Assured a year, declared annually) + terminal bonus equal to 100% of the bonuses earned. Death of the policyholder: 50% of Sum Assured paid at once to the nominated beneficiary, premiums waived, policy continues and 100% Sum Assured plus bonuses is paid at maturity. Total and permanent disability: premiums waived and policy runs to maturity.",
    "key_features": [
-    "Annual bonuses up to 4% of Sum Assured per year",
-    "Terminal bonus equal to 100% of annual bonuses",
-    "Policy loans after 2 years",
-    "50% of Sum Assured paid immediately on death"
+    "Annual simple reversionary bonuses up to 4% of Sum Assured",
+    "Terminal bonus = 100% of earned bonuses",
+    "Policy loan and paid-up options after two years",
+    "Surrender value after 24 months of fully paid premiums, plus accrued bonuses",
+    "Single premium option from KES 100,000"
    ],
    "benefits": [
-    "Maturity 100% Sum Assured plus bonuses",
-    "Premiums waived on death/permanent disability"
+    "Education continues if the parent dies: 50% of Sum Assured paid immediately and premiums waived",
+    "Premiums waived on total and permanent disability",
+    "Fixed, predictable premiums"
    ],
    "riders_options": [
-    "Accidental death (additional Sum Assured)",
-    "Child Accident Hospitalisation up to KES 250,000",
-    "Last Expense KES 100,000 within 48 hours (child covered KES 50,000)"
+    "Accidental death: additional amount equal to Sum Assured",
+    "Total and permanent disability (accident): Sum Assured in monthly instalments over 36 months",
+    "Accident hospitalisation: up to 40% of Sum Assured, maximum KES 250,000",
+    "Child accident hospitalisation: same limits",
+    "Last expense: KES 100,000 within 48 hours (beneficiary child covered KES 50,000)"
    ],
-   "entry_age": "18 to 50",
+   "entry_age": "18 to 50 (maximum age at maturity 68)",
    "term_or_duration": "8 to 18 years",
-   "min_premium_or_sum_assured": "From KES 2,000 monthly or KES 100,000 single premium; minimum Sum Assured KES 200,000",
+   "min_premium_or_sum_assured": "Minimum premium KES 2,000 monthly or KES 100,000 single; minimum Sum Assured KES 200,000",
    "payment_options": "Monthly, quarterly, semi-annual, annual or single premium",
-   "waiting_periods_or_exclusions": "Not stated on the page; medical tests required for Sum Assured of KES 7.5m and above (page shows a typo) and age 54+",
+   "waiting_periods_or_exclusions": "Benefits may not be payable for death or disability from criminal or unlawful acts, alcohol or drug misuse, war, terrorism, riots or civil unrest, hazardous activities or dangerous sports, provoked assault or fighting. Medical report for age 54 and above and/or Sum Assured above KES 7.5 million. Benefits subject to premiums being fully paid at claim.",
    "channels_or_distinct_points": [
     "Apply via callback request, SMS 'Smart Scholar' to 24464, or branch",
     "Documents: ID, KRA PIN, application form"
    ],
    "analysis_selling_points": [
-    "Low KES 2,000 entry; bonus-based with premium continuation if parent dies",
-    "Child-focused riders (accident hospitalisation, last expense)",
-    "Single-premium option for lump sums"
+    "Strongest parent-dies story in the Jubilee education range: 50% paid at once, premiums waived, maturity still paid",
+    "Low KES 2,000 entry with fixed premiums for budgeting",
+    "Bonus plus terminal bonus gives a visible maturity growth path",
+    "Single premium option for bonuses or lump sums"
    ],
    "analysis_watch_outs": [
-    "Bonuses are 'up to' 4% and not guaranteed",
-    "Exclusions not published; need brochure",
-    "Max entry age 50 narrower than other Jubilee savings plans"
+    "Bonuses are declared, not guaranteed; up to 4% is a ceiling",
+    "Entry age capped at 50 and maturity age at 68, so older guardians are excluded",
+    "Surrender value only after 24 months of paid premiums, so early exit is costly",
+    "Riders cost extra"
    ],
    "source_url": "https://jubileeinsurance.com/ke/life-individual/smart-scholar/",
-   "source_note": "Fetched Jubilee product page."
+   "source_note": "Verified against the official Jubilee brochure/flier supplied by the Jubilee team (Nov 2026).",
+   "brochure": true
   },
   {
    "name": "Faida Elimu Insurance Plan",
    "category": "education",
-   "summary": "Investment-linked education fund with professional management, partial withdrawals after 2 years and premium waiver on death or disability.",
+   "summary": "Investment-linked education fund: premiums go to a managed fund and 100% of the fund value is paid at maturity, with premium waiver on death or total and permanent disability.",
    "target_client": "Parents of children aged 0 to 18 wanting disciplined education savings with protection",
-   "how_it_works": "Build a managed education fund over 5 to 15 years; top-ups allowed; maturity pays 100% of fund value.",
+   "how_it_works": "Premiums from KES 5,000 monthly or a KES 100,000 single premium go into a managed fund over a 5 to 15 year term, with top-ups at any time. Maturity pays 100% of fund value. Death or total and permanent disability waives future premiums and the policy stays in force (not for single premium policies). A KES 100,000 last expense benefit is paid within 48 hours.",
    "key_features": [
-    "Partial withdrawals after 2 years; full withdrawal possible",
+    "Fund management fee 4%; KES 600 per partial withdrawal",
     "Top-ups at any time",
-    "Future premiums waived on death or permanent disability"
+    "Partial withdrawals of 10% a year after 2 years; full withdrawal allowed from year one",
+    "Early-withdrawal charges: you receive 85% / 90% / 95% of fund value in policy year 1 / 2 / 3 for regular premium (90% / 95% / 97.5% for single premium), 100% from month 37",
+    "Premium payment term aligned to the policy term"
    ],
    "benefits": [
+    "Education fund keeps building if the parent dies or is disabled (waiver)",
     "KES 100,000 last expense within 48 hours",
-    "Maturity 100% of fund value"
+    "Liquidity: partial and full withdrawal options"
    ],
-   "riders_options": [],
-   "entry_age": "18 to 65",
+   "riders_options": [
+    "Waiver of premium (death or total and permanent disability); extra premium calculated from age and payment term"
+   ],
+   "entry_age": "18 to 65 (maximum maturity age 80)",
    "term_or_duration": "5 to 15 years",
-   "min_premium_or_sum_assured": "KES 5,000 monthly or KES 100,000 lump sum; sum assured not stated",
-   "payment_options": "Monthly, quarterly or yearly plus top-ups",
-   "waiting_periods_or_exclusions": "Not stated on the page (check brochure)",
+   "min_premium_or_sum_assured": "KES 5,000 monthly or KES 100,000 single premium",
+   "payment_options": "Monthly, quarterly, half-yearly, yearly or single premium, plus top-ups",
+   "waiting_periods_or_exclusions": "Only accidental death is covered in the first 6 months; all causes afterwards. Waiver subject to premiums being up to date; medical report if waiver benefit exceeds KES 10 million and/or age 55 and above. Past performance is no guarantee of future returns.",
    "channels_or_distinct_points": [
     "Callback form, SMS 'Elimu' to 24464, or branch",
     "Documents: ID, KRA PIN",
     "Launched around April 2026 per press coverage"
    ],
    "analysis_selling_points": [
-    "Fund-value based, flexible and liquid vs guaranteed-bonus plans",
-    "Wide entry age 18 to 65 suits grandparents/guardians",
-    "Premium waiver protects the plan"
+    "Fund value is fully yours at maturity, with flexible withdrawals",
+    "Wide age range 18 to 65 including grandparents and guardians",
+    "Waiver keeps the education fund funded if the parent dies"
    ],
    "analysis_watch_outs": [
-    "Returns not guaranteed (investment-linked); no return figures published",
-    "Higher KES 5,000 entry than Smart Scholar",
-    "Charges and exclusions not on page"
+    "Returns are not guaranteed",
+    "4% fund management fee and early-withdrawal haircuts reduce value in the first 3 years",
+    "The waiver premium is charged on top of the fund premium",
+    "Higher KES 5,000 entry than Smart Scholar"
    ],
    "source_url": "https://jubileeinsurance.com/ke/life-individual/faida-elimu-insurance-plan/",
-   "source_note": "Fetched Jubilee product page; launch timing from search result headlines only."
+   "source_note": "Verified against the official Jubilee brochure/flier supplied by the Jubilee team (Nov 2026).",
+   "brochure": true
   },
   {
    "name": "Smart Save",
    "category": "endowment-savings",
-   "summary": "Savings plan with life cover for goals such as home, education, business or car; bonuses plus Sum Assured paid at maturity or death.",
+   "summary": "Goal-based savings plan with life cover: 100% Sum Assured plus bonuses paid at maturity or on death.",
    "target_client": "Individuals 18 to 65 wanting disciplined savings with protection",
-   "how_it_works": "Regular contributions build the fund; annual bonuses may be declared; maturity and death both pay Sum Assured plus bonuses and terminal bonus. Surrender value after 24 months.",
+   "how_it_works": "Fixed premiums over 5 to 20 years. Maturity and death both pay 100% of Sum Assured plus accrued simple reversionary bonuses (up to 4% of Sum Assured a year, declared annually) plus a terminal bonus of 100% of those bonuses. Death benefit is paid immediately to the nominated beneficiary.",
    "key_features": [
-    "Annual bonus up to 4% of Sum Assured",
-    "Terminal bonus 100% of accrued bonuses",
-    "Policy loan up to 90% of surrender value",
-    "Fixed premiums"
+    "Savings periods of 5 to 20 years",
+    "Annual simple reversionary bonuses up to 4% of Sum Assured",
+    "Terminal bonus = 100% of earned bonuses",
+    "Policy loans and paid-up options after two years",
+    "Surrender value after 24 months of fully paid premiums"
    ],
    "benefits": [
-    "Death benefit 100% Sum Assured plus bonuses",
-    "Maturity benefit 100% Sum Assured plus bonuses"
+    "Full Sum Assured plus bonuses on death, not only at maturity",
+    "Predictable contributions from KES 2,000 monthly",
+    "Disciplined saving for a car, home, degree or business"
    ],
    "riders_options": [
-    "Accidental Death",
-    "Total and Permanent Disability",
-    "Accident Hospitalization",
-    "Last Expense"
+    "Accidental death: additional Sum Assured",
+    "Total and permanent disability (accident): Sum Assured over 36 months",
+    "Waiver of premiums on total and permanent disability (accident or illness)",
+    "Last expense: KES 100,000 within 48 hours"
    ],
-   "entry_age": "18 to 65 (max age at maturity 70)",
+   "entry_age": "18 to 65 (maximum age at maturity 70)",
    "term_or_duration": "5 to 20 years",
-   "min_premium_or_sum_assured": "From KES 2,000 monthly or KES 100,000 single; minimum Sum Assured KES 200,000",
-   "payment_options": "Monthly, quarterly, half-yearly, annual or single premium",
-   "waiting_periods_or_exclusions": "Not stated on the page; medical reports may be required at age 54+ or Sum Assured above KES 7.5m",
+   "min_premium_or_sum_assured": "Minimum premium KES 2,000 monthly or KES 100,000 single; minimum Sum Assured KES 200,000",
+   "payment_options": "Monthly, quarterly, semi-annual, annual or single premium",
+   "waiting_periods_or_exclusions": "Benefits may not be payable for death or disability from criminal or unlawful acts, alcohol or drug misuse, war and terrorism, hazardous activities, provoked assault or fighting. Medical report for age 54 and above and/or Sum Assured above KES 7.5 million; premium adjusted if results show higher risk. Subject to premiums being fully paid at claim.",
    "channels_or_distinct_points": [
     "Callback, SMS 'Smart Save' to 24464, or branch",
     "Brochure published Aug 2026",
     "Documents: ID, KRA PIN, form"
    ],
    "analysis_selling_points": [
-    "Low entry, flexible term, comprehensive rider menu",
-    "Death pays full Sum Assured plus bonuses",
-    "Loan access after surrender value"
+    "Simple message: pay a fixed amount, get 100% Sum Assured plus bonuses whether you live or die",
+    "Wide entry age 18 to 65 suits most working adults",
+    "Low entry point makes it a good first policy"
    ],
    "analysis_watch_outs": [
-    "Bonus 'up to' 4%, not guaranteed",
+    "Bonuses declared annually, not guaranteed",
     "Surrender value only after 24 months",
-    "Exclusions not published"
+    "Waiver of premium is a rider, not included by default",
+    "Brochure heading for optional benefits names Smart Scholar by mistake; confirm rider terms in the policy document"
    ],
    "source_url": "https://jubileeinsurance.com/ke/life-individual/smart-save/",
-   "source_note": "Fetched Jubilee product page."
+   "source_note": "Verified against the official Jubilee brochure/flier supplied by the Jubilee team (Nov 2026).",
+   "brochure": true
   },
   {
    "name": "Fanaka Investment Plan",
    "category": "endowment-savings",
-   "summary": "Fixed-premium savings plan with life cover where you receive the Sum Assured plus accrued bonus at policy end.",
+   "summary": "Fixed-premium savings plan with layered benefits by term: survival benefit above the Sum Assured, and a death benefit during the term.",
    "target_client": "Individuals saving for a home, car, ceremonies or business seed capital",
-   "how_it_works": "Pay fixed premiums for a chosen 5 to 20 year term; sum assured and premiums fixed at the outset.",
+   "how_it_works": "Fixed premiums for a 5 to 20 year term. Layer 1 (5 to 10 years): maturity pays 110% of Sum Assured plus accrued bonus; death during the term pays 75% of Sum Assured plus accrued bonus. Layer 2 (11 to 20 years): maturity pays 120% of Sum Assured plus accrued bonus; death during the term pays 175% of Sum Assured plus double the accrued bonus; death after the premium-paying term pays 100% of Sum Assured plus accrued bonus.",
    "key_features": [
-    "Flexible investment options",
-    "Accident and disability cover",
-    "Education savings with life cover",
-    "Starting early lowers premium"
+    "Sum Assured and premiums fixed at the start",
+    "Saving period 5 to 20 years",
+    "Used as an alternative to borrowing for a home, car, ceremony or business seed capital"
    ],
    "benefits": [
-    "Disciplined systematic savings",
-    "Accrued bonus at maturity"
+    "Maturity above 100% of Sum Assured",
+    "Higher death benefit on terms of 11 to 20 years"
    ],
-   "riders_options": [],
-   "entry_age": "18 to 65 (max age at maturity 70)",
+   "riders_options": [
+    "Accidental death: additional Sum Assured",
+    "Total and permanent disability (accident): Sum Assured over 36 months",
+    "Waiver of premiums (accident or illness)",
+    "Accident hospitalisation: up to 40% of Sum Assured, maximum KES 250,000",
+    "Last expense: KES 100,000 within 48 hours"
+   ],
+   "entry_age": "18 to 65 (maximum age at maturity 70)",
    "term_or_duration": "5 to 20 years",
-   "min_premium_or_sum_assured": "Minimum premium not stated; minimum Sum Assured KES 350,000, no maximum",
-   "payment_options": "Not stated on this page",
-   "waiting_periods_or_exclusions": "Not stated on the page",
+   "min_premium_or_sum_assured": "Minimum Sum Assured KES 350,000, no maximum",
+   "payment_options": "Monthly, quarterly, semi-annual or annual",
+   "waiting_periods_or_exclusions": "Medical report if Sum Assured exceeds KES 3,000,000. Full exclusions are in the policy document.",
    "channels_or_distinct_points": [
     "Page links to a separate 'How to Make Payments' section"
    ],
    "analysis_selling_points": [
-    "Fixed terms give certainty for a dated goal",
-    "Overlaps with Smart Save for conversation about alternatives",
-    "Accident/disability cover built in"
+    "Longer terms (11 to 20 years) give much richer benefits: 120% at maturity and 175% plus double bonus on death",
+    "Positioned as a disciplined alternative to a loan",
+    "Fixed premium makes budgeting easy"
    ],
    "analysis_watch_outs": [
-    "Minimum premium and payment methods not published",
-    "Higher minimum sum assured (KES 350,000) than Smart Save (KES 200,000)",
-    "Bonus basis not disclosed"
+    "Short terms (5 to 10 years) pay only 75% of Sum Assured plus bonus on death, so tell clients plainly",
+    "Minimum Sum Assured of KES 350,000 is higher than Smart Save or Smart Scholar",
+    "Brochure gives no minimum premium or bonus rate; use the official illustration"
    ],
    "source_url": "https://jubileeinsurance.com/ke/life-individual/fanaka-investment-plan/",
-   "source_note": "Fetched Jubilee product page."
+   "source_note": "Verified against the official Jubilee brochure/flier supplied by the Jubilee team (Nov 2026).",
+   "brochure": true
   },
   {
    "name": "Faida Maisha Insurance Plan",
    "category": "whole-life",
-   "summary": "Universal-style plan combining lifelong cover with investment-linked savings, flexible contributions and partial withdrawals.",
+   "summary": "Universal plan combining whole life cover (KES 1 million to 200 million) with a flexible investment fund, plus a KES 100,000 last expense benefit.",
    "target_client": "Business owners, professionals, parents/providers and high earners",
-   "how_it_works": "Regular or one-off contributions are invested while the policy provides life cover; on death beneficiaries get life cover, fund value and last expense benefit.",
+   "how_it_works": "Two layers: a whole life cover premium paid for 5 to 15 years, and an investment fund funded from KES 5,000 monthly or KES 100,000 single (no maximum). Death benefit = last expense benefit + whole life cover + 100% of fund value. Fund value can be withdrawn partly or fully after the premium-paying term.",
    "key_features": [
-    "Lifelong cover",
-    "Professionally managed funds",
-    "Flexible top-ups",
-    "Partial withdrawals after 2 years, up to 10% annually during premium term"
+    "Whole life cover from KES 1,000,000 to KES 200 million",
+    "Fund management fee 4%; KES 600 per partial withdrawal",
+    "Early-withdrawal charges in the first 36 months (85% to 95% of fund value for regular premium; 90% to 97.5% for single premium)",
+    "One partial withdrawal a year, up to 10% of fund value, during the premium-paying term",
+    "Top-ups and ad hoc premiums"
    ],
    "benefits": [
-    "Cover from KES 100,000 to KES 200 million",
-    "48-hour last expense payout",
-    "Full access to funds after maturity"
+    "Lifelong cover plus growing fund in one plan",
+    "Last expense KES 100,000 within 48 hours",
+    "Maturity: partial or full withdrawal of fund value any time after the premium-paying term"
    ],
    "riders_options": [],
-   "entry_age": "18 to 65",
-   "term_or_duration": "Premium-paying term 5 to 15 years",
-   "min_premium_or_sum_assured": "KES 5,000 monthly or KES 100,000 lump sum; sum assured KES 100,000 to KES 200 million",
-   "payment_options": "Monthly, bi-annual, annual or one-off",
-   "waiting_periods_or_exclusions": "Not stated on the page",
+   "entry_age": "18 to 65 (maximum investment maturity age 80)",
+   "term_or_duration": "Premium paying term 5 to 15 years; cover for life",
+   "min_premium_or_sum_assured": "Fund from KES 5,000 monthly or KES 100,000 single; whole life cover from KES 1,000,000",
+   "payment_options": "Monthly, quarterly, half-yearly, yearly or single premium, plus top-ups",
+   "waiting_periods_or_exclusions": "Only accidental death is covered in the first 6 months. Cover is subject to premiums being fully paid at claim. Medical report if whole life cover exceeds KES 10 million and/or age 55 and above. Whole life premiums are paid in addition to the fund premium.",
    "channels_or_distinct_points": [
     "SMS 'Maisha' to 24464, callback or branch",
     "Documents: ID, KRA PIN"
    ],
    "analysis_selling_points": [
-    "Very high sum assured ceiling suits estate/high-net-worth cases",
-    "Lifelong cover plus liquidity",
-    "Short premium-paying term"
+    "Combines legacy cover and wealth building, a natural fit for higher-income families and business owners",
+    "Very high cover ceiling (up to KES 200 million)",
+    "Fund value is added to the death benefit"
    ],
    "analysis_watch_outs": [
-    "Charges and mortality costs not published",
-    "Investment-linked returns not guaranteed",
-    "Riders and exclusions not on page"
+    "Two premiums to explain (cover and fund)",
+    "Fund returns not guaranteed; 4% management fee",
+    "Withdrawal limits during the premium-paying term",
+    "Cover lapses in effect if whole life premiums stop"
    ],
    "source_url": "https://jubileeinsurance.com/ke/life-individual/faida-maisha-plan/",
-   "source_note": "Fetched Jubilee product page."
+   "source_note": "Verified against the official Jubilee brochure/flier supplied by the Jubilee team (Nov 2026).",
+   "brochure": true
   },
   {
    "name": "Faida Elite Plan",
