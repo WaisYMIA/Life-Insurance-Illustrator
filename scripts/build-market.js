@@ -27,7 +27,7 @@ for(const id of Object.keys(META)){
       features: arr(p.key_features), benefits: arr(p.benefits), riders: arr(p.riders_options), age: str(p.entry_age), term: str(p.term_or_duration),
       min: str(p.min_premium_or_sum_assured), pay: str(p.payment_options), excl: str(p.waiting_periods_or_exclusions),
       distinct: arr(p.channels_or_distinct_points).filter(x => !CONTACT.test(x)), pros: arr(p.analysis_selling_points), cons: arr(p.analysis_watch_outs),
-      src: host, official, srcNote: clean(str(p.source_note)) });
+      src: host, official, brochure: !!p.brochure, srcNote: clean(str(p.source_note)) });
     const q = ins.products[ins.products.length - 1]; if(!q.cons.length) q.cons.push('Little detail published on the source page; get the brochure before advising.');
   }
   insurers.push(ins);

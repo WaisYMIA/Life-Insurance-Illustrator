@@ -17,3 +17,4 @@ t(M.filter(all, { cat: 'education' }).every(p => p.cat === 'education'), 'catego
 t(M.filter(all, { q: 'smart scholar' }).some(p => p._insId === 'jubilee'), 'search finds Jubilee Smart Scholar');
 t(M.jubileeMatches(all, all.find(p => p._insId === 'britam' && p.cat === 'education')).length >= 1, 'Jubilee counterpart offered for education');
 console.log(process.exitCode ? 'market: FAILED' : 'market OK (' + n + ' checks, ' + all.length + ' products)');
+{ const b = all.filter(p => p._insId === 'jubilee' && p.brochure).map(p => p.name); if(b.length < 5){ console.error('FAIL: five brochure-checked Jubilee products expected, got ' + b.length); process.exitCode = 1; } }

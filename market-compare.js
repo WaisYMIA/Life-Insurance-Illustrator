@@ -53,7 +53,7 @@ const ROWS = [
   ['Riders and options', p => p.riders], ['Entry age', p => p.age], ['Term', p => p.term], ['Minimum premium or cover', p => p.min], ['Payment options', p => p.pay],
   ['Exclusions and waiting periods', p => p.excl], ['Selling advantages', p => p.pros], ['Watch-outs', p => p.cons], ['Source', p => p._src]
 ];
-function flat(data){ const out = []; (data && data.insurers || []).forEach(i => i.products.forEach(p => out.push(Object.assign({ _ins: i.name, _insId: i.id }, p, { _src: p.src ? (p.official ? 'Insurer\'s own page: ' : 'Secondary source: ') + p.src : '' })))); return out; }
+function flat(data){ const out = []; (data && data.insurers || []).forEach(i => i.products.forEach(p => out.push(Object.assign({ _ins: i.name, _insId: i.id }, p, { _src: p.src ? (p.brochure ? 'Official brochure; ' : '') + (p.official ? 'Insurer\'s own page: ' : 'Secondary source: ') + p.src : '' })))); return out; }
 function filter(list, o){
   const q = (o.q || '').trim().toLowerCase();
   return list.filter(p => (!o.cat || o.cat === 'all' || p.cat === o.cat) && (!o.ins || o.ins === 'all' || p._insId === o.ins) &&
@@ -120,7 +120,7 @@ function card(p, all, isOpen){
   const jm = jubileeMatches(all, p);
   return `<div class="mk-card${p._insId === 'jubilee' ? ' jub' : ''}"><div class="mk-ins">${esc(p._ins)} · ${esc(catName(p.cat))}</div><div class="mk-name">${esc(p.name)}</div><div class="mk-sum">${esc(p.summary)}</div>
     <div class="mk-line">${[p.age && L('Entry age', 'Umri') + ': ' + p.age, p.term && L('Term', 'Muda') + ': ' + p.term, p.min && L('From', 'Kuanzia') + ': ' + p.min].filter(Boolean).map(esc).join(' · ') || esc(L('Entry age, term and premium not published on the source page.', 'Umri, muda na malipo hayajachapishwa.'))}</div>
-    <span class="mk-tag ${p.official ? 'ok' : 'warn'}">${esc(p.official ? L('Insurer\'s own page', 'Ukurasa wa kampuni') : L('Secondary source: verify', 'Chanzo cha pili: thibitisha'))}</span>
+    <span class="mk-tag ${p.official ? 'ok' : 'warn'}">${esc(p.brochure ? L('Checked against official brochure', 'Imethibitishwa na brosha rasmi') : p.official ? L('Insurer\'s own page', 'Ukurasa wa kampuni') : L('Secondary source: verify', 'Chanzo cha pili: thibitisha'))}</span>
     <div class="at-row"><button type="button" class="at-btn" data-det="${esc(p.id)}" aria-expanded="${isOpen}">${esc(isOpen ? L('Hide details', 'Ficha') : L('Details, pros and cons', 'Maelezo, faida na hasara'))}</button>
     <button type="button" class="at-btn" data-pick="${esc(p.id)}" aria-pressed="${on}">${esc(on ? L('Selected ✓', 'Imechaguliwa ✓') : L('Add to compare', 'Ongeza kulinganisha'))}</button></div>
     ${isOpen ? `<div class="mk-det">${sect(L('Who it is for', 'Kwa nani'), p.client)}${sect(L('How it works', 'Inavyofanya kazi'), p.how)}${sect(L('Key features', 'Vipengele'), p.features)}${sect(L('Benefits', 'Faida'), p.benefits)}${sect(L('Riders and options', 'Nyongeza'), p.riders)}${sect(L('Payment options', 'Njia za malipo'), p.pay)}${sect(L('Exclusions and waiting periods', 'Vikwazo'), p.excl)}${sect(L('Other points', 'Mengineyo'), p.distinct)}
