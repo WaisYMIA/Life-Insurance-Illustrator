@@ -1,0 +1,5 @@
+{
+ "version": 1,
+ "note": "Optional extra quiz questions. Each: {line: life|medical|general|sector, topic: jubilee|calc|market|objection|skills|kenya|principles|ethics|terms, d: 1-4, q, a (correct answer), w: [2 or 3 wrong answers], x (explanation)}. Edit and re-upload; apps pick it up when online.",
+ "questions": []
+}

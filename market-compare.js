@@ -84,10 +84,10 @@ const picks = [];
 const list = (a) => a && a.length ? `<ul>${a.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
 const sect = (t, v, cls) => v && (Array.isArray(v) ? v.length : String(v).trim()) ? `<div class="${cls || ''}"><h4>${esc(t)}</h4>${Array.isArray(v) ? list(v) : `<p>${esc(v)}</p>`}</div>` : '';
 
-function open(){
+function open(opts){
   injectCss(); const all = flat(DATA()); const ins = DATA().insurers || [];
   showPanel(L('Market comparison', 'Ulinganisho wa soko'), body => {
-    const o = { cat: 'all', ins: 'all', q: '' }; const opened = new Set();
+    const o = { cat: (opts && opts.cat && CATS.some(c => c[0] === opts.cat)) ? opts.cat : 'all', ins: 'all', q: '' }; const opened = new Set();
     const draw = () => {
       const cnt = counts(filter(all, { ins: o.ins, q: o.q })); const res = filter(all, o);
       const g = o.cat !== 'all' ? GUIDE[o.cat] : null; const insSel = ins.find(i => i.id === o.ins);
@@ -137,7 +137,7 @@ function compare(all){
       <div class="mk-scroll" tabindex="0" role="region" aria-label="${esc(L('Comparison table', 'Jedwali la mlinganisho'))}"><table class="mk-table"><thead><tr><th scope="col">${esc(L('Product', 'Bidhaa'))}</th>${ps.map(p => `<th scope="col">${esc(p.name)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>`;
   });
 }
-(root.AccountExtras = root.AccountExtras || []).unshift({ id: 'market', label: () => L('Market comparison', 'Ulinganisho wa soko'), fn: open });
+(root.AccountExtras = root.AccountExtras || []).unshift({ id: 'market', label: () => L('Market comparison', 'Ulinganisho wa soko'), fn: () => open() });
 root.MarketCompare = Object.assign({ open }, PURE);
 injectCss();
 })(typeof window !== 'undefined' ? window : null);

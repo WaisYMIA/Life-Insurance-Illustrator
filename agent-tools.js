@@ -507,7 +507,7 @@ const PITCH = [
 function openPitch(){
   showPanel(L('Pitch & objections', 'Hoja na pingamizi'), body => {
     const cats = ['All'].concat(Array.from(new Set(PITCH.map(p => p.cat)))); let cat = 'All', q = '';
-    body.innerHTML = `<input id="pQ" type="search" placeholder="${esc(L('Search e.g. afford, SACCO, claims', 'Tafuta mfano: kumudu, SACCO, madai'))}"><div class="at-row" id="pCats" style="margin:0 0 8px;"></div><div id="pList"></div><p style="font-size:12px;color:var(--muted);">${esc(L('Suggested wording only. Adapt it to the client, never promise guaranteed returns, and follow the company\'s sales conduct rules. The Swahili text is a draft: ask a colleague to review it before wide use.', 'Maneno yanayopendekezwa tu. Yarekebishe kulingana na mteja, usiahidi faida zilizohakikishwa, na ufuate kanuni za mauzo za kampuni. Maandishi ya Kiswahili ni rasimu: mwombe mwenzako ayakague kabla ya matumizi mapana.'))}</p>`;
+    body.innerHTML = `${window.ObjectionLibrary ? `<button type="button" class="at-btn pri" id="pPlay" style="width:100%;margin-bottom:10px;">${esc(L('Open the full objection playbook', 'Fungua mwongozo kamili wa pingamizi'))}</button>` : ''}<input id="pQ" type="search" placeholder="${esc(L('Search e.g. afford, SACCO, claims', 'Tafuta mfano: kumudu, SACCO, madai'))}"><div class="at-row" id="pCats" style="margin:0 0 8px;"></div><div id="pList"></div><p style="font-size:12px;color:var(--muted);">${esc(L('Suggested wording only. Adapt it to the client, never promise guaranteed returns, and follow the company\'s sales conduct rules. The Swahili text is a draft: ask a colleague to review it before wide use.', 'Maneno yanayopendekezwa tu. Yarekebishe kulingana na mteja, usiahidi faida zilizohakikishwa, na ufuate kanuni za mauzo za kampuni. Maandishi ya Kiswahili ni rasimu: mwombe mwenzako ayakague kabla ya matumizi mapana.'))}</p>`;
     const draw = () => {
       $('#pCats', body).innerHTML = cats.map(c => `<button class="at-btn sm ${c === cat ? 'pri' : ''}" data-c="${esc(c)}">${esc(c === 'All' ? L('All', 'Yote') : c)}</button>`).join('');
       $$('[data-c]', body).forEach(b => b.addEventListener('click', () => { cat = b.dataset.c; draw(); }));
@@ -517,6 +517,7 @@ function openPitch(){
       $$('[data-cp]', body).forEach(b => b.addEventListener('click', async () => { const p = PITCH[+b.dataset.cp]; try{ await navigator.clipboard.writeText(i ? p.sw : p.en); toast(L('Copied.', 'Imenakiliwa.')); }catch(e){} }));
       $$('[data-sw]', body).forEach(b => b.addEventListener('click', () => { setLang(i ? 'en' : 'sw'); draw(); }));
     };
+    const pl = $('#pPlay', body); if(pl) pl.addEventListener('click', () => window.ObjectionLibrary.open());
     $('#pQ', body).addEventListener('input', e => { q = e.target.value.trim().toLowerCase(); draw(); });
     draw();
   });

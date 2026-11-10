@@ -3437,7 +3437,7 @@ function renderSSStep5(){
    for a fully offline/standalone device install.
    ============================================================ */
 const urlParams = new URLSearchParams(location.search);
-const APP_VERSION = '2026.11.7';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
+const APP_VERSION = '2026.11.9';   // bump with scripts/bump-version.js (kept in step with version.json and sw.js)
 // Bump this whenever the Terms text changes in substance: every device then shows the gate again so the
 // new wording is actually accepted, instead of silently carrying the old acceptance forward.
 const TERMS_VERSION = '3';
@@ -4610,9 +4610,11 @@ if('serviceWorker' in navigator){
 <script src="custom-products.js"></script>
 <script src="agent-tools.js"></script>
 <script src="agent-apps.js"></script>
+<script src="quiz-bank.js"></script>
 <script src="agent-growth.js"></script>
 <script src="market-data.js"></script>
 <script src="market-compare.js"></script>
+<script src="objection-library.js"></script>
 <script src="daily-quote.js"></script>
 <script src="calculator.js"></script>
 </body>

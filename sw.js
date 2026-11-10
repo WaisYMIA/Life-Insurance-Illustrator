@@ -15,7 +15,7 @@
  */
 'use strict';
 
-const CACHE_VERSION = 'plan-illustrator-2026.11.7';
+const CACHE_VERSION = 'plan-illustrator-2026.11.9';
 // Paths are relative to this file's own location (self.location), so the
 // same list works whether sw.js is served from a domain root (an Express
 // deployment) or from a GitHub Pages project subpath — both keep sw.js,
@@ -27,9 +27,11 @@ const APP_SHELL = [
   'help-content.js',
   'agent-tools.js',
   'agent-apps.js',
+  'quiz-bank.js',
   'agent-growth.js',
   'market-data.js',
   'market-compare.js',
+  'objection-library.js',
   'daily-quote.js',
   'daily-quotes.js',
   'daily-library.js',
@@ -118,6 +120,12 @@ self.addEventListener('fetch', (event) => {
   // the app learns a newer (or mandatory) version exists. Offline it simply fails and the app carries on.
   if (url.pathname.endsWith('/version.json')) {
     event.respondWith(timedFetch(new Request(req, { cache: 'no-store' }), 8000));
+    return;
+  }
+
+  // Optional extra quiz questions: live copy when online (6 s limit), otherwise the app uses the copy it saved last time.
+  if(url.pathname.endsWith('/quiz-bank-extra.json')){
+    event.respondWith(timedFetch(new Request(req, { cache: 'no-store' }), 6000));
     return;
   }
 
