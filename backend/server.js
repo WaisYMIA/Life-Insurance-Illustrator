@@ -636,9 +636,9 @@ app.get('/app', (req, res) => res.sendFile(path.join(__dirname, '..', 'plan-illu
 // would have let anyone download backend source and the SQLite database — now that the database also
 // holds agent phone numbers and usage logs, that must never be reachable over HTTP.)
 const ROOT = path.join(__dirname, '..');
-for(const f of ['plan-illustrator.html', 'index.html', 'manifest.json', 'sw.js', 'version.json', 'app-config.js', 'help-content.js', 'agent-tools.js', 'agent-apps.js', 'agent-growth.js', 'market-data.js', 'market-compare.js', 'daily-quote.js', 'daily-quotes.js', 'daily-library.js', 'calculator.js', 'custom-products.js', 'admin-extras.js']){
+for(const f of ['plan-illustrator.html', 'index.html', 'manifest.json', 'sw.js', 'version.json', 'app-config.js', 'help-content.js', 'whatif-limits.js', 'agent-tools.js', 'agent-apps.js', 'agent-growth.js', 'quiz-bank.js', 'quiz-bank-extra.json', 'market-data.js', 'market-compare.js', 'objection-library.js', 'daily-quote.js', 'daily-quotes.js', 'daily-library.js', 'calculator.js', 'custom-products.js', 'admin-extras.js']){
   app.get('/' + f, (req, res) => {
-    if(f === 'sw.js' || f === 'version.json' || f === 'app-config.js') res.setHeader('Cache-Control', 'no-cache');
+    if(f === 'sw.js' || f === 'version.json' || f === 'app-config.js' || f === 'quiz-bank-extra.json') res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(path.join(ROOT, f), err => { if(err && !res.headersSent) res.status(404).end(); });
   });
 }
