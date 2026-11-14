@@ -317,7 +317,9 @@ function openPractice(){
         read(); put(K(SEL_KEY), sel); pace = $('#qzTime', body).value; put(K('illustrator_quiz_pace_v1'), pace);
         const seen = get(K(SEEN_KEY), []);
         const qs = QB.buildSalesQuiz({ lines: sel.lines, topics: sel.topics, mode: sel.mode, level: sel.level, n: sel.n, glossaryQs: buildQuiz(G, 'all', 80), market: root.MARKET_DATA, extra: extra(), seen });
-        if(qs.length < 5){ toast(L('Not enough questions for that choice. Tick fewer exclusions or more topics.', 'Maswali hayatoshi kwa chaguo hilo. Punguza ulichoondoa au ongeza mada.')); return; }
+        if(qs.length < 3){ toast(L('No questions match that choice. Try different ticks.', 'Hakuna maswali yanayolingana. Jaribu chaguo tofauti.')); return; }
+        if(qs.widened) toast(L('Few questions match both choices, so you will get all questions on the ticked topics.', 'Maswali machache yanalingana na chaguo zote mbili, kwa hivyo utapata maswali yote ya mada ulizochagua.'));
+        else if(qs.length < sel.n) toast(L('Only ' + qs.length + ' question(s) match that choice.', 'Maswali ' + qs.length + ' pekee yanalingana na chaguo hilo.'));
         put(K(SEEN_KEY), seen.concat(qs.map(q => q.id)).slice(-300));
         run(qs, pace === 'off' ? 0 : +pace);
       });

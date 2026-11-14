@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test:update-flow": "node test/update-flow-test.js",
-    "test": "node test/regression-suite.js && node test/engine-parity-test.js && node test/needs-scoring-test.js && node test/version-sync-test.js && node test/help-content-test.js && node backend/test-integration.js && node backend/test-platform.js && node test/daily-quote-test.js && node test/calculator-test.js && node test/agent-growth-test.js && node test/market-test.js && node test/objection-test.js && node test/quiz-bank-test.js",
+    "test": "node test/regression-suite.js && node test/engine-parity-test.js && node test/needs-scoring-test.js && node test/version-sync-test.js && node test/help-content-test.js && node backend/test-integration.js && node backend/test-platform.js && node test/daily-quote-test.js && node test/calculator-test.js && node test/agent-growth-test.js && node test/market-test.js && node test/objection-test.js && node test/quiz-bank-test.js && node test/whatif-test.js",
     "release": "node scripts/release.js",
     "backup": "node scripts/backup.js"
   },

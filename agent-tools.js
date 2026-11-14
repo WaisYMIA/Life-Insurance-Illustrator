@@ -55,6 +55,7 @@ const CSS = `
 #atPanel input,#atPanel select,#atPanel textarea{width:100%;box-sizing:border-box;padding:10px;border:1px solid #d9cccc;border-radius:10px;font:15px system-ui,sans-serif;margin:4px 0 10px;background:#fff;}
 #atPanel label{font-size:12.5px;color:var(--muted,#6b5b5b);font-weight:600;}
 #atPanel input[type=range]{padding:0;border:0;}
+#atPanel .wi-bands{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px;} #atPanel .wi-chip{min-height:40px;padding:6px 12px;border:1px solid #d9cccc;border-radius:999px;background:#fff;color:var(--ink,#241818);font:600 13px system-ui,sans-serif;cursor:pointer;} #atPanel .wi-chip[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff;} #atPanel .wi-note{font-size:12px;color:var(--muted);margin:0 0 12px;line-height:1.4;} #atPanel .wi-fixed{margin:8px 0 12px;font-size:14px;} #atPanel .wi-num{margin:4px 0 4px;}
 #atPanel input[type=checkbox]{width:auto;margin:0 8px 0 0;}
 .at-item{border:1px solid var(--line,#e6dcdc);background:#fff;border-radius:12px;padding:10px 12px;margin:8px 0;cursor:pointer;}
 .at-item .t{font-weight:700;font-size:15px;}
@@ -428,24 +429,68 @@ function compareSheet(snaps, isTray){
 /* ---------- what-if ---------- */
 function whatIfSpec(){
   if(state.mode === 'diagnose' || state.step !== 5) return null;
+  const W = window.WhatIfLimits;
+  const money = (key, label, kind, get, set, min, max, note) => {
+    const cur = Number(get()) || 0; max = Math.max(max, cur); min = Math.min(min, cur || min);
+    const bands = W.bandsFor(kind, min, max);
+    return { key, label, get, set, money: true, kind, gmin: min, gmax: max, bands, min: bands[0].lo, max: bands[bands.length - 1].hi, step: bands[0].step, note };
+  };
+  const years = (key, label, get, set, options, note) => {
+    const cur = get(), o = options.slice(); if(cur != null && o.indexOf(cur) < 0) o.push(cur);
+    const r = W.termRange(o, cur);
+    return { key, label, get, set, min: r.min, max: r.max, step: r.step, fixed: r.fixed, note };
+  };
+  const cap = n => L('Allowed: ' + n, 'Inaruhusiwa: ' + n);
   if(state.category === 'faida'){
     const f = state.faida, age = f.dob ? faidaAgeANB(f.dob) : null, lim = age != null ? faidaAgeMaxTermFor(f.product, age) : null;
-    const tMax = Math.min(15, lim ? lim.maxTerm : 15);
-    return { fields: [
-      { key: 'amt', label: L('Premium per payment', 'Ada kwa malipo'), get: () => state.faida.periodicPremium, set: v => { state.faida.periodicPremium = v; }, min: Math.max(500, Math.round(f.periodicPremium * 0.4)), max: Math.round(f.periodicPremium * 2.5), step: 500, money: true },
-      { key: 'term', label: L('Term (years)', 'Muda (miaka)'), get: () => state.faida.term, set: v => { state.faida.term = v; }, min: 5, max: Math.max(5, tMax), step: 1 } ] };
+    const tMax = Math.min(15, lim ? lim.maxTerm : 15), fi = faidaFreqInfo(f.freq), single = f.freq === 'Single';
+    const fields = [
+      money('amt', single ? L('Single premium', 'Ada ya mara moja') : L('Premium per payment', 'Ada kwa malipo'), 'premium', () => state.faida.periodicPremium, v => { state.faida.periodicPremium = v; }, fi.minPremium, W.PREMIUM_CAP,
+        L('Minimum for ' + f.freq + ' is ' + fmt(fi.minPremium) + '; up to ' + fmt(W.PREMIUM_CAP) + '.', 'Kiwango cha chini cha ' + f.freq + ' ni ' + fmt(fi.minPremium) + '; hadi ' + fmt(W.PREMIUM_CAP) + '.')),
+      years('term', L('Term (years)', 'Muda (miaka)'), () => state.faida.term, v => { state.faida.term = v; }, W.range(5, Math.max(5, tMax)),
+        L('Terms 5–15 years' + (lim ? '; for entry age ' + age + ' the limit is ' + tMax + ' (max maturity age ' + lim.maxMaturityAge + ').' : '.'), 'Muda wa miaka 5–15' + (lim ? '; kwa umri ' + age + ' kikomo ni ' + tMax + '.' : '.'))) ];
+    if(f.product === 'Faida Maisha'){
+      const wl = money('wlc', L('Whole life cover', 'Bima ya maisha yote'), 'wlc', () => state.faida.sumAssured || W.WLC_MIN, v => { state.faida.sumAssured = v; }, W.WLC_MIN, W.WLC_MAX,
+        L('Faida Maisha only: ' + fmt(W.WLC_MIN) + ' to ' + fmt(W.WLC_MAX) + '. A medical report is needed above ' + fmt(10000000) + ' and/or from age 55.', 'Faida Maisha pekee: ' + fmt(W.WLC_MIN) + ' hadi ' + fmt(W.WLC_MAX) + '. Ripoti ya matibabu inahitajika zaidi ya ' + fmt(10000000) + ' na/au kuanzia umri wa miaka 55.'));
+      // keep the real cover limits strict: never extend beyond 200M, even if the current value is odd
+      fields.push(wl);
+    }
+    return { fields };
   }
   if(state.category === 'smartsave'){
-    const s = state.smartsave, cfg = (SMARTSAVE.productConfig || {})[s.product] || {};
-    const fields = [ { key: 'amt', label: s.mode === 'premium' ? L('Premium per payment', 'Ada kwa malipo') : s.mode === 'target' ? L('Target amount', 'Kiasi lengwa') : L('Sum assured', 'Kiasi cha bima'), get: () => state.smartsave.inputValue, set: v => { state.smartsave.inputValue = v; }, min: Math.max(1000, Math.round(s.inputValue * 0.4)), max: Math.round(s.inputValue * 2.5), step: s.mode === 'premium' ? 500 : 50000, money: true },
-      { key: 'term', label: L('Term (years)', 'Muda (miaka)'), get: () => state.smartsave.term, set: v => { state.smartsave.term = v; }, min: cfg.termMin || 5, max: cfg.termMax || 20, step: 1 } ];
+    const s = state.smartsave, cfg = (SMARTSAVE.productConfig || {})[s.product] || {}, fi = ssFreqInfo(s.freq), age = s.dob ? ssAgeANB(s.dob) : null;
+    const matCap = W.SMART_MAT_AGE[s.product]; let opts = W.range(cfg.termMin || 5, cfg.termMax || 20);
+    if(age != null){ opts = opts.filter(t => ssGetRate(s.product, age, t, s.freq === 'Single' ? 'Single' : 'Yearly', s.mode === 'sa' ? (s.inputValue || 0) : 0) !== null || t === s.term); if(matCap) opts = opts.filter(t => age + t <= matCap || t === s.term); }
+    const minSA = 200000, minPrem = fi.minPremium;
+    const amt = s.mode === 'premium' ? money('amt', L('Premium per payment', 'Ada kwa malipo'), 'premium', () => state.smartsave.inputValue, v => { state.smartsave.inputValue = v; }, minPrem, W.PREMIUM_CAP, L('Minimum for ' + s.freq + ' is ' + fmt(minPrem) + '; up to ' + fmt(W.PREMIUM_CAP) + '.', 'Kiwango cha chini cha ' + s.freq + ' ni ' + fmt(minPrem) + '; hadi ' + fmt(W.PREMIUM_CAP) + '.'))
+      : s.mode === 'target' ? money('amt', L('Target amount', 'Kiasi lengwa'), 'target', () => state.smartsave.inputValue, v => { state.smartsave.inputValue = v; }, 100000, 100000000, L('The target must lead to at least the minimum premium of ' + fmt(minPrem) + ' for ' + s.freq + '.', 'Lengo lazima lifikie angalau ada ya chini ya ' + fmt(minPrem) + '.'))
+      : money('amt', L('Sum assured', 'Kiasi cha bima'), 'sa', () => state.smartsave.inputValue, v => { state.smartsave.inputValue = v; }, minSA, 50000000, L('Minimum sum assured ' + fmt(minSA) + '; the premium must also reach ' + fmt(minPrem) + ' for ' + s.freq + '.', 'Kiwango cha chini ' + fmt(minSA) + '; ada pia lazima ifikie ' + fmt(minPrem) + '.'));
+    const fields = [ amt, years('term', L('Term (years)', 'Muda (miaka)'), () => state.smartsave.term, v => { state.smartsave.term = v; }, opts,
+      L(s.product + ': ' + (cfg.termMin || 5) + '–' + (cfg.termMax || 20) + ' years' + (matCap && age != null ? '; age + term cannot pass ' + matCap + '.' : '.'), s.product + ': miaka ' + (cfg.termMin || 5) + '–' + (cfg.termMax || 20) + '.')) ];
     if(s.bonusRate != null) fields.push({ key: 'rate', label: L('Assumed bonus rate', 'Kiwango cha bonasi kinachodhaniwa'), get: () => Math.round(state.smartsave.bonusRate * 1000) / 10, set: v => { state.smartsave.bonusRate = v / 100; }, min: 0, max: 8, step: 0.5, pct: true });
     return { fields };
   }
   const p = state.plan; if(!p) return null;
-  const step = p.termStep || 1, minT = p.minTerm || 5; let maxT = p.maxTerm || 30; if(state.age != null && p.maxMatAge) maxT = Math.min(maxT, p.maxMatAge - state.age);
-  const fields = [ { key: 'amt', label: state.mode === 'premium' ? L('Premium per payment', 'Ada kwa malipo') : state.mode === 'target' ? L('Target amount', 'Kiasi lengwa') : L('Sum assured', 'Kiasi cha bima'), get: () => state.inputValue, set: v => { state.inputValue = v; }, min: Math.max(1000, Math.round(state.inputValue * 0.4)), max: Math.round(state.inputValue * 2.5), step: state.mode === 'premium' ? 500 : 50000, money: true },
-    { key: 'term', label: L('Term (years)', 'Muda (miaka)'), get: () => state.term, set: v => { state.term = v; }, min: minT, max: Math.max(minT, maxT), step } ];
+  const single = state.freq === 'Single';
+  let opts = (p.termStep > 0) ? W.range(0, Math.floor((p.maxTerm - p.minTerm) / p.termStep)).map(i => p.minTerm + i * p.termStep) : [];
+  if(state.age != null && p.maxMatAge) opts = opts.filter(t => state.age + t <= p.maxMatAge || t === state.term);
+  // Fanaka layers split by term (brochure): layer 1 = 5–10 years, layer 2 = 11–20 years.
+  const layerNote = p.name === 'Fanaka Plan Layer 1' ? [5, 10] : p.name === 'Fanaka Plan Layer 2' ? [11, 20] : null;
+  if(layerNote) opts = opts.filter(t => (t >= layerNote[0] && t <= layerNote[1]) || t === state.term);
+  // Smallest premium that still gives the plan's minimum sum assured, checked across every allowed term (so no slider position is invalid).
+  let minPrem = 500;
+  try{
+    const fk = single ? 'Annually' : state.freq;
+    const mins = (opts.length ? opts : [state.term]).map(t => { const o = premiumFromSA({ plan: p, age: state.age, term: t, freq: fk, riders: state.riders, isSingle: single, SA: p.minSA }); return o && o[fk] ? o[fk].total : 0; });
+    const ok = mins.filter(x => isFinite(x) && x > 0); if(ok.length) minPrem = W.roundUp(Math.max.apply(null, ok), 100);
+  }catch(e){}
+  const label = state.mode === 'premium' ? (single ? L('Single premium', 'Ada ya mara moja') : L('Premium per payment', 'Ada kwa malipo')) : state.mode === 'target' ? L('Target amount', 'Kiasi lengwa') : L('Sum assured', 'Kiasi cha bima');
+  const amt = state.mode === 'premium' ? money('amt', label, 'premium', () => state.inputValue, v => { state.inputValue = v; }, minPrem, W.PREMIUM_CAP, L('Smallest premium that reaches the plan minimum sum assured of ' + fmt(p.minSA) + ' is about ' + fmt(minPrem) + '; up to ' + fmt(W.PREMIUM_CAP) + '.', 'Ada ndogo inayofikia kiasi cha chini cha bima ' + fmt(p.minSA) + ' ni karibu ' + fmt(minPrem) + '.'))
+    : state.mode === 'target' ? money('amt', label, 'target', () => state.inputValue, v => { state.inputValue = v; }, 100000, 100000000, L('The target must lead to at least the minimum sum assured of ' + fmt(p.minSA) + '.', 'Lengo lazima lifikie angalau kiasi cha chini cha bima ' + fmt(p.minSA) + '.'))
+    : money('amt', label, 'sa', () => state.inputValue, v => { state.inputValue = v; }, p.minSA, 50000000, L('Minimum sum assured for ' + p.name + ' is ' + fmt(p.minSA) + '.', 'Kiwango cha chini cha ' + p.name + ' ni ' + fmt(p.minSA) + '.'));
+  const fields = [ amt ];
+  if(opts.length) fields.push(years('term', L('Term (years)', 'Muda (miaka)'), () => state.term, v => { state.term = v; }, opts,
+    L(p.name + ': ' + (layerNote ? layerNote[0] + '–' + layerNote[1] : p.minTerm + '–' + p.maxTerm) + ' years' + (p.termStep > 1 ? ' in steps of ' + p.termStep : '') + (state.age != null && p.maxMatAge ? '; age + term cannot pass ' + p.maxMatAge + '.' : '.'), p.name + ': miaka ' + (layerNote ? layerNote[0] + '–' + layerNote[1] : p.minTerm + '–' + p.maxTerm) + (p.termStep > 1 ? ' kwa hatua za ' + p.termStep : '') + '.')));
   if(p.par) fields.push({ key: 'rate', label: L('Assumed bonus rate', 'Kiwango cha bonasi kinachodhaniwa'), get: () => Math.round(state.bonusRate * 1000) / 10, set: v => { state.bonusRate = v / 100; }, min: 0, max: 8, step: 0.5, pct: true });
   return { fields };
 }
@@ -465,13 +510,20 @@ function whatIfRun(spec, vals){
     try{ afterRender(); }catch(e){}
   }
 }
+function shortNum(n){ return n >= 1e6 ? (n / 1e6) + 'M' : n >= 1e3 ? (n / 1e3) + 'K' : String(n); }
 function whatIfSheet(){
   const spec = whatIfSpec(); if(!spec) return;
   const base = scrapeIllustration();
   showPanel(L('What if…', 'Itakuwaje kama…'), body => {
     const vals = {}; spec.fields.forEach(f => { vals[f.key] = f.get(); });
     body.innerHTML = `<p style="font-size:13px;color:var(--muted);margin-top:0;">${esc(L('Move the sliders to see how the figures change. Nothing is saved or counted.', 'Sogeza vitelezi kuona jinsi namba zinavyobadilika. Hakuna kinachohifadhiwa wala kuhesabiwa.'))}</p>` +
-      spec.fields.map(f => `<label>${esc(f.label)}: <b id="wv-${f.key}"></b></label><input type="range" id="wi-${f.key}" min="${f.min}" max="${f.max}" step="${f.step}" value="${f.get()}">`).join('') +
+      spec.fields.map(f => {
+        const cap = f.note ? `<div class="wi-note">${esc(f.note)}</div>` : '';
+        if(f.fixed) return `<div class="wi-fixed"><b>${esc(f.label)}:</b> <span id="wv-${f.key}"></span>${cap}</div>`;
+        const chips = f.bands && f.bands.length > 1 ? `<div class="wi-bands" id="wb-${f.key}" role="group" aria-label="${esc(L('Range for ', 'Masafa ya ') + f.label)}">${f.bands.map((b, i) => `<button type="button" class="wi-chip" data-i="${i}" aria-pressed="false">${esc(shortNum(b.lo) + '–' + shortNum(b.hi))}</button>`).join('')}</div>` : '';
+        const num = f.money ? `<input type="number" class="wi-num" id="wn-${f.key}" min="${f.gmin}" max="${f.gmax}" step="${f.bands[0].step}" aria-label="${esc(f.label)}">` : '';
+        return `<label for="wi-${f.key}">${esc(f.label)}: <b id="wv-${f.key}"></b></label>${chips}<input type="range" id="wi-${f.key}" min="${f.min}" max="${f.max}" step="${f.step}" value="${f.get()}">${num}${cap}`;
+      }).join('') +
       `<div class="at-card" id="wiOut"></div><div class="at-row"><button class="at-btn" id="wiReset">${esc(L('Reset', 'Weka upya'))}</button><button class="at-btn pri" id="wiAdd">${esc(L('Add this to comparison', 'Ongeza hii kwenye ulinganisho'))}</button></div>`;
     let last = base, timer = null;
     const lab = f => (f.money ? fmt(vals[f.key]) : f.pct ? vals[f.key] + '%' : vals[f.key]);
@@ -481,8 +533,27 @@ function whatIfSheet(){
       const d = (last.hero.num != null && base.hero.num != null) ? last.hero.num - base.hero.num : null;
       out.innerHTML = `<div style="font-size:12.5px;color:var(--muted);">${esc(swLabel(last.hero.label))}</div><div style="font-size:24px;font-weight:800;color:var(--brand);">${esc(last.hero.value)}</div>${d != null && d !== 0 ? `<div style="font-size:13px;color:${d > 0 ? '#1f6b3a' : '#b3261e'};">${d > 0 ? '+' : '−'}${esc(fmt(Math.abs(d)))} ${esc(L('compared with the current illustration', 'ikilinganishwa na mchoro wa sasa'))}</div>` : ''}<table class="at-table" style="margin-top:8px;">${last.items.concat(last.lines.slice(0, 5)).map(i => `<tr><td>${esc(swLabel(i.l))}</td><td><b>${esc(i.v)}</b></td></tr>`).join('')}</table>`; };
     const run = () => { clearTimeout(timer); timer = setTimeout(() => { last = whatIfRun(spec, vals); last.title = base.title; paint(); }, 120); };
-    spec.fields.forEach(f => { $('#wi-' + f.key, body).addEventListener('input', e => { vals[f.key] = Number(e.target.value); paint(); run(); }); });
-    $('#wiReset', body).addEventListener('click', () => { spec.fields.forEach(f => { vals[f.key] = f.get(); $('#wi-' + f.key, body).value = vals[f.key]; }); last = base; paint(); });
+    const band = {}; // current band index per money field
+    const setBand = (f, i, keepVal) => {
+      band[f.key] = i; const b = f.bands[i], r = $('#wi-' + f.key, body);
+      r.min = b.lo; r.max = b.hi; r.step = b.step;
+      if(!keepVal) vals[f.key] = window.WhatIfLimits.snap(vals[f.key], b);
+      r.value = vals[f.key];
+      const chips = $$('.wi-chip', body).filter(c => c.parentNode.id === 'wb-' + f.key); chips.forEach((c, j) => c.setAttribute('aria-pressed', j === i ? 'true' : 'false'));
+      const n = $('#wn-' + f.key, body); if(n) n.value = vals[f.key];
+    };
+    spec.fields.forEach(f => {
+      if(f.fixed) return;
+      const r = $('#wi-' + f.key, body);
+      if(f.bands){
+        setBand(f, window.WhatIfLimits.bandIndexFor(f.bands, vals[f.key]), true);
+        $$('.wi-chip', body).filter(c => c.parentNode.id === 'wb-' + f.key).forEach(c => c.addEventListener('click', () => { setBand(f, Number(c.dataset.i)); paint(); run(); }));
+        const n = $('#wn-' + f.key, body);
+        n.addEventListener('change', () => { let v = Number(n.value); if(!isFinite(v)) v = vals[f.key]; v = Math.min(f.gmax, Math.max(f.gmin, Math.round(v))); vals[f.key] = v; setBand(f, window.WhatIfLimits.bandIndexFor(f.bands, v), true); if(v < f.bands[band[f.key]].lo || v > f.bands[band[f.key]].hi) r.value = v; n.value = v; paint(); run(); });
+      }
+      r.addEventListener('input', e => { vals[f.key] = Number(e.target.value); const n = $('#wn-' + f.key, body); if(n) n.value = vals[f.key]; paint(); run(); });
+    });
+    $('#wiReset', body).addEventListener('click', () => { spec.fields.forEach(f => { vals[f.key] = f.get(); if(f.fixed) return; if(f.bands) setBand(f, window.WhatIfLimits.bandIndexFor(f.bands, vals[f.key]), true); else $('#wi-' + f.key, body).value = vals[f.key]; }); last = base; paint(); });
     $('#wiAdd', body).addEventListener('click', () => { if(last.error) return; const s = Object.assign({}, last, { id: uid(), at: Date.now(), title: base.title + ' (' + L('what-if', 'ikiwa') + ')' }); addToTray(s); });
     paint();
   });

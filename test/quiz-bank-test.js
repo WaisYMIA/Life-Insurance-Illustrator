@@ -3,13 +3,13 @@ const assert = require('assert'), vm = require('vm'), fs = require('fs'), path =
 const Q = require('../quiz-bank.js'); let n = 0; const t = (c, m) => { n++; try{ assert(c, m); }catch(e){ console.error('FAIL: ' + m); process.exitCode = 1; } };
 const w = {}; vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'market-data.js'), 'utf8'), { window: w });
 const all = JSON.stringify([Q.STATIC, Q.PATHS]);
-t(Q.STATIC.length >= 120, 'at least 120 hand-written questions'); t(!/https?:\/\/|@|\+254|\b0[17]\d{8}\b/.test(all), 'no links or contacts');
+t(Q.STATIC.length >= 280, 'at least 280 hand-written questions'); t(!/https?:\/\/|@|\+254|\b0[17]\d{8}\b/.test(all), 'no links or contacts');
 for(const s of Q.STATIC){
   t(Q.LINES.some(l => l[0] === s.line) && Q.TOPICS.some(x => x[0] === s.topic) && s.d >= 1 && s.d <= 4, 'valid line/topic/level: ' + s.q.slice(0, 40));
   t(s.q && s.a && s.x && s.w.length === 3 && new Set(s.w.concat(s.a)).size === 4, 'four distinct options and an explanation: ' + s.q.slice(0, 40));
 }
-for(const l of [1, 2, 3, 4]) t(Q.STATIC.filter(s => s.d === l).length >= 10, 'level ' + l + ' has at least 10 questions');
-for(const tp of ['jubilee', 'principles', 'objection', 'skills', 'kenya', 'ethics', 'market']) t(Q.STATIC.filter(s => s.topic === tp).length >= 8, 'topic has depth: ' + tp);
+for(const l of [1, 2, 3, 4]) t(Q.STATIC.filter(s => s.d === l).length >= 40, 'level ' + l + ' has at least 40 questions');
+for(const tp of ['jubilee', 'principles', 'objection', 'skills', 'kenya', 'ethics', 'market']) t(Q.STATIC.filter(s => s.topic === tp).length >= (tp === 'ethics' ? 10 : 18), 'topic has depth: ' + tp);
 t(['life', 'medical', 'general', 'sector'].every(l => Q.STATIC.filter(s => s.line === l).length >= 10), 'every line has at least 10 questions');
 // brochure facts
 const find = s => Q.STATIC.find(x => x.q.includes(s));
@@ -39,7 +39,7 @@ const base = { level: 2, n: 200, market: w.MARKET_DATA };
 const only = Q.buildSalesQuiz(Object.assign({ lines: ['medical'], topics: [], mode: 'only' }, base)); t(only.length >= 10 && only.every(q => q.line === 'medical'), 'only medical');
 const ex = Q.buildSalesQuiz(Object.assign({ lines: ['medical', 'general'], topics: [], mode: 'except' }, base)); t(ex.length >= 50 && ex.every(q => q.line !== 'medical' && q.line !== 'general'), 'everything except medical and general');
 const ex2 = Q.buildSalesQuiz(Object.assign({ lines: [], topics: ['calc'], mode: 'except' }, base)); t(ex2.length >= 50 && ex2.every(q => q.topic !== 'calc'), 'everything except calculations');
-const both = Q.buildSalesQuiz(Object.assign({ lines: ['life'], topics: ['calc', 'jubilee'], mode: 'only' }, base)); t(both.length >= 20 && both.every(q => q.line === 'life' && ['calc', 'jubilee'].includes(q.topic)), 'life only and two topics');
+const both = Q.buildSalesQuiz({ lines: ['life'], topics: ['calc', 'jubilee'], mode: 'only', level: 2, n: 20, market: w.MARKET_DATA }); t(both.length >= 20 && both.every(q => ['life', 'sector'].includes(q.line) && ['calc', 'jubilee'].includes(q.topic)), 'life line and two topics');
 const all0 = Q.buildSalesQuiz(Object.assign({ lines: [], topics: [], mode: 'only' }, base)); t(new Set(all0.map(q => q.topic)).size >= 7, 'no ticks means everything');
 const ids = Q.buildSalesQuiz({ level: 2, n: 15, market: w.MARKET_DATA }); t(ids.length === 15 && new Set(ids.map(q => q.def)).size === 15, 'no repeated question text');
 const avg = lv => { let s = 0, c = 0; for(let i = 0; i < 40; i++) Q.buildSalesQuiz({ level: lv, n: 10, market: w.MARKET_DATA }).forEach(q => { s += q.d; c++; }); return s / c; };
@@ -48,4 +48,12 @@ t(avg(1) < 1.8 && avg(4) > 3.2, 'beginner is easy and expert is hard');
 const mk = Q.marketQuestions(w.MARKET_DATA, Math.random); t(mk.length >= 10 && mk.every(q => q.w.length === 3), 'competitor questions generated from Market data');
 t(Q.cleanExtra({ questions: [{ line: 'life', topic: 'jubilee', d: 2, q: 'Q?', a: 'A', w: ['B', 'C'], x: 'e' }, { line: 'bad', topic: 'x', d: 9, q: '', a: '', w: [] }, null] }).length === 1, 'extra questions are validated');
 t(Q.PATHS.every(p => p.topics.every(x => Q.TOPICS.some(tt => tt[0] === x)) && p.level >= 1 && p.level <= 4), 'learning paths valid');
+// every pick must give a full quiz (no "not enough questions")
+const LN = Q.LINES.map(l => l[0]), TP = Q.TOPICS.map(x => x[0]);
+for(const mode of ['only', 'except']){
+  for(const l of LN) for(const tp of TP) for(const lv of [1, 2, 3, 4]){ const r = Q.buildSalesQuiz({ lines: [l], topics: [tp], mode, level: lv, n: 10, market: w.MARKET_DATA }); t(r.length >= 10, mode + ' ' + l + ' + ' + tp + ' level ' + lv + ' gives 10 questions (got ' + r.length + ')'); }
+  for(const l of LN){ const r = Q.buildSalesQuiz({ lines: [l], topics: [], mode, level: 2, n: 20, market: w.MARKET_DATA }); t(r.length >= 20, mode + ' ' + l + ' alone gives 20'); }
+  for(const tp of TP){ const r = Q.buildSalesQuiz({ lines: [], topics: [tp], mode, level: 2, n: 20, market: w.MARKET_DATA }); t(r.length >= 20, mode + ' ' + tp + ' alone gives 20 (got ' + r.length + ')'); }
+}
+const r2 = Q.buildSalesQuiz({ lines: ['life', 'general'], topics: ['objection', 'skills'], mode: 'only', level: 2, n: 20, market: w.MARKET_DATA }); t(r2.length === 20, 'objections and skills on two lines');
 console.log(process.exitCode ? 'quiz bank: FAILED' : 'quiz bank OK (' + n + ' checks)');
